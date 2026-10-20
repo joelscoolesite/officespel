@@ -486,7 +486,7 @@ T.checker = tex(256, 256, (g, w, h) => {
 });
 T.tile = tex(256, 256, (g, w, h) => {
   g.fillStyle = '#a9b4b8'; g.fillRect(0, 0, w, h);
-  for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { const l = 222 + Math.random() * 14; g.fillStyle = `rgb(${l},${l + 3},${l + 4})`; g.fillRect(x * 64 + 2, y * 64 + 2, 60, 60); }
+  for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { const l = 178 + Math.random() * 12; g.fillStyle = `rgb(${l},${l + 3},${l + 5})`; g.fillRect(x * 64 + 2, y * 64 + 2, 60, 60); }
 });
 T.vinyl = tex(256, 256, (g, w, h) => { g.fillStyle = '#8e9296'; g.fillRect(0, 0, w, h); speckle(g, w, h, 5000, '40,40,40', '230,230,230'); g.strokeStyle = 'rgba(0,0,0,.2)'; g.strokeRect(0, 0, w, h); });
 T.wood = tex(256, 256, (g, w, h) => {
@@ -709,7 +709,7 @@ floorRect(0, 0, W, D, T.carpet, 1.0);
 floorRect(0, 0, 12, 10, T.checker, 1.0, .004, { rough: .5 });
 floorRect(12, 0, 20, 10, T.vinyl, 1.2, .004, { rough: .6 });
 floorRect(32, 0, 44, 10, T.wood, 2.0, .004, { rough: .45 });
-floorRect(0, 13, 10, 22, T.tile, 1.0, .004, { rough: .25 });
+floorRect(0, 13, 10, 22, T.tile, 1.0, .004, { rough: .5 });
 floorRect(0, 22, 10, 30, T.raised, .6, .004, { rough: .5 });
 floorRect(0, 10, 10, 13, T.vinyl, 1.2, .004, { rough: .6 });
 // boss rug
@@ -727,7 +727,7 @@ wallLineX(0, 0, W, [], { cast: false, t: .16 });
 wallLineX(D, 0, W, [], { cast: false, t: .16 });
 wallLineZ(0, 0, D, [], { cast: false, t: .16 });
 wallLineZ(W, 0, D, [], { cast: false, t: .16 });
-windowStrip('x', 0, 1, 11, 0); windowStrip('x', 20.6, 31.4, .7); windowStrip('x', 32.6, 43.4, 1.1);
+windowStrip('x', 0, 1, 11, 0); windowStrip('x', 0, 20.6, 31.4, .7); windowStrip('x', 0, 32.6, 43.4, 1.1);
 windowStrip('z', W, 13.6, 29.2, .3);
 // interior walls
 wallLineX(10, 0, 12, [[5, 7]]);
@@ -739,7 +739,7 @@ wallLineX(13, 0, 10);
 wallLineZ(10, 13, 30, [[16, 18], [25.5, 27.5]]);
 wallLineX(22, 0, 10);
 // accent wall strip in open office
-boxB(.02, 1.0, 16.4, M.wallAccent, 10.08, 1.6, 21.5, { cast: false });
+for (const [z0, z1] of [[13.1, 15.95], [18.05, 25.45], [27.55, 29.9]]) boxB(.02, 1.0, z1 - z0, M.wallAccent, 10.08, 1.6, (z0 + z1) / 2, { cast: false });
 
 // signs
 sign(signTex('BREAK ROOM'), 1.4, .35, 6, 2.45, 10.08);
@@ -837,7 +837,7 @@ boxB(4, .85, .55, M.counter, 6, 0, 13.35); [5, 7].forEach(x => { put(gCyl(.18, .
 blk(4, 13.07, 8, 13.62, .9, 'low');
 plane(3.6, 1.0, new THREE.MeshStandardMaterial({ color: 0xc8d6de, roughness: .02, metalness: .9 }), 6, 1.6, 13.08);
 boxB(.5, .5, .14, M.white, 8.6, 1.3, 13.1); put(gBox(.02, .3, .02), M.red, 8.6, 1.55, 13.18, scene, { cast: false });
-const bathLight = new THREE.PointLight(0xe8f4ff, 5, 10, 2); bathLight.position.set(5, 2.7, 17.5); scene.add(bathLight);
+const bathLight = new THREE.PointLight(0xe8f4ff, 2.2, 9, 2); bathLight.position.set(5, 2.7, 17.5); scene.add(bathLight);
 const flood = plane(10, 9, new THREE.MeshStandardMaterial({ color: 0x6aa8c8, transparent: true, opacity: .55, roughness: .05, metalness: .2, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -12 }), 5, .01, 17.5, { rx: -PI / 2 });
 flood.visible = false; flood.receiveShadow = false;
 const puddle = put(new THREE.CircleGeometry(1, 32), flood.material, 10.3, .012, 17, scene, { rx: -PI / 2, cast: false }); puddle.visible = false;
