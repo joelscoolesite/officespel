@@ -149,6 +149,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 .stam.tired i{background:var(--red)}
 .big-btn{pointer-events:auto;cursor:pointer;border:0;background:var(--red);color:#fff;font:400 26px/1 var(--f-display);letter-spacing:.06em;padding:14px 22px 12px;border-radius:4px;box-shadow:0 4px 0 #7d1611;text-transform:uppercase;align-self:flex-start;transition:transform .08s}
 .big-btn:hover{transform:translateY(-1px)}
+.big-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.mp-row{display:flex;gap:10px;align-items:center;font:600 11px/1 var(--f-mono);letter-spacing:.12em;color:var(--memoDim)}
+.memo input[type=text]{font:600 15px/1 var(--f-mono);border:2px solid var(--memoInk);background:#fffdf6;color:var(--memoInk);padding:9px 10px;border-radius:4px;min-width:0;flex:1 1 140px}
+#mpCode{flex:0 0 100px;text-transform:uppercase;letter-spacing:.2em}
+.mp-lobby{display:flex;flex-direction:column;gap:6px}
+.mp-code{font:600 11px/1 var(--f-mono);letter-spacing:.14em;color:var(--memoDim)}
+.mp-code b{font:400 30px/1 var(--f-display);color:var(--memoInk);letter-spacing:.14em;margin-left:6px;vertical-align:middle}
+.mp-p{font:600 14px/1.2 var(--f-body);padding:7px 9px;border:1px solid #cfc7b3;border-radius:4px}
+.mp-p.you{border-color:var(--memoInk)}
+.mp-p small{font:600 10px/1 var(--f-mono);color:var(--memoDim);letter-spacing:.1em;margin-left:6px;text-transform:uppercase}
+.mp-lobby .ghost-btn{align-self:flex-start;font-size:15px;padding:9px 12px 7px}
+.mp-hud{font:600 10px/1 var(--f-mono);letter-spacing:.14em;color:var(--dim);align-self:flex-end}
+.tag-name.mp{color:#ffd23a}
 .big-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #7d1611}
 .small-note{font:400 12px/1.4 var(--f-body);color:var(--memoDim)}
 .best{font:600 12px/1 var(--f-mono);color:var(--dim);letter-spacing:.06em}
@@ -241,6 +254,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
     <div class="daybar"><i id="dayFill"></i><b style="left:25%" title="Meeting 11:00"></b><b style="left:75%" title="Meeting 3:00"></b></div>
     <div class="chaos"><span>CHAOS</span><strong id="chaosTxt">0</strong></div>
     <div id="combo" hidden>COMBO <b id="comboTxt">x1.25</b></div>
+    <div id="mpHud" class="mp-hud" hidden></div>
   </div>
   <div id="susBox" class="panel">
     <div class="sus-head">
@@ -279,13 +293,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
     </div>
     <div class="memo">
       <div class="tabs" role="tablist">
-        <button class="tab-btn on" data-tab="play">Play</button><button class="tab-btn" data-tab="ach">Achievements</button><button class="tab-btn" data-tab="ctrl">Controls</button><button class="tab-btn" data-tab="set">Settings</button>
+        <button class="tab-btn on" data-tab="play">Play</button><button class="tab-btn" data-tab="ach">Achievements</button><button class="tab-btn" data-tab="ctrl">Controls</button><button class="tab-btn" data-tab="mp">Multiplayer</button><button class="tab-btn" data-tab="set">Settings</button>
       </div>
       <div class="tab" id="tab-play">
         <div id="dayList" class="days"></div>
         <div id="dayInfo" class="day-info"></div>
         <button id="btnStart" class="big-btn">Clock in</button>
         <div class="best" id="bestTxt"></div>
+      </div>
+      <div class="tab" id="tab-mp" hidden>
+        <p class="day-info">Co-op for up to 6 players. Everyone opens this same page (share it from the Share menu), or connects to the local server (start.bat). One player hosts, and everyone plays in the host's office.</p>
+        <label for="mpNick" class="mp-row">NICKNAME <input id="mpNick" type="text" maxlength="16" autocomplete="off" spellcheck="false"></label>
+        <div class="btn-row"><button id="btnHost" class="ghost-btn">Host a game</button><input id="mpCode" type="text" maxlength="6" placeholder="CODE" autocomplete="off" spellcheck="false"><button id="btnJoin" class="ghost-btn">Join</button></div>
+        <div id="mpLobby" class="mp-lobby"></div>
+        <p class="small-note" id="mpStatus"></p>
       </div>
       <div class="tab" id="tab-ach" hidden><div id="achList" class="ach-list"></div></div>
       <div class="tab" id="tab-ctrl" hidden>
@@ -319,6 +340,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
     <div class="intro-day" id="introDay">MONDAY</div>
     <div class="memo intro-memo"><div class="memo-head"><span>FROM:</span>D. Dennings, Regional Manager<br><span>RE:</span>Today</div><p id="introMemo"></p></div>
     <div class="intro-goals"><h4>TODAY'S TARGETS</h4><ul id="introReq"></ul><p id="introGoal"></p></div>
+    <p class="intro-tag" id="introMp"></p>
     <button id="btnClockIn" class="big-btn">Clock in</button>
   </div>
 </div>
@@ -326,7 +348,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 <div id="scr-pause" class="screen" hidden>
   <div class="pause-card">
     <h2>ON BREAK</h2>
-    <p>The office is frozen in time. Nobody can see you. Enjoy it.</p>
+    <p id="pauseTxt">The office is frozen in time. Nobody can see you. Enjoy it.</p>
     <div class="btn-row"><button id="btnResume" class="big-btn">Back to work</button><button id="btnRestart" class="ghost-btn">Restart day</button><button id="btnQuit" class="ghost-btn">Quit to menu</button></div>
   </div>
 </div>
@@ -1349,7 +1371,7 @@ const G = {
   evac: { active: false, t: 0 }, meeting: { active: false, t: 0, inside: 0, total: 0, talkT: 3, started: false, wait: 0, n: 0 },
   flood: { active: false, level: 0 }, printer: { t: 0, spawn: 0, sheets: 0 }, huntCd: 30, witnessed: 0, farts: 0,
   hintIdx: 0, hintT: 2, laughCheck: 0, smashed: 0, ducks: 0, kickT: 0, kickLaughs: 0, seenNow: false, prankCount: 0,
-  heat: { t: 0 }, heatK: 0, fartCharge: 0, airFartCd: 0, burpCd: 0, swoop: 0, vmPunch: 0, vmThrow: 0, vmBurp: 0, sockStink: null, toupeeProp: null, sprink: { t: 0 }, wet: 0, lightK: 1, lightTarget: 1, lightFlick: 0, lightApplied: 1, shake: 0, combo: 0, lastChaosT: -99, clockT: 0, alarmClock: null, vend: null, catT: 0,
+  fired: false, mpPaused: false, localAct: false, heat: { t: 0 }, heatK: 0, fartCharge: 0, airFartCd: 0, burpCd: 0, swoop: 0, vmPunch: 0, vmThrow: 0, vmBurp: 0, sockStink: null, toupeeProp: null, sprink: { t: 0 }, wet: 0, lightK: 1, lightTarget: 1, lightFlick: 0, lightApplied: 1, shake: 0, combo: 0, lastChaosT: -99, clockT: 0, alarmClock: null, vend: null, catT: 0,
 };
 const P = { pos: V(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15), vel: V(), yaw: PI, pitch: -.08, crouch: false, run: false, eye: 1.62, bob: 0, stepT: 0, y: 0, vy: 0, ground: true, stamina: 1, tired: false, roll: 0, fov: 72, landT: 0, shoveCd: 0, slideT: 0, slideDir: V(), pantT: 0 };
 const keys = {};
@@ -1467,7 +1489,7 @@ class NPC {
     this.isBoss = d.id === 'boss'; this.x = 0; this.z = 0; this.yaw = 0; this.headYaw = 0; this.pose = 'stand'; this.task = null; this.prio = 0;
     this.path = []; this.pi = 0; this.overlay = null; this.hidden = false; this.seeT = 0; this.seeing = false; this.markT = 0; this.sayCd = 0; this.t = Math.random() * 10;
     this.flags = {}; this.hazT = Math.random() * .5; this.distracted = 0; this.cone = [];
-    this.aware = 0; this.lastSeen = null; this.glance = { t: 0, x: 0, z: 0 }; this.spd = 0; this.watchT = 0; this.greetCd = rand(8, 30); this.socialLook = false; this.prevZ = 0;
+    this.idx = NPC_DEFS.indexOf(d); this.aware = 0; this.lastSeen = null; this.glance = { t: 0, x: 0, z: 0 }; this.spd = 0; this.watchT = 0; this.greetCd = rand(8, 30); this.socialLook = false; this.prevZ = 0;
     if (d.desk != null) { this.deskRef = desks[d.desk]; this.seat = this.deskRef.seat; this.deskRef.owner = this; }
     const el = document.createElement('div'); el.className = 'tag';
     el.innerHTML = `<div class="tag-mark"></div><div class="tag-bubble"></div><div class="tag-name">${d.name}<small>${d.role}</small></div>`;
@@ -1482,9 +1504,29 @@ class NPC {
   get busyAtDesk() { return this.task && this.task.type === 'desk' && this.task.phase === 'perform'; }
   place(x, z, yaw = this.yaw) { this.x = x; this.z = z; this.yaw = yaw; }
   say(text, force) {
+    if (isClient() && !NET.fromHost) return;
     if (this.hidden || (this.sayCd > 0 && !force)) return;
+    this.bubSeq = (this.bubSeq || 0) + 1; this.bubText = text; this.bubAt = G.clockT;
     this.sayCd = 3; this.tag.bubble.textContent = text; this.tag.bubble.classList.add('on'); this.tag.bt = 2.6 + text.length * .03; speak(text, this, force);
     if (text.includes('#$%&')) later(.35, () => sfx('bleep'));
+  }
+  puppet(dt, s, b) {
+    if (!Array.isArray(s)) return;
+    this.hidden = !!s[6];
+    if (this.hidden) { this.p.root.visible = false; this.tag.el.style.display = 'none'; this.coneMesh.visible = false; return; }
+    this.p.root.visible = true; this.tag.el.style.display = '';
+    const k = Math.min(1, dt * 12), tx = +s[0] || 0, tz = +s[2] || 0, jump = Math.hypot(tx - this.x, tz - this.z) > 3;
+    this.x = jump ? tx : lerp(this.x, tx, k); this.z = jump ? tz : lerp(this.z, tz, k);
+    this.yaw += angDiff(+s[3] || 0, this.yaw) * k; this.headYaw = lerp(this.headYaw, +s[4] || 0, k);
+    const pose = POSES[s[5]] || 'stand'; this.pose = pose;
+    this.overlay = ['gag', 'laugh', 'fallen'].includes(pose) ? { pose, t: .3 } : null;
+    this.p.root.position.set(this.x, +s[1] || 0, this.z); this.p.root.rotation.y = this.yaw; this.p.head.rotation.y = clamp(this.headYaw, -1.2, 1.2);
+    this.p.note.visible = !!this.flags.kickMe;
+    animatePerson(this.p, pose, this.t);
+    const expr = pose === 'shock' || pose === 'panic' ? 'shock' : pose === 'laugh' ? 'laugh' : pose === 'gag' ? 'gag' : pose === 'argue' ? 'angry' : pose === 'fan' ? 'sad' : 'neutral';
+    animFace(this.p, expr, this.tag.bt > 0 && this.tag.bubble.classList.contains('on'), this.t, dt);
+    if (s[7] && this.markT <= 0) this.mark(s[7] === 2 ? '!' : '?', .6);
+    if (Array.isArray(b) && b[0] !== this.lastBub) { this.lastBub = b[0]; NET.fromHost = true; this.sayCd = 0; this.say(String(b[1]).slice(0, 100), true); NET.fromHost = false; }
   }
   glanceAt(x, z, t) { this.glance.x = x; this.glance.z = z; this.glance.t = t; }
   separate() { if (this.sitting) return; for (const o of npcs) { if (o === this || o.hidden) continue; const dx = this.x - o.x, dz = this.z - o.z, d = Math.hypot(dx, dz); if (d < .6 && d > 1e-3) { const k = (.6 - d) * .5, nx = this.x + dx / d * k, nz = this.z + dz / d * k; if (navFree(nx, nz)) { this.x = nx; this.z = nz; } } } }
@@ -1515,6 +1557,7 @@ class NPC {
   update(dt) {
     this.t += dt; this.sayCd -= dt; this.markT -= dt; this.greetCd -= dt; if (this.distracted > 0) this.distracted -= dt;
     const tg = this.tag; if (tg.bt > 0) { tg.bt -= dt; if (tg.bt <= 0) tg.bubble.classList.remove('on'); }
+    if (isClient() && NET.hostState) { this.puppet(dt, NET.hostState.n && NET.hostState.n[this.idx], NET.hostState.b && NET.hostState.b[this.idx]); return; }
     if (this.hidden) { this.p.root.visible = false; tg.el.style.display = 'none'; this.coneMesh.visible = false; return; }
     this.p.root.visible = true; tg.el.style.display = '';
     let pose = 'stand';
@@ -1679,12 +1722,13 @@ function onBossDesk(n) {
   }
   if (G.flags.chairfart && !G.flags.chairfartDone) {
     G.flags.chairfartDone = true;
-    later(d + .5, () => { burst(E.stink, n.x, .7, n.z, 25, .5, .3, .7); sfx('fart', n, 1.2, .7); n.react('gag', 2.6, 'Why does my chair smell like HOT GARBAGE?!'); addChaos(250, "The boss's chair exhaled"); laughNear(n, 12); });
+    later(d + .5, () => { hostFx('cfart', n.x, 1, n.z); burst(E.stink, n.x, .7, n.z, 25, .5, .3, .7); sfx('fart', n, 1.2, .7); n.react('gag', 2.6, 'Why does my chair smell like HOT GARBAGE?!'); addChaos(250, "The boss's chair exhaled"); laughNear(n, 12); });
     d += 3.5;
   }
   if (G.flags.glitter && !G.flags.glitterDone) {
     G.flags.glitterDone = true;
     later(d, () => {
+      hostFx('glitter', n.x, 1, n.z);
       for (let i = 0; i < 420; i++) E.glitter.spawn(n.x + rand(-.2, .2), .95, n.z + .55, rand(-2.6, 2.6), rand(1, 4.8), rand(-2.6, 2.6));
       sfx('pop', n); sfx('crash', n); shake(Math.hypot(P.pos.x - n.x, P.pos.z - n.z) < 8 ? .35 : 0);
       n.react('shock', 2.4, "GLITTER?! IT'S IN MY MUSTACHE!"); n.flags.glitter = true; laughNear(n, 16); addChaos(250, 'The boss exploded in glitter');
@@ -1694,7 +1738,7 @@ function onBossDesk(n) {
   }
   if (G.flags.whoopee && !G.flags.whoopeeDone) {
     G.flags.whoopeeDone = true;
-    later(d, () => { sfx('fart', n, 1.8, 1.5); burst(E.stink, n.x, .6, n.z, 6, .3, .2, .5); n.react('shock', 1.6, "THAT WASN'T ME!"); laughNear(n, 16); addChaos(250, 'The boss sat on the whoopee cushion'); });
+    later(d, () => { hostFx('whoopee', n.x, 1, n.z); sfx('fart', n, 1.8, 1.5); burst(E.stink, n.x, .6, n.z, 6, .3, .2, .5); n.react('shock', 1.6, "THAT WASN'T ME!"); laughNear(n, 16); addChaos(250, 'The boss sat on the whoopee cushion'); });
     d += 3.2;
   }
   if (G.flags.stickies && !G.flags.stickiesSeen) {
@@ -1738,12 +1782,13 @@ function feed(pts, text, kind = '') {
 function shake(a) { G.shake = Math.max(G.shake, a); }
 function addChaos(n, text) {
   if (G.mode !== 'play' || !n) return;
+  if (NET.active && (NET.replaying || (NET.role === 'client' && !G.localAct))) return;
   G.combo = G.clockT - G.lastChaosT < 6 ? Math.min(G.combo + 1, 8) : 0; G.lastChaosT = G.clockT;
   const mult = 1 + G.combo * .25, pts = Math.round(n * mult); G.chaos += pts;
   feed('+' + pts, text + (G.combo ? `  ×${mult.toFixed(2)}` : ''));
   if (G.combo) { $('combo').hidden = false; $('comboTxt').textContent = 'x' + mult.toFixed(2); if (G.combo >= 8) unlock('combo'); }
   renderTodo(); checkCleared();
-  const c = $('chaosTxt'); c.textContent = G.chaos.toLocaleString('en-US'); c.classList.add('bump'); setTimeout(() => c.classList.remove('bump'), 160);
+  const c = $('chaosTxt'); c.textContent = teamChaos().toLocaleString('en-US'); c.classList.add('bump'); setTimeout(() => c.classList.remove('bump'), 160);
 }
 function addSus(n, reason) {
   if (G.mode !== 'play') return;
@@ -1891,7 +1936,7 @@ function addInteract(o) { const it = Object.assign({ hold: 1.5, range: 2.1, minD
 function giveItem(k) { G.items[k] = true; feed('GOT', ITEM[k].name, 'item'); sfx('pickup'); renderPockets(); }
 function completePrank(id) {
   if (G.done[id]) return; const pr = PRANKS.find(p => p.id === id); G.done[id] = true; G.prankCount++;
-  addChaos(pr.pts, pr.title); sfx('ding', true); renderTodo(); stampFx(pr.title, pr.pts, DAY.req.includes(id)); unlock('first');
+  addChaos(pr.pts, pr.title); sfx('ding', true); renderTodo(); stampFx(NET.replaying ? 'Teammate: ' + pr.title : pr.title, pr.pts, DAY.req.includes(id)); if (!NET.replaying) unlock('first');
   if (G.prankCount === PRANKS.length) unlock('fullsend');
   if (G.prankCount === PRANKS.length) later(1, () => { addChaos(1500, 'EVERY. SINGLE. PRANK.'); intercom('All pranks done. You are a legend. Now survive until 5:00.', false, 6); });
 }
@@ -2125,7 +2170,7 @@ function updateClock(dt) {
   if (c.ringT > 0) { c.ringT -= dt; c.beepT -= dt; if (c.beepT <= 0) { c.beepT = .55; sfx('beep', V(27.5, 2.9, 21.2)); } return; }
   c.next -= dt; if (c.next > 0) return;
   c.next = 24; c.rings++; c.ringT = 4; let k = 0;
-  for (const n of npcs) {
+  if (!isClient()) for (const n of npcs) {
     if (n.hidden || n.prio > 2.5 || Math.hypot(n.x - 27.5, n.z - 21.2) > 13) continue; k++;
     n.say(pick(['WHERE is that BEEPING coming from?!', 'Is that... the ceiling?', 'Make it STOP!', 'Every 24 seconds. EVERY. 24. SECONDS.']));
     n.assign(spotT('clocksearch', { x: 27.5 + rand(-1.5, 1.5), z: 21.2 + rand(-1.2, 1.2), yaw: null }, 'lookup', 4, {}), 2.5);
@@ -2175,7 +2220,7 @@ function updateChaosSystems(dt) {
   // heat wave
   if (G.heat.t > 0) {
     G.heat.t -= dt; G.heatK = Math.min(1, G.heatK + dt * .4);
-    for (const n of npcs) {
+    if (!isClient()) for (const n of npcs) {
       if (n.hidden || n.overlay) continue;
       if (Math.random() < dt * 1.2) E.dust.spawn(n.x + rand(-.1, .1), 1.75, n.z + rand(-.1, .1), 0, .2, 0);
       if (Math.random() < dt * .07) {
@@ -2196,15 +2241,15 @@ function updateChaosSystems(dt) {
   // glitter trail behind the boss
   if (boss.flags.glitter && !boss.hidden && boss.spd > .3 && Math.random() < dt * 25) E.glitter.spawn(boss.x + rand(-.2, .2), rand(.8, 1.5), boss.z + rand(-.2, .2), rand(-.3, .3), rand(0, .6), rand(-.3, .3));
   // air horn on the boss's door
-  if (G.flags.horn && !G.flags.hornDone && !boss.hidden && (boss.prevZ < 10) !== (boss.z < 10) && boss.x > 36.2 && boss.x < 39.8) {
-    G.flags.hornDone = true; hornMesh.visible = false; sfx('airhorn', V(38.5, 2, 10)); if (Math.hypot(P.pos.x - 38, P.pos.z - 10) < 10) shake(.5);
+  if (!isClient() && G.flags.horn && !G.flags.hornDone && !boss.hidden && (boss.prevZ < 10) !== (boss.z < 10) && boss.x > 36.2 && boss.x < 39.8) {
+    G.flags.hornDone = true; hornMesh.visible = false; hostFx('horn', 38.5, 2, 10); sfx('airhorn', V(38.5, 2, 10)); if (Math.hypot(P.pos.x - 38, P.pos.z - 10) < 10) shake(.5);
     boss.react('shock', 2.2, 'AAAAAAAAH!'); laughNear(boss, 16); later(.1, knockToupee); addChaos(250, 'The boss jumped out of his skin');
     later(2.6, () => { boss.say('WHO DID THAT?!', true); bossHunt(false); });
   }
   boss.prevZ = boss.z;
   // cat videos
   if (G.flags.catTV) { G.catT += dt; if (G.catT > 1 / 12) { G.catT = 0; drawCat(performance.now() / 1000); if (Math.random() < .03 && Math.hypot(P.pos.x - 30, P.pos.z - 5) < 12) sfx('meow', V(31.5, 1.5, 5)); } }
-  updateClock(dt); updateVending(dt); updateBalloons(dt); updateChairs(dt); updateSockStink(dt);
+  updateClock(dt); updateVending(dt); updateBalloons(dt); localAct(() => updateChairs(dt)); updateSockStink(dt);
   if (OPT.quality === 'high' && Math.random() < dt * 30) E.motes.spawn(camera.position.x + rand(-6, 6), rand(.3, 2.8), camera.position.z + rand(-6, 6), rand(-.03, .03), rand(-.02, .02), rand(-.03, .03));
 }
 function updateGrade(dt) {
@@ -2244,7 +2289,7 @@ addInteract({ id: 'chairfart', pos: [40, 1.05, 2.3], label: 'Sit in his chair an
 addInteract({ id: 'burp', pos: [PA.x + .14, 1.22, PA.z - .14], label: 'Burp the entire alphabet over the PA', verb: 'burping into the PA system', hold: 3.5, sus: true, available: () => !G.done.burp && !G.evac.active, onDone: burpPA });
 addInteract({ id: 'toilettv', pos: [24.3, .95, 4.55], label: "Swap his slides for 'Bathroom Sounds Vol. 3'", verb: 'messing with the meeting laptop', hold: 2.5, sus: true, available: () => !G.done.toilettv, sfxHold: 'click',
   onDone: () => { G.flags.toiletTV = true; completePrank('toilettv'); if (G.min > 360 && !G.meeting.active) later(3, playBathroomSounds); } });
-addInteract({ pos: [31, 1.2, 29.7], label: 'Clock out early (targets done)', hold: 1, available: () => dayCleared(), onDone: () => { sfx('chime'); showEnd(true, 'early'); } });
+addInteract({ pos: [31, 1.2, 29.7], label: 'Clock out early (targets done)', hold: 1, available: () => dayCleared() && !isClient(), onDone: () => { sfx('chime'); showEnd(true, 'early'); } });
 
 function startSockStink() {
   G.sockStink = { t: 100, gagged: new Set() }; delete G.items.socks; renderPockets(); sfx('thud', P.pos); completePrank('socks');
@@ -2253,7 +2298,7 @@ function startSockStink() {
 function updateSockStink(dt) {
   const s = G.sockStink; if (!s || s.t <= 0) return; s.t -= dt;
   for (const [x, z] of VENTS) if (Math.random() < dt * 6) E.stink.spawn(x + rand(-.25, .25), CEIL - .1, z + rand(-.25, .25), rand(-.2, .2), -rand(.3, .8), rand(-.2, .2), .7);
-  for (const n of npcs) {
+  if (!isClient()) for (const n of npcs) {
     if (n.hidden || n.overlay || !VENTS.some(([x, z]) => Math.hypot(n.x - x, n.z - z) < 3.4)) continue;
     if (Math.random() < dt * .25) {
       n.react('gag', 2.4, pick(['WHAT IS THAT SMELL?!', 'It smells like feet and regret.', 'Is something DEAD in the ceiling?!', 'My eyes! MY EYES!', 'It smells like a gym bag ate a gym bag.'])); n.distracted = 3;
@@ -2277,7 +2322,8 @@ function playBathroomSounds() {
 // the toupee
 const TOUPEE_HOME = { p: boss.p.toupee.position.clone(), r: boss.p.toupee.rotation.clone() };
 function knockToupee() {
-  if (boss.flags.bald || boss.hidden || G.mode !== 'play') return; boss.flags.bald = true;
+  if (isClient()) { netEvent('k'); return; }
+  if (boss.flags.bald || boss.hidden || G.mode !== 'play') return; boss.flags.bald = true; hostFx('pop', boss.x, 1.8, boss.z);
   const t = boss.p.toupee, wp = t.getWorldPosition(V()); t.parent.remove(t); t.position.set(0, 0, 0); t.rotation.set(0, 0, 0);
   const g = new THREE.Group(); g.add(t); scene.add(g); g.position.copy(wp);
   const p = { kind: 'toupee', name: "boss's toupee", r: .06, breakable: false, mesh: g, pos: wp, vel: V(rand(-1.5, 1.5), 3, rand(-1.5, 1.5)), spin: V(rand(-6, 6), 0, rand(-6, 6)), active: true, thrown: false };
@@ -2296,7 +2342,7 @@ function retrieveToupee() {
 }
 function checkFlush(p) {
   if (p.kind !== 'toupee' || !(p.pos.x < 2.2 && p.pos.z > 13.1 && p.pos.z < 19.8)) return false;
-  props.splice(props.indexOf(p), 1); scene.remove(p.mesh); G.toupeeProp = null; sfx('flush', p.pos);
+  props.splice(props.indexOf(p), 1); scene.remove(p.mesh); G.toupeeProp = null; sfx('flush', p.pos); hostFx('flush', p.pos.x, 0, p.pos.z);
   addChaos(300, "Flushed the boss's toupee"); unlock('flush');
   later(2, () => { if (!boss.hidden) { boss.say('MY HAIR!!! WHERE IS MY HAIR?!', true); bossHunt(false); } });
   return true;
@@ -2306,42 +2352,47 @@ function checkFlush(p) {
 // FARTS, FART-JUMPS, BURPS
 // =====================================================================
 const BLAME = ['Ugh, {o}! Was that YOU?!', '{o}, did you eat the gas station sushi again?', 'Smelled it, dealt it, {o}.', "That's {o}. That's DEFINITELY {o}.", 'Who brought a dead raccoon? {o}?'];
-function fartRelease(power) {
-  if (G.mode !== 'play') return; G.fartCharge = 0;
-  const mega = power >= .8, radius = 3.5 + power * 3.5;
-  G.fartCd = 5 + power * 9; G.farts++;
-  sfx('fart', P.pos, .8 + power * 1.6, mega ? .72 : rand(.9, 1.2));
-  burst(E.stink, P.pos.x, .7, P.pos.z, 10 + Math.round(power * 40), .5 + power, .2, .6 + power * .5);
+function fartRelease(power, remote) {
+  if (G.mode !== 'play') return;
+  const O = remote || P.pos, mega = power >= .8, radius = 3.5 + power * 3.5;
+  if (!remote) { G.fartCharge = 0; G.fartCd = 5 + power * 9; G.farts++; netEvent('f', r2(O.x), r2(O.z), r2(power)); }
+  sfx('fart', O, .8 + power * 1.6, mega ? .72 : rand(.9, 1.2));
+  burst(E.stink, O.x, .7, O.z, 10 + Math.round(power * 40), .5 + power, .2, .6 + power * .5);
   if (mega) {
-    shake(.55); unlock('mega');
-    balloons.forEach(b => { const dx = b.x - P.pos.x, dz = b.z - P.pos.z, d = Math.hypot(dx, dz); if (d < 6 && d > .1) { b.vx += dx / d * 3; b.vz += dz / d * 3; } });
-    chairs.forEach(c => { if (c.occupied) return; const q = c.g.position, dx = q.x - P.pos.x, dz = q.z - P.pos.z, d = Math.hypot(dx, dz); if (d < 3 && d > .1) { c.vx += dx / d * 3; c.vz += dz / d * 3; c.spin += rand(-4, 4); } });
-    if (Math.hypot(boss.x - P.pos.x, boss.z - P.pos.z) < 3.2) later(.4, knockToupee);
+    if (!remote) { shake(.55); unlock('mega'); } else if (Math.hypot(P.pos.x - O.x, P.pos.z - O.z) < 6) shake(.3);
+    balloons.forEach(b => { const dx = b.x - O.x, dz = b.z - O.z, d = Math.hypot(dx, dz); if (d < 6 && d > .1) { b.vx += dx / d * 3; b.vz += dz / d * 3; } });
+    chairs.forEach(c => { if (c.occupied) return; const q = c.g.position, dx = q.x - O.x, dz = q.z - O.z, d = Math.hypot(dx, dz); if (d < 3 && d > .1) { c.vx += dx / d * 3; c.vz += dz / d * 3; c.spin += rand(-4, 4); } });
+    if (Math.hypot(boss.x - O.x, boss.z - O.z) < 3.2) later(.4, knockToupee);
   }
-  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < radius);
+  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - O.x, n.z - O.z) < radius);
   if (!near.length) { addChaos(mega ? 40 : 10, mega ? 'A MEGA fart, wasted on nobody' : 'Farted into the void'); return; }
   near.forEach((n, i) => later(.4 + i * .3, () => n.react('gag', mega ? 4 : 2.4)));
   if (near.length === 1) {
-    const n = near[0]; later(.8, () => { n.say(pick(["...It was you, wasn't it?", 'Dude. What did you EAT?', 'I KNOW that was you.', 'That one had TEXTURE.']), true); addSus(14 * n.mult, `${n.name} knows you farted on them`); });
+    const n = near[0];
+    later(.8, () => { n.say(pick(["...It was you, wasn't it?", 'Dude. What did you EAT?', 'I KNOW that was you.', 'That one had TEXTURE.']), true); if (!remote) addSus(14 * n.mult, `${n.name} knows you farted on them`); });
     addChaos(mega ? 120 : 40, mega ? 'Point-blank MEGA fart' : 'Silent but deadly');
   } else {
     near.forEach((n, i) => { const o = near[(i + 1) % near.length]; later(.9 + i * .9, () => n.say(pick(BLAME).replace(/\{o\}/g, o.name), true)); });
-    addChaos((mega ? 120 : 60) * near.length, `Fart blamed on ${near[1].name}`); if (near.length >= 3) unlock('blame');
-    if (G.meeting.active && G.meeting.started && inMeetingRoom() && near.length >= 3) later(1, () => addChaos(300, 'Meeting-room fart'));
+    addChaos((mega ? 120 : 60) * near.length, `Fart blamed on ${near[1].name}`);
+    if (!remote && near.length >= 3) unlock('blame');
+    if (!remote && G.meeting.active && G.meeting.started && inMeetingRoom() && near.length >= 3) later(1, () => addChaos(300, 'Meeting-room fart'));
   }
 }
 function fartJump() {
   if (G.airFartCd > 0 || G.mode !== 'play') return; G.airFartCd = 2.2; P.vy = 5.4;
+  netEvent('f', r2(P.pos.x), r2(P.pos.z), -1);
   sfx('fart', P.pos, .5, 1.5); shake(.15); unlock('rocket'); addChaos(15, 'Fart-jumped');
   for (let i = 0; i < 16; i++) E.stink.spawn(P.pos.x + rand(-.15, .15), P.y + .5, P.pos.z + rand(-.15, .15), rand(-.5, .5), rand(-3, -1), rand(-.5, .5), .35);
   for (const n of npcs) if (n.canLook() && n.sees(P.pos.x, P.pos.z, false) && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < 8) { n.say(pick(['Did they just... FLY?!', 'What the #$%& was that?!', 'Physics is broken.']), true); addSus(6 * n.mult, `${n.name} saw you fart-propel yourself`); break; }
 }
-function burp() {
-  if (G.burpCd > 0 || G.mode !== 'play') return; G.burpCd = 5; G.vmBurp = .5; sfx('burp', P.pos, rand(.8, 1.3));
-  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < 5);
+function burp(remote) {
+  const O = remote || P.pos;
+  if (!remote) { if (G.burpCd > 0 || G.mode !== 'play') return; G.burpCd = 5; G.vmBurp = .5; netEvent('b', r2(O.x), r2(O.z)); }
+  sfx('burp', O, rand(.8, 1.3));
+  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - O.x, n.z - O.z) < 5);
   near.forEach((n, i) => later(.3 + i * .4, () => n.say(pick(['Ew. EW.', 'Say excuse me!', 'Disgusting. Do it again.', 'Were you raised in a dumpster?', 'I felt that in my soul.']))));
   addChaos(10 + near.length * 10, near.length ? 'Burped in public' : 'Burped at nothing');
-  for (const n of near) if (n.seeT > .2) { addSus(4 * n.mult, `${n.name} is disgusted by your burping`); break; }
+  if (!remote) for (const n of near) if (n.seeT > .2) { addSus(4 * n.mult, `${n.name} is disgusted by your burping`); break; }
 }
 
 // =====================================================================
@@ -2585,11 +2636,12 @@ function updatePlayer(dt) {
     const ms = Math.max(1, Math.ceil(Math.hypot(P.vel.x, P.vel.z) * dt / .1));
     for (let k = 0; k < ms; k++) { P.pos.x += P.vel.x * dt / ms; P.pos.z += P.vel.z * dt / ms; collideCircle(P.pos, .3); }
     for (const n of npcs) { if (n.hidden) continue; const dx = P.pos.x - n.x, dz = P.pos.z - n.z, d = Math.hypot(dx, dz); if (d < .55 && d > 1e-4) { P.pos.x = n.x + dx / d * .55; P.pos.z = n.z + dz / d * .55; } }
+    for (const rp of NET.players.values()) { if (!rp.p.root.visible) continue; const dx = P.pos.x - rp.x, dz = P.pos.z - rp.z, d = Math.hypot(dx, dz); if (d < .55 && d > 1e-4) { P.pos.x = rp.x + dx / d * .55; P.pos.z = rp.z + dz / d * .55; } }
     collideCircle(P.pos, .3); P.pos.x = clamp(P.pos.x, .4, W - .4); P.pos.z = clamp(P.pos.z, .4, D - .4);
     pushChairs(P.pos.x, P.pos.z, P.vel.x * (P.slideT > 0 ? 1.4 : 1), P.vel.z * (P.slideT > 0 ? 1.4 : 1), .32, false);
     if (keys.Space && P.ground && !P.crouch) { P.vy = 4.4; P.ground = false; keys.Space = false; sfx('step', null, true, floorHard(P.pos.x, P.pos.z)); }
     if (!P.ground) { P.vy -= 13 * dt; P.y += P.vy * dt; if (P.y <= 0) { P.y = 0; if (P.vy < -3) { P.landT = .3; sfx('thud', P.pos); shake(.12); } P.vy = 0; P.ground = true; } }
-    if (charging) { G.fartCharge += dt; if (G.fartCharge > 1.7) fartRelease(1); }
+    if (charging) { G.fartCharge += dt; if (G.fartCharge > 1.7) localAct(() => fartRelease(1)); }
     P.eye = lerp(P.eye, P.slideT > 0 ? .85 : P.crouch ? 1.0 : 1.62, dt * 10);
     sp = Math.hypot(P.vel.x, P.vel.z);
     if (sp > .5 && P.ground && P.slideT <= 0) { P.bob += dt * sp * 2.4; P.stepT -= dt * sp; if (P.stepT <= 0) { P.stepT = P.run ? 1.6 : 1.25; sfx('step', null, P.run, floorHard(P.pos.x, P.pos.z), P.crouch); } }
@@ -2646,7 +2698,7 @@ function updateInteraction(dt) {
     G.act.prog += dt / it.hold; G.acting = true; G.actTarget = it;
     if (it.sfxHold && Math.random() < dt * 10) sfx(it.sfxHold);
     if (G.act.prog >= 1) {
-      G.act.prog = 0; keys.KeyE = false; it.onDone();
+      G.act.prog = 0; keys.KeyE = false; localAct(() => it.onDone()); if (it.sus) netEvent('a', interactables.indexOf(it));
       if (it.sus) for (const n of npcs) if (n.canLook() && n.seeT > .2 && n.sees(P.pos.x, P.pos.z, P.crouch)) {
         G.witnessed++; addSus((n.isBoss ? 40 : 28) * (n.isBoss ? 1 : n.mult) * DAY.diff, `${n.name} saw you ${it.verb}`); n.mark('!', 2.5); n.say(pick(n.isBoss ? LINES.bossWitness : LINES.witness), true); sfx('alert');
         n.aware = 1; n.lastSeen = { x: P.pos.x, z: P.pos.z }; if (!n.isBoss) { const vv = it.verb; later(1.4, () => reportToBoss(n, vv)); }
@@ -2704,7 +2756,7 @@ function updateSuspicion(dt) {
   if (G.sus > 55 && G.huntCd <= 0 && !G.evac.active && !G.meeting.active) { G.huntCd = 28; bossHunt(true); }
 }
 function bust(reason) {
-  if (G.mode !== 'play') return; G.mode = 'busted'; G.working = false;
+  if (G.mode !== 'play') return; G.mode = 'busted'; G.working = false; G.fired = true; G.mpPaused = false;
   try { document.exitPointerLock && document.exitPointerLock(); } catch (e) {}
   // put the boss somewhere free and visible in front of the player (try straight ahead first, then fan out)
   let bx = P.pos.x - Math.sin(P.yaw) * 1.3, bz = P.pos.z - Math.cos(P.yaw) * 1.3;
@@ -2714,7 +2766,7 @@ function bust(reason) {
   }
   boss.hidden = false; boss.overlay = null; boss.clearTask(); boss.place(bx, bz, Math.atan2(P.pos.x - bx, P.pos.z - bz)); boss.pose = 'point';
   $('prompt').hidden = true; $('cross').classList.remove('on'); $('meters').hidden = true; $('speed').style.opacity = 0; VM.visible = false;
-  P.pitch = .05; P.eye = 1.62; boss.say("YOU'RE #$%& FIRED!", true); sfx('fired');
+  P.pitch = .05; P.eye = 1.62; NET.fromHost = true; boss.say("YOU'RE #$%& FIRED!", true); NET.fromHost = false; sfx('fired');
   $('vignette').style.boxShadow = 'inset 0 0 200px 80px rgba(224,53,43,.6)';
   later(2.6, () => showEnd(false, reason));
 }
@@ -2731,7 +2783,7 @@ function renderTodo() {
   };
   const req = DAY.req.map(id => PRANKS.find(p => p.id === id)), bonus = PRANKS.filter(p => !DAY.req.includes(p.id)), bonusDone = bonus.filter(p => G.done[p.id]).length;
   let html = `<li class="sec">TODAY'S TARGETS · ${reqDone()}/${DAY.req.length}</li>` + req.map(p => li(p, true)).join('') +
-    `<li class="sec">CHAOS GOAL · ${Math.min(G.chaos, DAY.goal).toLocaleString('en-US')} / ${DAY.goal.toLocaleString('en-US')}</li>`;
+    `<li class="sec">CHAOS GOAL · ${Math.min(teamChaos(), DAY.goal).toLocaleString('en-US')} / ${DAY.goal.toLocaleString('en-US')}</li>`;
   if (todoMode === 0) html += `<li class="sec">BONUS PRANKS · ${bonusDone}/${bonus.length} DONE</li>` + bonus.filter(p => !G.done[p.id]).map(p => li(p, false)).join('');
   $('todo').innerHTML = html;
 }
@@ -2811,6 +2863,7 @@ function drawMap() {
     g.beginPath(); g.arc(n.x * MSX, n.z * MSZ, n.isBoss ? 5 : 4, 0, PI * 2); g.fill();
     g.fillStyle = '#0b0e12'; g.font = '700 7px monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(n.isBoss ? 'B' : n.name[0], n.x * MSX, n.z * MSZ + .5);
   }
+  for (const rp of NET.players.values()) if (rp.p.root.visible) { g.fillStyle = '#4fd97a'; g.beginPath(); g.arc(rp.x * MSX, rp.z * MSZ, 4, 0, PI * 2); g.fill(); }
   if (G.evac.active) { g.strokeStyle = '#4fc472'; g.lineWidth = 2; g.beginPath(); g.arc(SPOT.exit.x * MSX, SPOT.exit.z * MSZ, 7, 0, PI * 2); g.stroke(); }
   const px = P.pos.x * MSX, pz = P.pos.z * MSZ, a = P.yaw; g.save(); g.translate(px, pz); g.rotate(-a + PI);
   g.fillStyle = '#7cc4ff'; g.beginPath(); g.moveTo(0, 7); g.lineTo(-4.5, -4); g.lineTo(4.5, -4); g.closePath(); g.fill(); g.restore();
@@ -2841,7 +2894,7 @@ function stampFx(title, pts, req) {
   clearTimeout(stampTimer); stampTimer = setTimeout(() => el.hidden = true, 1800);
 }
 function reqDone() { return DAY.req.filter(id => G.done[id]).length; }
-function dayCleared() { return reqDone() === DAY.req.length && G.chaos >= DAY.goal; }
+function dayCleared() { return reqDone() === DAY.req.length && teamChaos() >= DAY.goal; }
 function checkCleared() {
   if (G.flags.clearNotice || G.mode !== 'play' || !dayCleared()) return; G.flags.clearNotice = true;
   later(1.5, () => { sfx('chime'); intercom("Targets done and chaos goal hit. Keep going, or clock out early at the EXIT.", false, 7); });
@@ -2874,13 +2927,14 @@ function renderMenu() {
 $('dayList').addEventListener('click', e => { const b = e.target.closest('.day'); if (!b || b.classList.contains('locked')) return; selDay = +b.dataset.i; sfx('click'); renderMenu(); });
 document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tab-btn').forEach(x => x.classList.toggle('on', x === b));
-  ['play', 'ach', 'ctrl', 'set'].forEach(t => $('tab-' + t).hidden = t !== b.dataset.tab);
+  ['play', 'mp', 'ach', 'ctrl', 'set'].forEach(t => $('tab-' + t).hidden = t !== b.dataset.tab);
 }));
 function showIntro() {
   DAY = DAYS[selDay]; G.mode = 'intro';
   $('introDay').textContent = DAY.name.toUpperCase(); $('introTag').textContent = `Day ${selDay + 1} of 5 · ${DAY.tag}`; $('introMemo').textContent = DAY.memo;
   $('introReq').innerHTML = DAY.req.map(id => `<li>${prankTitle(id)}</li>`).join('');
   $('introGoal').textContent = `Chaos goal: ${DAY.goal.toLocaleString('en-US')} · Difficulty ${'▲'.repeat(selDay + 1)}${'△'.repeat(4 - selDay)}`;
+  $('introMp').textContent = NET.active ? `${NET.players.size + 1} player${NET.players.size ? 's' : ''} · room ${NET.code.toUpperCase()}${isClient() ? ' · the host picked this day' : ''}` : '';
   showScreen('scr-intro');
 }
 function applySettings() {
@@ -2890,22 +2944,23 @@ function applySettings() {
 }
 function startGame() {
   audioStart(); applySettings();
-  G.mode = 'play'; G.min = 0; G.swoop = 1.6; $('hud').hidden = false; showScreen(null);
+  G.mode = 'play'; G.min = 0; G.swoop = 1.6; G.fired = false;
+  if (isClient() && NET.hostState) G.min = +NET.hostState.m || 0; $('hud').hidden = false; showScreen(null);
   $('clockDay').textContent = `${DAY.name} · shift ends 5:00 PM`;
   npcs.forEach(n => { n.range *= 1 + (DAY.diff - 1) * .6; n.speed *= Math.sqrt(DAY.diff); });
   renderTodo(); renderPockets();
   P.pos.set(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15); P.yaw = PI; P.pitch = -.08;
   lockPointer(); later(1.4, () => { sfx('chime'); intercom(`"${DAY.memo}" — Dennings`, false, 7); });
 }
-function pauseGame() { if (G.mode !== 'play') return; G.mode = 'pause'; G.fartCharge = 0; showScreen('scr-pause'); try { speechSynthesis.cancel(); } catch (e) {} }
-function resumeGame() { if (G.mode !== 'pause') return; G.mode = 'play'; showScreen(null); audioStart(); if (!fallbackLook) lockPointer(); }
-function reloadTo(day) { store.set('hw-autoday', day == null ? '' : String(day)); try { if (day != null) sessionStorage.setItem('hw-autoday', String(day)); } catch (e) {} location.reload(); }
+function pauseGame() { if (G.mode !== 'play') return; if (NET.active) { G.mpPaused = true; G.fartCharge = 0; for (const k in keys) keys[k] = false; $('pauseTxt').textContent = 'Multiplayer: the office keeps going while you are on break. Hurry back.'; showScreen('scr-pause'); $('tags').hidden = false; return; } G.mode = 'pause'; G.fartCharge = 0; showScreen('scr-pause'); try { speechSynthesis.cancel(); } catch (e) {} }
+function resumeGame() { if (G.mpPaused) { G.mpPaused = false; showScreen(null); audioStart(); if (!fallbackLook) lockPointer(); return; } if (G.mode !== 'pause') return; G.mode = 'play'; showScreen(null); audioStart(); if (!fallbackLook) lockPointer(); }
+function reloadTo(day, keepMp = true) { store.set('hw-autoday', day == null ? '' : String(day)); store.set('hw-mp-auto', keepMp && NET.active ? '1' : ''); try { if (day != null) sessionStorage.setItem('hw-autoday', String(day)); } catch (e) {} location.reload(); }
 const RANKS = [[0, 'Mildly Annoying Intern'], [1200, 'Disgruntled Employee'], [2800, "HR's Worst Nightmare"], [4800, 'Agent of Chaos'], [7000, 'CEO of Carnage']];
 const gradeChaos = r => r >= 2.2 ? 'A+' : r >= 1.6 ? 'A' : r >= 1 ? 'B' : r >= .6 ? 'C' : r >= .3 ? 'D' : 'F';
 const gradeStealth = (m, fired) => fired ? 'F' : m < 25 ? 'A+' : m < 45 ? 'A' : m < 65 ? 'B' : m < 85 ? 'C' : 'D';
 function showEnd(won, reason) {
   G.mode = 'over'; $('hud').hidden = true; G.fartCharge = 0; try { document.exitPointerLock && document.exitPointerLock(); } catch (e) {}
-  const cleared = won && dayCleared(), ratio = G.chaos / DAY.goal, stars = cleared ? (ratio >= 2.2 ? 3 : ratio >= 1.6 ? 2 : 1) : 0;
+  G.mpPaused = false; const cleared = won && dayCleared(), ratio = teamChaos() / DAY.goal, stars = cleared ? (ratio >= 2.2 ? 3 : ratio >= 1.6 ? 2 : 1) : 0;
   const isLast = selDay === DAYS.length - 1;
   if (cleared) {
     PROG.stars[DAY.id] = Math.max(PROG.stars[DAY.id] || 0, stars); PROG.unlocked = Math.max(PROG.unlocked, Math.min(DAYS.length, selDay + 2)); saveProg();
@@ -2922,14 +2977,16 @@ function showEnd(won, reason) {
   $('endTitle').textContent = !won ? 'Terminated' : cleared ? rank : 'Not chaotic enough';
   $('endStars').textContent = cleared ? starStr(stars) : '';
   const missing = DAY.req.filter(id => !G.done[id]).map(prankTitle);
-  $('endReason').textContent = !won ? `Reason: ${reason || 'general vibes'}. Please return your badge and your stapler.`
+  $('endReason').textContent = reason === 'hostleft' ? 'The host left the office, so the shift is over for everyone.' : reason === 'hostfired' ? 'Your host got fired, and HR walked the whole team out with them.' : !won ? `Reason: ${reason || 'general vibes'}. Please return your badge and your stapler.`
     : cleared ? (isLast ? 'You walked out on Friday a legend. Dennings is still picking glitter out of his mustache.' : reason === 'early' ? 'You clocked out early with everything done. Nobody suspects a thing. Probably.' : `You survived ${DAY.name} and the office is in ruins. See you tomorrow.`)
     : `You kept your job, but HR wants a word. ${missing.length ? 'Missed: ' + missing.join(', ') + '.' : `Chaos fell short of ${DAY.goal.toLocaleString('en-US')}.`}`;
-  $('gChaos').textContent = gradeChaos(ratio); $('stChaos').textContent = G.chaos.toLocaleString('en-US');
+  $('gChaos').textContent = gradeChaos(ratio); $('stChaos').textContent = teamChaos().toLocaleString('en-US') + (NET.active ? ` (you ${G.chaos.toLocaleString('en-US')})` : '');
   $('gStealth').textContent = gradeStealth(G.maxSus, !won); $('stSus').textContent = 'max ' + Math.round(G.maxSus) + '%';
   $('gReq').textContent = reqDone() + '/' + DAY.req.length; $('stReq').textContent = 'targets'; $('gPr').textContent = G.prankCount; $('stPranks').textContent = 'of ' + PRANKS.length;
   $('endBest').textContent = isBest && G.chaos > 0 ? 'New personal best.' : prev ? `Personal best: ${prev.toLocaleString('en-US')} chaos.` : '';
   $('btnNext').hidden = !(cleared && !isLast); $('btnAgain').textContent = won && cleared ? 'Replay day' : 'Retry day';
+  if (isClient()) { $('btnNext').hidden = true; $('btnAgain').textContent = 'Rejoin lobby'; }
+  netSend();
   showScreen('scr-end'); sfx(won ? 'win' : 'bad');
 }
 function bootMenu() {
@@ -2937,42 +2994,257 @@ function bootMenu() {
   renderMenu();
   let auto = null; try { auto = sessionStorage.getItem('hw-autoday'); sessionStorage.removeItem('hw-autoday'); } catch (e) {}
   if (auto == null || auto === '') { const a = store.get('hw-autoday'); if (a) auto = a; } store.set('hw-autoday', ''); if (auto === '') auto = null;
+  let mpAuto = null; if (store.get('hw-mp-auto') === '1') { try { mpAuto = JSON.parse(store.get('hw-mp') || 'null'); } catch (e) {} } store.set('hw-mp-auto', '');
+  if (mpAuto && mpAuto.code) { netConnect(mpAuto.role === 'host' ? 'host' : 'client', mpAuto.code); if (mpAuto.role !== 'host') auto = null; }
   if (auto != null && +auto < PROG.unlocked) { selDay = +auto; showIntro(); } else { G.mode = 'title'; showScreen('scr-title'); }
+  if (mpAuto && mpAuto.role !== 'host') document.querySelector('.tab-btn[data-tab="mp"]').click();
 }
 $('btnStart').addEventListener('click', () => { audioStart(); showIntro(); });
 $('btnClockIn').addEventListener('click', startGame);
 $('btnResume').addEventListener('click', resumeGame);
 $('btnRestart').addEventListener('click', () => reloadTo(selDay));
-$('btnQuit').addEventListener('click', () => reloadTo(null));
+$('btnQuit').addEventListener('click', () => reloadTo(null, false));
 $('btnAgain').addEventListener('click', () => reloadTo(selDay));
 $('btnNext').addEventListener('click', () => reloadTo(selDay + 1));
-$('btnMenu').addEventListener('click', () => reloadTo(null));
+$('btnMenu').addEventListener('click', () => reloadTo(null, false));
+
+// =====================================================================
+// MULTIPLAYER: co-op through the artifact room, or the LAN server (server.js)
+// The host simulates the office; everyone else mirrors the host's NPCs and
+// replays teammates' pranks locally. Each player keeps their own suspicion.
+// =====================================================================
+const NET = { active: false, role: null, code: '', backend: null, nick: '', seq: 0, out: [], seen: new Map(), players: new Map(), hostState: null, hostSeen: 0, sendT: 0, uiT: 0, epoch: Math.random().toString(36).slice(2, 8), replaying: false, fromHost: false, joinedDay: false, hostGone: false, lastUi: '' };
+const isClient = () => NET.active && NET.role === 'client';
+const r2 = v => Math.round(v * 100) / 100;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cleanText = s => String(s || '').replace(/[\u0000-\u001f\u007f-\u009f­​-‏‪-‮⁠-⁤﻿]/g, '').trim().slice(0, 16);
+function localAct(fn) { const p = G.localAct; G.localAct = true; try { return fn(); } finally { G.localAct = p; } }
+function netEvent(type, ...args) { if (!NET.active) return; NET.out.push([++NET.seq, type, ...args]); if (NET.out.length > 12) NET.out.shift(); }
+function hostFx(name, x, y, z) { if (NET.active && NET.role === 'host') netEvent('x', name, r2(x), r2(y), r2(z)); }
+function teamChaos() { let t = G.chaos; if (NET.active) for (const rp of NET.players.values()) t += rp.chaos || 0; return t; }
+const POSES = ['stand', 'walk', 'run', 'panic', 'sit', 'type', 'toilet', 'drink', 'gag', 'laugh', 'argue', 'talk', 'shock', 'fix', 'fallen', 'point', 'grope', 'fan', 'lookup', 'grab'];
+const MP_COLORS = [0xd94f4f, 0x4f8fd9, 0x4fd97a, 0xd9b84f, 0xa04fd9, 0x36b5b0, 0xe07a2f];
+function hashStr(s) { let h = 7; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+function nickOf(d) { return (d && typeof d.nk === 'string' && cleanText(d.nk)) || 'Coworker'; }
+const ghostToupee = boss.p.toupee.clone(); ghostToupee.visible = false; scene.add(ghostToupee);
+
+// ---- backends ----
+async function backendRoom(code) {
+  if (!window.claude || typeof window.claude.use !== 'function') return null;
+  let lobby = null; try { lobby = await window.claude.use('room'); } catch (e) {}
+  if (!lobby) return null;
+  let r = lobby; try { r = await lobby.join('hw-' + code); } catch (e) { r = lobby; }
+  r.onPeers(() => {}, e => { NET.lost = e.code; });
+  return {
+    kind: 'room',
+    send: d => { r.presence({ g: d }).catch(() => {}); },
+    list: () => r.peers().map(p => ({ id: p.peer, me: p.sameTab, d: p.presence && p.presence.g })),
+    close: () => { try { if (r !== lobby) r.leave(); else r.presence({ g: null }).catch(() => {}); } catch (e) {} },
+  };
+}
+function backendLan(code) {
+  return new Promise(resolve => {
+    if (!/^https?:$/.test(location.protocol)) return resolve(null);
+    let ws; try { ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws?room=hw-' + code); } catch (e) { return resolve(null); }
+    const peers = new Map(); let myId = null, mine = null;
+    const timer = setTimeout(() => { try { ws.close(); } catch (e) {} resolve(null); }, 4000);
+    const be = {
+      kind: 'lan',
+      send: d => { mine = d; if (ws.readyState === 1) ws.send(JSON.stringify({ t: 'p', d })); },
+      list: () => { const a = [...peers].map(([id, d]) => ({ id, me: false, d })); if (myId) a.push({ id: myId, me: true, d: mine }); return a; },
+      close: () => { try { ws.close(); } catch (e) {} },
+    };
+    ws.onopen = () => { clearTimeout(timer); resolve(be); };
+    ws.onerror = () => { clearTimeout(timer); resolve(null); };
+    ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (x) { return; } if (m.t === 'hello') myId = m.id; else if (m.t === 'p') peers.set(m.id, m.d); else if (m.t === 'left') peers.delete(m.id); };
+  });
+}
+function mpStatus(t) { const el = $('mpStatus'); if (el) el.textContent = t; }
+async function netConnect(role, code) {
+  code = String(code || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 6);
+  if (!code) { mpStatus('Type the code your host gave you.'); return; }
+  NET.nick = cleanText($('mpNick').value) || NET.nick || 'Coworker' + (hashStr(NET.epoch) % 90 + 10); $('mpNick').value = NET.nick;
+  mpStatus('Connecting…');
+  const be = (await backendRoom(code)) || (await backendLan(code));
+  if (!be) { mpStatus('Could not connect. Multiplayer works on the shared Claude link, or when you run the local server (start.bat). A plain file on your PC cannot connect.'); return; }
+  NET.active = true; NET.role = role; NET.code = code; NET.backend = be; NET.hostGone = false;
+  store.set('hw-mp', JSON.stringify({ role, code, nick: NET.nick }));
+  NET.lastUi = ''; renderMp(); netSend();
+}
+function netLeave() {
+  if (NET.backend) NET.backend.close();
+  for (const rp of NET.players.values()) rp.dispose();
+  Object.assign(NET, { active: false, role: null, backend: null, hostState: null, joinedDay: false, lastUi: '' }); NET.players.clear(); NET.seen.clear();
+  store.set('hw-mp', ''); renderMp(); renderMenu();
+}
+
+// ---- what we publish ----
+function hostSnap() {
+  const live = G.mode === 'play' || G.mode === 'busted';
+  return {
+    d: selDay, ep: NET.epoch, st: live ? 1 : G.mode === 'over' ? 2 : 0, fired: G.fired ? 1 : 0, m: Math.round(G.min * 10) / 10,
+    lt: G.lightTarget, ht: G.heat.t > 0 ? 1 : 0, sv: G.flags.serverDown ? 1 : 0, pv: deskPoop.visible ? 1 : 0,
+    bd: boss.flags.bald ? 1 : 0, kk: boss.flags.kickMe ? 1 : 0, gl: boss.flags.glitter ? 1 : 0,
+    tp: G.toupeeProp ? [r2(G.toupeeProp.pos.x), r2(G.toupeeProp.pos.y), r2(G.toupeeProp.pos.z)] : 0,
+    n: npcs.map(n => { const q = n.p.root.position; return [r2(q.x), r2(q.y), r2(q.z), r2(n.yaw), r2(n.p.head.rotation.y), Math.max(0, POSES.indexOf(n.pose)), n.hidden ? 1 : 0, n.markT > 0 ? (n.tag.mark.textContent === '!' ? 2 : 1) : 0]; }),
+    b: npcs.map(n => n.bubText && G.clockT - n.bubAt < 2.5 ? [n.bubSeq, n.bubText.slice(0, 100)] : 0),
+  };
+}
+function netSend() {
+  if (!NET.active) return;
+  const sp = Math.hypot(P.vel.x, P.vel.z);
+  const pose = G.working ? 5 : P.slideT > 0 ? 6 : P.crouch ? 4 : sp > 4 ? 2 : sp > .4 ? 1 : 0;
+  const d = { c: NET.code, v: 1, r: NET.role, nk: NET.nick, ch: G.chaos, st: G.mode === 'play' ? 1 : (G.mode === 'over' || G.mode === 'busted') ? 2 : 0, fired: G.fired ? 1 : 0, pl: [r2(P.pos.x), r2(P.pos.z), r2(P.yaw), pose, r2(P.y)], ev: NET.out };
+  if (NET.role === 'host') d.h = hostSnap();
+  NET.backend.send(d);
+}
+
+// ---- other players ----
+class RemotePlayer {
+  constructor(id) {
+    const h = hashStr(id); this.id = id; this.data = null; this.chaos = 0; this.x = 0; this.z = 0; this.y = 0; this.yaw = 0; this.t = Math.random() * 5; this.init = false; this.firedSeen = false;
+    this.p = buildPerson({ skin: [0xf1c9a5, 0xd9a07a, 0x8d5a3b, 0xb98060, 0xe4b291][h % 5], shirt: MP_COLORS[h % MP_COLORS.length], pants: 0x2a2f3a, hair: [0x1d1410, 0x3b2a1e, 0xc49a52, 0x6b4a2a][(h >> 3) % 4], hairStyle: ['messy', 'spiky', 'bob', 'curly', 'ponytail'][(h >> 5) % 5], collar: true });
+    scene.add(this.p.root); this.p.root.visible = false;
+    const el = document.createElement('div'); el.className = 'tag'; el.innerHTML = '<div class="tag-name on mp"></div>'; $('tags').appendChild(el); this.el = el; this.nameEl = el.firstChild;
+  }
+  get nick() { return nickOf(this.data); }
+  visible() { const d = this.data; return !!(d && Array.isArray(d.pl) && d.st === 1 && !d.fired && (G.mode === 'play' || G.mode === 'busted')); }
+  update(dt) {
+    const show = this.visible(); this.p.root.visible = show; this.el.style.display = show ? '' : 'none'; if (!show) return;
+    const pl = this.data.pl, k = Math.min(1, dt * 12), cy = (+pl[2] || 0) + PI, tx = +pl[0] || 0, tz = +pl[1] || 0;
+    if (!this.init || Math.hypot(tx - this.x, tz - this.z) > 3) { this.x = tx; this.z = tz; this.yaw = cy; this.init = true; }
+    this.x = lerp(this.x, tx, k); this.z = lerp(this.z, tz, k); this.yaw += angDiff(cy, this.yaw) * k; this.y = lerp(this.y, +pl[4] || 0, k); this.t += dt;
+    const pose = ['stand', 'walk', 'run', 'walk', 'grab', 'type', 'grab'][pl[3]] || 'stand';
+    this.p.root.position.set(this.x, this.y, this.z); this.p.root.rotation.y = this.yaw;
+    animatePerson(this.p, pose, this.t); animFace(this.p, 'neutral', false, this.t, dt);
+    if (this.nameEl.textContent !== this.nick) this.nameEl.textContent = this.nick;
+    _v.set(this.x, 2.05 + this.y, this.z).project(camera);
+    if (_v.z > 1) { this.el.style.opacity = 0; return; }
+    this.el.style.opacity = 1; this.el.style.transform = `translate(${((_v.x + 1) / 2 * innerWidth).toFixed(1)}px,${((1 - _v.y) / 2 * innerHeight).toFixed(1)}px) translate(-50%,-100%)`;
+  }
+  dispose() { scene.remove(this.p.root); this.el.remove(); }
+}
+
+// ---- incoming ----
+function remoteFartJump(x, z) { sfx('fart', V(x, 0, z), .5, 1.5); for (let i = 0; i < 16; i++) E.stink.spawn(x + rand(-.15, .15), 1, z + rand(-.15, .15), rand(-.5, .5), rand(-3, -1), rand(-.5, .5), .35); }
+function playFx(name, x, y, z) {
+  const pos = V(x, y, z);
+  if (name === 'whoopee') { sfx('fart', pos, 1.8, 1.5); burst(E.stink, x, .6, z, 6, .3, .2, .5); }
+  else if (name === 'glitter') { for (let i = 0; i < 300; i++) E.glitter.spawn(x + rand(-.2, .2), .95, z + .55, rand(-2.6, 2.6), rand(1, 4.8), rand(-2.6, 2.6)); sfx('pop', pos); sfx('crash', pos); }
+  else if (name === 'horn') { sfx('airhorn', pos); hornMesh.visible = false; if (Math.hypot(P.pos.x - x, P.pos.z - z) < 10) shake(.5); }
+  else if (name === 'cfart') { burst(E.stink, x, .7, z, 25, .5, .3, .7); sfx('fart', pos, 1.2, .7); }
+  else if (name === 'pop') sfx('pop', pos);
+  else if (name === 'flush') sfx('flush', pos);
+}
+function netApply(rp, ev) {
+  if (G.mode !== 'play' && G.mode !== 'busted') return;
+  const [, type, a, b, c, d2] = ev;
+  NET.replaying = true;
+  try {
+    if (type === 'a') {
+      const it = interactables[a]; if (!it) return;
+      if (it.id ? G.done[it.id] : (it.available && !it.available())) return;
+      it.onDone(); if (G.mode === 'play') feed('TEAM', `${rp.nick}: ${it.label}`, 'item');
+    } else if (type === 'f') { if (c < 0) remoteFartJump(a, b); else fartRelease(+c || 0, { x: +a, z: +b }); }
+    else if (type === 'b') burp({ x: +a, z: +b });
+    else if (type === 'k') { if (NET.role === 'host') { NET.replaying = false; knockToupee(); } }
+    else if (type === 'x') { if (NET.role === 'client') playFx(a, +b, +c, +d2); }
+  } catch (e) { console.warn('multiplayer event failed', e); }
+  finally { NET.replaying = false; }
+}
+function clientSync(now) {
+  const h = NET.hostState;
+  if (G.mode === 'title' && h && h.st === 1 && h.m < 25 && !NET.joinedDay && DAYS[h.d]) { NET.joinedDay = true; selDay = h.d; showIntro(); }
+  if (G.mode !== 'play') return;
+  if (!h || now - NET.hostSeen > 6000) { if (!NET.hostGone) { NET.hostGone = true; showEnd(true, 'hostleft'); } return; }
+  if (h.st === 2) { showEnd(!h.fired, h.fired ? 'hostfired' : 'hostdone'); return; }
+  if (Math.abs(h.m - G.min) > .6) G.min = h.m;
+  if (h.lt === 1 && G.lightTarget === 0) endBlackout();
+  if (!h.ht && G.heat.t > 0) { G.heat.t = 0; thermoDraw(21); }
+  if (!h.sv && G.flags.serverDown) restoreServer();
+  if (!h.pv && deskPoop.visible) deskPoop.visible = false;
+  boss.flags.kickMe = !!h.kk;
+  if (h.gl && !boss.flags.glitter) { boss.flags.glitter = true; const sm = boss.p.chest.children[0].material; sm.color.set(0x8a5aa8); sm.metalness = .65; sm.roughness = .3; sm.emissive.set(0x2a0a2a); }
+  boss.p.toupee.visible = !h.bd;
+  ghostToupee.visible = Array.isArray(h.tp); if (ghostToupee.visible) ghostToupee.position.set(+h.tp[0], +h.tp[1], +h.tp[2]);
+}
+function netTick(dt) {
+  if (!NET.active) return;
+  const now = performance.now(), seenIds = new Set(); let host = null;
+  if (now - NET.sendT >= 80) { NET.sendT = now; netSend(); }
+  for (const p of NET.backend.list()) {
+    if (p.me || !p.d || typeof p.d !== 'object' || p.d.c !== NET.code) continue;
+    seenIds.add(p.id);
+    let rp = NET.players.get(p.id);
+    if (!rp) {
+      if (NET.players.size >= 7) continue;
+      rp = new RemotePlayer(p.id); NET.players.set(p.id, rp);
+      const evs = Array.isArray(p.d.ev) ? p.d.ev : []; NET.seen.set(p.id, evs.length ? +evs[evs.length - 1][0] || 0 : 0);
+      if (G.mode === 'play') feed('+', `${nickOf(p.d)} joined`, 'item');
+    }
+    rp.data = p.d; rp.chaos = Math.max(0, +p.d.ch || 0);
+    if (p.d.fired && !rp.firedSeen) { rp.firedSeen = true; if (G.mode === 'play') feed('FIRED', `${rp.nick} got fired`, 'bad'); }
+    if (p.d.r === 'host' && p.d.h) host = p;
+    const last = NET.seen.get(p.id) || 0; let mx = last;
+    if (Array.isArray(p.d.ev)) for (const ev of p.d.ev) if (Array.isArray(ev) && +ev[0] > last) { mx = Math.max(mx, +ev[0]); netApply(rp, ev); }
+    NET.seen.set(p.id, mx);
+  }
+  for (const [id, rp] of NET.players) if (!seenIds.has(id)) { rp.dispose(); NET.players.delete(id); NET.seen.delete(id); if (G.mode === 'play') feed('BYE', `${rp.nick} left`, 'bad'); }
+  for (const rp of NET.players.values()) rp.update(dt);
+  if (NET.role === 'client') { if (host) { NET.hostState = host.d.h; NET.hostSeen = now; } clientSync(now); }
+  if (now - NET.uiT >= 500) { NET.uiT = now; renderMp(); if (G.mode === 'play') { $('chaosTxt').textContent = teamChaos().toLocaleString('en-US'); renderMpHud(); } }
+}
+function renderMpHud() {
+  const el = $('mpHud'); if (!el) return; el.hidden = !NET.active; if (!NET.active) return;
+  el.textContent = `${NET.players.size + 1} PLAYERS · YOU ${G.chaos.toLocaleString('en-US')}`;
+}
+function renderMp() {
+  const lob = $('mpLobby'); if (!lob) return;
+  $('btnHost').hidden = NET.active; $('btnJoin').hidden = NET.active; $('mpCode').hidden = NET.active;
+  const h = NET.hostState;
+  let html = '', status = '';
+  if (NET.active) {
+    const rows = [`<div class="mp-code">ROOM <b>${esc(NET.code.toUpperCase())}</b></div>`, `<div class="mp-p you">${esc(NET.nick)} <small>you${NET.role === 'host' ? ' · host' : ''}</small></div>`];
+    for (const rp of NET.players.values()) rows.push(`<div class="mp-p">${esc(rp.nick)}${rp.data && rp.data.r === 'host' ? ' <small>host</small>' : ''}</div>`);
+    html = rows.join('') + '<button id="btnLeave" class="ghost-btn">Leave room</button>';
+    status = NET.role === 'host' ? `Give your friends the code ${NET.code.toUpperCase()}. Pick a day on the Play tab and clock in when everyone is here.`
+      : !h ? 'Waiting for the host…' : h.st === 1 ? (h.m < 25 ? 'The host clocked in. Get in there!' : 'The host is mid-day. You can join at the start of their next day.') : `Waiting for the host to clock in${DAYS[h.d] ? ' (' + DAYS[h.d].name + ')' : ''}.`;
+  }
+  if (html !== NET.lastUi) { NET.lastUi = html; lob.innerHTML = html; const bl = $('btnLeave'); if (bl) bl.onclick = netLeave; }
+  if (NET.active) mpStatus(status);
+  const bs = $('btnStart'); if (bs) { bs.disabled = isClient(); if (isClient()) bs.textContent = 'The host picks the day'; }
+}
+$('btnHost').addEventListener('click', () => { audioStart(); const code = Array.from({ length: 4 }, () => 'abcdefghjkmnpqrstuvwxyz'[Math.floor(Math.random() * 23)]).join(''); netConnect('host', code); });
+$('btnJoin').addEventListener('click', () => { audioStart(); netConnect('client', $('mpCode').value); });
+{ try { const m = JSON.parse(store.get('hw-mp') || 'null'); if (m && m.nick) NET.nick = cleanText(m.nick); } catch (e) {} $('mpNick').value = NET.nick; }
 
 // input
 addEventListener('keydown', e => {
+  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (G.mpPaused && e.code !== 'Escape') return;
   if (['Tab', 'Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   if (e.repeat && e.code !== 'KeyE') return;
   keys[e.code] = true;
   if (G.mode === 'play') {
     if (e.code === 'KeyC') { const sp = Math.hypot(P.vel.x, P.vel.z); if (P.run && sp > 4.5 && P.ground && P.slideT <= 0) { P.slideT = .8; P.slideDir.set(P.vel.x / sp, 0, P.vel.z / sp); P.crouch = true; sfx('slide'); shake(.12); unlock('slide'); } else P.crouch = !P.crouch; }
-    if (e.code === 'KeyF') { if (!P.ground) fartJump(); else if (G.fartCd <= 0 && !G.fartCharge) G.fartCharge = .001; }
-    if (e.code === 'KeyB') burp();
+    if (e.code === 'KeyF') { if (!P.ground) localAct(fartJump); else if (G.fartCd <= 0 && !G.fartCharge) G.fartCharge = .001; }
+    if (e.code === 'KeyB') localAct(() => burp());
     if (e.code === 'KeyG') dropHeld();
     if (e.code === 'Tab') { todoMode = (todoMode + 1) % 3; $('sticky').classList.toggle('hide', todoMode === 2); renderTodo(); }
-    if (e.code === 'Escape' && fallbackLook) pauseGame();
+    if (e.code === 'Escape' && fallbackLook) { if (G.mpPaused) resumeGame(); else pauseGame(); }
   } else if (G.mode === 'pause' && e.code === 'Escape' && fallbackLook) resumeGame();
   if (e.code === 'KeyM') { setSound(!OPT.sound); $('optSound').checked = OPT.sound; }
 });
-addEventListener('keyup', e => { keys[e.code] = false; if (e.code === 'KeyF' && G.fartCharge > 0 && G.mode === 'play') fartRelease(Math.min(1, G.fartCharge / 1.2)); });
+addEventListener('keyup', e => { keys[e.code] = false; if (e.code === 'KeyF' && G.fartCharge > 0 && G.mode === 'play') localAct(() => fartRelease(Math.min(1, G.fartCharge / 1.2))); });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 let drag = null;
 renderer.domElement.addEventListener('mousedown', e => {
   if (G.mode !== 'play') return;
   if (!locked && !fallbackLook) { lockPointer(); return; }
   if (fallbackLook) { drag = { x: e.clientX, y: e.clientY, moved: 0 }; return; }
-  if (e.button === 0) { if (G.hand) throwHeld(); else shove(); }
+  if (e.button === 0 && !G.mpPaused) localAct(() => { if (G.hand) throwHeld(); else shove(); });
 });
-addEventListener('mouseup', e => { if (drag && drag.moved < 5 && e.button === 0 && G.mode === 'play') { if (G.hand) throwHeld(); else shove(); } drag = null; });
+addEventListener('mouseup', e => { if (drag && drag.moved < 5 && e.button === 0 && G.mode === 'play') localAct(() => { if (G.hand) throwHeld(); else shove(); }); drag = null; });
 addEventListener('mousemove', e => {
   if (G.mode !== 'play') return;
   if (!locked && !drag) return; if (drag) drag.moved += Math.abs(e.movementX) + Math.abs(e.movementY);
@@ -2994,8 +3266,8 @@ const skyDay = new THREE.Color(1, 1, 1), skyEve = new THREE.Color(1, .72, .55), 
 function updateWorld(dt) {
   if (G.flood.active) { G.flood.level = Math.min(1, G.flood.level + dt / 18); flood.position.y = .01 + G.flood.level * .05; puddle.scale.setScalar(.3 + G.flood.level * 1.5); if (Math.random() < dt * 2) E.dust.spawn(.6, .45, 16.5, rand(-.3, .3), .8, rand(-.3, .3)); }
   if (G.evac.active) { G.evac.t += dt; if (G.evac.t > 30) endPizza(); }
-  updateMeeting(dt); updatePrinter(dt); updateProps(dt);
-  if (boss.flags.kickMe && G.mode === 'play') {
+  updateMeeting(dt); updatePrinter(dt); localAct(() => updateProps(dt));
+  if (boss.flags.kickMe && G.mode === 'play' && !isClient()) {
     G.kickT += dt; G.laughCheck -= dt;
     if (G.laughCheck <= 0) {
       G.laughCheck = .5;
@@ -3018,6 +3290,7 @@ function frame() {
   requestAnimationFrame(frame);
   const dt = Math.min(clock.getDelta(), .05);
   if (G.mode === 'play') G.clockT += dt; else VM.visible = false;
+  netTick(dt);
   if (G.mode === 'pause' || G.mode === 'loading') { draw(); return; }
   if (G.mode === 'title' || G.mode === 'over' || G.mode === 'intro') {
     titleT += dt; for (const n of npcs) n.update(dt); updateWorld(dt); updateGrade(dt);
