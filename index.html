@@ -68,9 +68,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 #susState{font:600 12px/1.3 var(--f-body);color:var(--hud)}
 #map{width:212px;height:145px;border-radius:4px;background:#0b0e12;display:block}
 
-#sticky{position:absolute;left:18px;top:178px;width:226px;background:var(--sticky);color:var(--stickyInk);padding:14px 14px 10px;transform:rotate(-1.4deg);box-shadow:0 10px 22px rgba(0,0,0,.4);border-radius:2px 2px 14px 2px}
+#sticky{position:absolute;left:18px;top:178px;width:226px;max-height:calc(100vh - 250px);overflow:auto;scrollbar-width:none;background:var(--sticky);color:var(--stickyInk);padding:14px 14px 10px;transform:rotate(-1.4deg);box-shadow:0 10px 22px rgba(0,0,0,.4);border-radius:2px 2px 14px 2px}
 #sticky h3{margin:0 0 8px;font:400 17px/1.1 var(--f-hand)}
-#todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;font:400 12.5px/1.25 var(--f-body)}
+#todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;font:400 12px/1.2 var(--f-body)}
 #todo li{display:flex;gap:6px;align-items:flex-start}
 #todo li::before{content:"";flex:0 0 11px;height:11px;margin-top:2px;border:1.5px solid var(--stickyInk);border-radius:2px}
 #todo li.done{text-decoration:line-through;opacity:.5}
@@ -138,6 +138,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 .opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .opts input[type=range]{width:110px;accent-color:var(--memoInk)}
 .opts input[type=checkbox]{accent-color:var(--memoInk)}
+.opts select{font:inherit;color:var(--memoInk);background:transparent;border:1px solid #b9b2a0;border-radius:3px;padding:2px 4px}
+#combo{font:700 11px/1 var(--f-mono);letter-spacing:.14em;color:#16130a;background:var(--chaos);align-self:flex-end;padding:4px 7px;border-radius:3px;animation:fdIn .2s ease-out}
+#combo b{font-size:13px}
+.stam{height:3px;background:rgba(255,255,255,.12);border-radius:2px;margin-top:6px;overflow:hidden}
+.stam i{display:block;height:100%;background:var(--blue)}
+.stam.tired i{background:var(--red)}
 .big-btn{pointer-events:auto;cursor:pointer;border:0;background:var(--red);color:#fff;font:400 26px/1 var(--f-display);letter-spacing:.06em;padding:14px 22px 12px;border-radius:4px;box-shadow:0 4px 0 #7d1611;text-transform:uppercase;align-self:flex-start;transition:transform .08s}
 .big-btn:hover{transform:translateY(-1px)}
 .big-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #7d1611}
@@ -177,6 +183,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
     <div class="clock-day">Thursday · shift ends 5:00 PM</div>
     <div class="daybar"><i id="dayFill"></i><b style="left:25%" title="Meeting 11:00"></b><b style="left:75%" title="Meeting 3:00"></b></div>
     <div class="chaos"><span>CHAOS</span><strong id="chaosTxt">0</strong></div>
+    <div id="combo" hidden>COMBO <b id="comboTxt">x1.25</b></div>
   </div>
   <div id="susBox" class="panel">
     <div class="sus-head">
@@ -219,13 +226,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
         <kbd>E (hold)</kbd><span>Prank, pick up, interact</span>
         <kbd>C</kbd><span>Crouch: hide behind partitions, shows sight cones</span>
         <kbd>F</kbd><span>Fart. Blame someone nearby.</span>
-        <kbd>CLICK</kbd><span>Throw what you're holding · <b>G</b> drop</span>
+        <kbd>SPACE</kbd><span>Jump</span>
+        <kbd>CLICK</kbd><span>Throw what you hold, or shove chairs / pop stuff · <b>G</b> drop</span>
         <kbd>TAB</kbd><span>To-do list · <b>M</b> mute · <b>ESC</b> pause</span>
       </div>
       <div class="opts">
         <label for="optSens">MOUSE <input id="optSens" type="range" min="0.4" max="2.2" step="0.1" value="1"></label>
         <label for="optVoice"><input id="optVoice" type="checkbox" checked> VOICES</label>
         <label for="optSound"><input id="optSound" type="checkbox" checked> SOUND</label>
+        <label for="optQ">GRAPHICS <select id="optQ"><option value="high">High</option><option value="low">Low</option></select></label>
       </div>
       <button id="btnStart" class="big-btn">Clock in</button>
       <div class="best" id="bestTxt"></div>
@@ -268,6 +277,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 <script type="module">
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 // =====================================================================
 // helpers
@@ -301,15 +316,15 @@ $('game').appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x20252c);
 scene.fog = new THREE.Fog(0x8d939a, 30, 70);
-const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.04, 120);
+const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.08, 120);
 camera.rotation.order = 'YXZ';
 scene.add(camera);
 
 const W = 44, D = 30, CEIL = 3.0, CELL = 0.25, GW = Math.round(W / CELL), GH = Math.round(D / CELL);
 
-const hemi = new THREE.HemisphereLight(0xf2f5ff, 0x5a5046, 1.35);
+const hemi = new THREE.HemisphereLight(0xf2f5ff, 0x5a5046, .8);
 scene.add(hemi);
-const amb = new THREE.AmbientLight(0xffffff, 0.25);
+const amb = new THREE.AmbientLight(0xffffff, 0.08);
 scene.add(amb);
 const sun = new THREE.DirectionalLight(0xfff1dc, 1.7);
 sun.position.set(30, 38, -10);
@@ -320,6 +335,39 @@ Object.assign(sun.shadow.camera, { left: -30, right: 30, top: 24, bottom: -24, n
 sun.shadow.bias = -0.0004;
 sun.shadow.normalBias = 0.035;
 scene.add(sun, sun.target);
+// image-based lighting: gives metal, glass, screens and plastic believable reflections
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+scene.environment = envTex;
+const LIGHT_BASE = { hemi: hemi.intensity, amb: amb.intensity, sun: sun.intensity };
+// post-processing: bloom on lights and screens, plus a grade pass for vignette, heat tint, alarm red and shake aberration
+const GradeShader = {
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uVig: { value: .2 }, uRed: { value: 0 }, uAberr: { value: 0 }, uWarm: { value: 0 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime,uVig,uRed,uAberr,uWarm; varying vec2 vUv;
+    float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+    void main(){
+      vec2 c=vUv-.5; float r=length(c); vec2 off=c*uAberr*.014;
+      vec3 col=vec3(texture2D(tDiffuse,vUv+off).r, texture2D(tDiffuse,vUv).g, texture2D(tDiffuse,vUv-off).b);
+      col*=mix(vec3(1.0),vec3(1.14,.97,.8),uWarm);
+      col*=mix(1.0, smoothstep(.95,.2,r), .35+uVig*.5);
+      col=mix(col, col*vec3(1.4,.5,.45), uRed*smoothstep(.2,.75,r));
+      col+=(hash(vUv*vec2(1280.,720.)+fract(uTime))-.5)*.02;
+      gl_FragColor=vec4(col,1.0);
+    }`
+};
+let composer = null, bloomPass = null, gradePass = null;
+function setupComposer() {
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .38, .55, .9); composer.addPass(bloomPass);
+  gradePass = new ShaderPass(GradeShader); composer.addPass(gradePass);
+  composer.addPass(new OutputPass());
+}
+function draw() {
+  if (OPT.quality === 'high') { if (!composer) setupComposer(); composer.render(); }
+  else renderer.render(scene, camera);
+}
 
 // =====================================================================
 // textures (all procedural, drawn on canvas)
@@ -509,8 +557,10 @@ function put(geo, mat, x, y, z, parent = scene, o = {}) {
 }
 function boxB(w, h, d, mat, x, y, z, o = {}) { return put(gBox(w, h, d, o.r || 0), mat, x, y + h / 2, z, o.parent || scene, o); }
 function plane(w, h, mat, x, y, z, o = {}) { const m = put(new THREE.PlaneGeometry(w, h), mat, x, y, z, o.parent || scene, { cast: false, ...o }); return m; }
+const floorMats = [];
 function floorRect(x0, z0, x1, z1, map, perM, y = 0, extra = {}) {
-  const w = x1 - x0, d = z1 - z0; const mat = new THREE.MeshStandardMaterial({ map: rep(map, w / perM, d / perM), roughness: extra.rough ?? .95, metalness: extra.metal ?? 0, color: extra.color ?? 0xffffff });
+  const w = x1 - x0, d = z1 - z0; const mat = new THREE.MeshStandardMaterial({ map: rep(map, w / perM, d / perM), roughness: extra.rough ?? .95, metalness: extra.metal ?? 0, color: extra.color ?? 0xffffff, polygonOffset: y > 0, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });
+  mat.userData.r0 = mat.roughness; floorMats.push(mat);
   const m = plane(w, d, mat, (x0 + x1) / 2, y, (z0 + z1) / 2, { rx: -PI / 2 }); m.receiveShadow = true; return m;
 }
 
@@ -550,11 +600,11 @@ function windowStrip(axis, c, a0, a1, offsetFrac) {
   mat.map.repeat.set(len / 30, 1); mat.map.offset.set(offsetFrac, 0); mat.map.needsUpdate = true; skyMats.push(mat);
   const n = Math.max(1, Math.round(len / 1.7));
   if (axis === 'x') {
-    plane(len, 1.75, mat, mid, 1.7, c + .075);
+    plane(len, 1.75, mat, mid, 1.7, c + .1);
     for (let i = 0; i <= n; i++) boxB(.07, 1.85, .06, M.frame, a0 + len * i / n, .78, c + .1, { cast: false });
     boxB(len + .1, .06, .2, M.offwhite, mid, .78, c + .12, { cast: false }); boxB(len, .06, .06, M.frame, mid, 2.58, c + .1, { cast: false });
   } else {
-    plane(len, 1.75, mat, c - .075, 1.7, mid, { ry: -PI / 2 });
+    plane(len, 1.75, mat, c - .1, 1.7, mid, { ry: -PI / 2 });
     for (let i = 0; i <= n; i++) boxB(.06, 1.85, .07, M.frame, c - .1, .78, a0 + len * i / n, { cast: false });
     boxB(.2, .06, len + .1, M.offwhite, c - .12, .78, mid, { cast: false }); boxB(.06, .06, len, M.frame, c - .1, 2.58, mid, { cast: false });
   }
@@ -577,13 +627,14 @@ floorRect(0, 13, 10, 22, T.tile, 1.0, .004, { rough: .25 });
 floorRect(0, 22, 10, 30, T.raised, .6, .004, { rough: .5 });
 floorRect(0, 10, 10, 13, T.vinyl, 1.2, .004, { rough: .6 });
 // boss rug
-plane(4.4, 3.2, mStd(0x7a2430, 1), 40, .008, 4.4, { rx: -PI / 2 }).receiveShadow = true;
+plane(4.4, 3.2, new THREE.MeshStandardMaterial({ color: 0x7a2430, roughness: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -10 }), 40, .012, 4.4, { rx: -PI / 2 }).receiveShadow = true;
 
+const lightPanels = [];
 // ceiling + lights
 {
   const c = plane(W, D, new THREE.MeshStandardMaterial({ map: rep(T.ceiling, W / 1.2, D / 1.2), roughness: 1 }), W / 2, CEIL, D / 2, { rx: PI / 2 });
   c.castShadow = false;
-  for (let x = 3; x < W; x += 4) for (let z = 2.4; z < D; z += 3.6) { const p = put(gBox(1.18, .03, .58), M.lightPanel, x, CEIL - .015, z, scene, { cast: false }); }
+  for (let x = 3; x < W; x += 4) for (let z = 2.4; z < D; z += 3.6) { const p = put(gBox(1.18, .03, .58), M.lightPanel, x, CEIL - .015, z, scene, { cast: false }); lightPanels.push(p); }
 }
 // outer walls
 wallLineX(0, 0, W, [], { cast: false, t: .16 });
@@ -613,7 +664,7 @@ sign(signTex('RESTROOM'), 1.3, .33, 10.08, 2.45, 17, PI / 2);
 sign(signTex(['SERVER ROOM'], { bg: '#7b1d1d', sub: 'AUTHORIZED ONLY' }), 1.5, .42, 10.08, 2.45, 26.5, PI / 2);
 sign(signTex('EXIT', { bg: '#0f7a3a', font: '800 80px "IBM Plex Sans", sans-serif' }), .8, .3, 31, 2.5, 29.9, PI, true);
 sign(signTex('SYNERGY', { w: 1024, h: 160, bg: '#1d2a3a', fg: '#ffd23a', font: '400 120px Anton, Impact, sans-serif' }), 4.2, .66, 22, 2.1, 29.91, PI);
-sign(T.poster, .7, .93, .09, 1.6, 6.5, PI / 2);
+sign(T.poster, .7, .93, .1, 1.6, 6.5, PI / 2);
 sign(T.whiteboard, 2.6, 1.5, 20.09, 1.5, 5, PI / 2);
 
 // ---- exit door (south) ----
@@ -635,7 +686,9 @@ boxB(.6, .03, .4, M.steel, 6.6, .89, .45); put(gCyl(.015, .015, .25), M.chrome, 
 boxB(.85, 1.9, .78, mStd(0xd9dcde, .35, .3), 9.3, 0, .56, { r: .03 }); boxB(.04, .5, .04, M.chrome, 8.95, .9, .97);
 blk(8.85, .15, 9.75, .97, 1.9, 'solid');
 sign(T.fridgeNote, .2, .2, 9.4, 1.4, .965);
-boxB(.9, 1.9, .8, M.red, 11.45, 0, 3, { r: .02 }); sign(T.vending, .5, 1.6, 11.0 - .01, 1.0, 3, -PI / 2, true);
+const vending = new THREE.Group(); vending.position.set(11.0, 0, 3); scene.add(vending);
+boxB(.9, 1.9, .8, M.red, .45, 0, 0, { r: .02, parent: vending });
+{ const vm = sign(T.vending, .5, 1.6, -.01, 1.0, 0, -PI / 2, true); scene.remove(vm); vending.add(vm); }
 blk(11.0, 2.6, 11.9, 3.4, 1.9, 'solid');
 boxB(1.8, .05, .9, mStd(0xece8df, .5), 6, .72, 5.5); boxB(.08, .72, .08, M.chrome, 6, 0, 5.5);
 blk(5.1, 5.05, 6.9, 5.95, .76, 'low');
@@ -653,7 +706,7 @@ const copier = new THREE.Group(); copier.position.set(16, 0, .9); scene.add(copi
 put(gBox(1.4, .95, .9, .03), mStd(0xe2e2dc, .5), 0, .475, 0, copier);
 put(gBox(1.3, .08, .8, .02), mStd(0x8a8f95, .4), 0, 1.0, 0, copier);
 put(gBox(.5, .05, .4), mStd(0x2a2e33, .3), .3, .7, .55, copier);
-const copyGlow = put(new THREE.PlaneGeometry(1.1, .1), new THREE.MeshBasicMaterial({ color: 0x9dff9d, transparent: true, opacity: 0, toneMapped: false }), 0, 1.045, 0, copier, { rx: -PI / 2, cast: false });
+const copyGlow = put(new THREE.PlaneGeometry(1.1, .1), new THREE.MeshBasicMaterial({ color: 0x9dff9d, transparent: true, opacity: 0, toneMapped: false }), 0, 1.056, 0, copier, { rx: -PI / 2, cast: false });
 blk(15.3, .45, 16.7, 1.35, 1.05, 'low');
 boxB(.72, .75, 1.2, M.offwhite, 19.45, 0, 5); const printer = put(gBox(.55, .34, .46, .03), mStd(0x3a3e44, .5), 19.45, .92, 5);
 const printerLight = put(gBox(.04, .02, .04), new THREE.MeshBasicMaterial({ color: 0x33ff66 }), 19.2, 1.07, 5.18, scene, { cast: false });
@@ -670,7 +723,7 @@ const MEET_SEATS = [];
 for (const x of [23.75, 25.25, 26.75, 28.25]) { MEET_SEATS.push({ x, z: 3.35, yaw: 0 }, { x, z: 6.65, yaw: PI }); }
 const meetChairs = MEET_SEATS.map(s => buildChair(s.x, s.z, s.yaw));
 boxB(1.6, .95, .06, M.black, 31.9, 1.1, 5, { ry: PI / 2 });
-{ const tv = plane(1.5, .85, new THREE.MeshBasicMaterial({ map: T.sheet, toneMapped: false }), 31.85, 1.575, 5, { ry: -PI / 2 }); }
+const meetTV = plane(1.5, .85, new THREE.MeshBasicMaterial({ map: T.sheet, toneMapped: false }), 31.85, 1.575, 5, { ry: -PI / 2 });
 const meetLight = new THREE.PointLight(0xfff4e0, 4, 10, 2); meetLight.position.set(26, 2.7, 5); scene.add(meetLight);
 
 // ---- BOSS OFFICE ----
@@ -680,7 +733,7 @@ const bossChair = buildChair(40, 2.55, 0, { boss: true });
 const bossMon = new THREE.Group(); bossMon.position.set(40, .78, 4.35); bossMon.rotation.y = PI; scene.add(bossMon);
 put(gBox(.22, .02, .16), M.black, 0, .01, 0, bossMon); put(gBox(.04, .3, .04), M.black, 0, .15, -.03, bossMon);
 put(gBox(.7, .42, .035, .01), M.black, 0, .45, 0, bossMon);
-const bossScreen = put(new THREE.PlaneGeometry(.65, .37), new THREE.MeshBasicMaterial({ map: T.bossScreen, toneMapped: false }), 0, .45, .019, bossMon, { cast: false });
+const bossScreen = put(new THREE.PlaneGeometry(.65, .37), new THREE.MeshBasicMaterial({ map: T.bossScreen, toneMapped: false }), 0, .45, .022, bossMon, { cast: false });
 const bossMug = new THREE.Group(); bossMug.position.set(41.0, .78, 3.6); scene.add(bossMug);
 { const m = new THREE.MeshStandardMaterial({ map: T.mug, roughness: .4 }); put(gCyl(.048, .044, .11, 20), m, 0, .055, 0, bossMug, { ry: PI }); put(new THREE.TorusGeometry(.03, .009, 8, 16), M.white, -.055, .06, 0, bossMug, { ry: PI / 2 }); }
 sign(signTex(['D. DENNINGS'], { w: 256, h: 64, bg: '#2a1a10', fg: '#e8c46a', font: '700 30px serif' }), .34, .085, 40, .83, 4.71);
@@ -699,7 +752,7 @@ blk(4, 13.07, 8, 13.62, .9, 'low');
 plane(3.6, 1.0, new THREE.MeshStandardMaterial({ color: 0xc8d6de, roughness: .02, metalness: .9 }), 6, 1.6, 13.08);
 boxB(.5, .5, .14, M.white, 8.6, 1.3, 13.1); put(gBox(.02, .3, .02), M.red, 8.6, 1.55, 13.18, scene, { cast: false });
 const bathLight = new THREE.PointLight(0xe8f4ff, 5, 10, 2); bathLight.position.set(5, 2.7, 17.5); scene.add(bathLight);
-const flood = plane(10, 9, new THREE.MeshStandardMaterial({ color: 0x6aa8c8, transparent: true, opacity: .55, roughness: .05, metalness: .2 }), 5, .01, 17.5, { rx: -PI / 2 });
+const flood = plane(10, 9, new THREE.MeshStandardMaterial({ color: 0x6aa8c8, transparent: true, opacity: .55, roughness: .05, metalness: .2, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -12 }), 5, .01, 17.5, { rx: -PI / 2 });
 flood.visible = false; flood.receiveShadow = false;
 const puddle = put(new THREE.CircleGeometry(1, 32), flood.material, 10.3, .012, 17, scene, { rx: -PI / 2, cast: false }); puddle.visible = false;
 
@@ -708,8 +761,8 @@ const leds = [];
 for (const x of [1.6, 5.0]) for (let z = 23.4; z < 28.6; z += .8) {
   boxB(.75, 2.1, .7, M.black, x, 0, z + .35);
   const rf = new THREE.MeshStandardMaterial({ map: T.rack, roughness: .5, emissive: 0x000000 });
-  plane(.6, 2.0, rf, x + .38, 1.05, z + .35, { ry: PI / 2 });
-  for (let i = 0; i < 6; i++) { const l = put(gBox(.01, .02, .02), new THREE.MeshBasicMaterial({ color: pick([0x31ff6a, 0x31ff6a, 0xffb21f, 0x4aa8ff]) }), x + .39, .3 + i * .3, z + .1 + Math.random() * .4, scene, { cast: false }); leds.push(l); }
+  plane(.6, 2.0, rf, x + .395, 1.05, z + .35, { ry: PI / 2 });
+  for (let i = 0; i < 6; i++) { const l = put(gBox(.01, .02, .02), new THREE.MeshBasicMaterial({ color: pick([0x31ff6a, 0x31ff6a, 0xffb21f, 0x4aa8ff]) }), x + .405, .3 + i * .3, z + .1 + Math.random() * .4, scene, { cast: false }); leds.push(l); }
 }
 blk(1.2, 23.4, 2.0, 29.0, 2.1, 'solid'); blk(4.6, 23.4, 5.4, 29.0, 2.1, 'solid');
 const serverPanel = new THREE.Group(); serverPanel.position.set(7.5, 0, 29.85); scene.add(serverPanel);
@@ -738,7 +791,7 @@ function makeMonitor(x, y, z, ry, map) {
   const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g);
   put(gBox(.22, .02, .16), M.black, 0, .01, 0, g); const neck = put(gBox(.04, .28, .04), M.black, 0, .15, -.04, g);
   const bez = put(gBox(.62, .38, .035, .01), M.black, 0, .44, 0, g);
-  const scr = put(new THREE.PlaneGeometry(.57, .33), new THREE.MeshBasicMaterial({ map, toneMapped: false }), 0, .44, .0185, g, { cast: false });
+  const scr = put(new THREE.PlaneGeometry(.57, .33), new THREE.MeshBasicMaterial({ map, toneMapped: false }), 0, .44, .021, g, { cast: false });
   return { g, scr, bez };
 }
 for (let ci = 0; ci < CLUSTERS.length; ci++) {
@@ -749,7 +802,7 @@ for (let ci = 0; ci < CLUSTERS.length; ci++) {
   for (let s = 0; s < 4; s++) {
     const front = s < 2, left = s % 2 === 0, facing = front ? 1 : -1;
     const dx = xc + (left ? -.8 : .8), dz = zc - facing * .42;
-    boxB(1.56, .04, .8, M.desk, dx, .72, dz, { r: .01 });
+    boxB(1.56, .04, .8, M.desk, dx, .70, dz, { r: .01 });
     const pedX = dx + (left ? -.52 : .52);
     boxB(.42, .68, .62, M.ped, pedX, .02, dz, { r: .02 });
     for (let k = 0; k < 3; k++) boxB(.38, .005, .01, M.black, pedX, .2 + k * .2, dz - facing * .315, { cast: false });
@@ -793,14 +846,47 @@ const paMic = put(gCyl(.012, .012, .25, 8), M.black, PA.x - .08, 1.55, PA.z - .1
 put(gSph(.03, 10, 8), M.black, PA.x - .08, 1.66, PA.z - .16, scene, { cast: false });
 sign(signTex(['PA SYSTEM'], { w: 256, h: 64, bg: '#2b2f36', font: '700 30px "IBM Plex Mono", monospace' }), .36, .09, PA.x, 1.82, PA.z - .085, PI);
 
+// ---- extra fixtures for the new pranks ----
+const roomLights = [breakLight, meetLight, bossLight, bathLight, serverLight]; roomLights.forEach(l => l.userData.base = l.intensity);
+const flickerMat = M.lightPanel.clone(); lightPanels[13].material = flickerMat;
+const emerLights = [[31, 29.3], [10.6, 11.6], [26, 9.5]].map(([x, z]) => { const l = new THREE.PointLight(0xff2a1a, 0, 9, 2); l.position.set(x, 2.6, z); scene.add(l); return l; });
+// thermostat on the restroom wall
+const thermoCanvas = document.createElement('canvas'); thermoCanvas.width = 128; thermoCanvas.height = 64;
+const thermoTexture = new THREE.CanvasTexture(thermoCanvas); thermoTexture.colorSpace = THREE.SRGBColorSpace;
+function thermoDraw(temp) { const g = thermoCanvas.getContext('2d'); g.fillStyle = temp > 30 ? '#3a0d08' : '#0d2a1a'; g.fillRect(0, 0, 128, 64); g.fillStyle = temp > 30 ? '#ff5a3a' : '#5dff9d'; g.font = '700 38px "IBM Plex Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(temp + '°C', 64, 34); thermoTexture.needsUpdate = true; }
+thermoDraw(21);
+boxB(.04, .2, .16, M.white, 10.09, 1.35, 19.5, { cast: false });
+plane(.12, .06, new THREE.MeshBasicMaterial({ map: thermoTexture, toneMapped: false }), 10.115, 1.47, 19.5, { ry: PI / 2 });
+// main breaker in the server room
+boxB(.5, .7, .12, mStd(0x7d848b, .4, .6), 3.3, .9, 29.86);
+const breakerLever = put(gBox(.06, .22, .06), M.red, 3.3, 1.3, 29.77, scene, { cast: false });
+sign(signTex(['MAIN BREAKER'], { w: 256, h: 64, bg: '#f5c400', fg: '#111', font: '800 30px "IBM Plex Sans", sans-serif' }), .4, .1, 3.3, 1.7, 29.79, PI);
+// sprinkler test valve
+put(gCyl(.04, .04, 3, 10), M.red, 24.5, 1.5, 29.86); const valveWheel = put(new THREE.TorusGeometry(.13, .02, 8, 20), M.red, 24.5, 1.1, 29.74);
+put(gBox(.24, .02, .02), M.red, 24.5, 1.1, 29.74, scene, { cast: false }); put(gBox(.02, .24, .02), M.red, 24.5, 1.1, 29.74, scene, { cast: false });
+sign(signTex(['SPRINKLER TEST'], { w: 256, h: 64, bg: '#c0262d', font: '800 26px "IBM Plex Sans", sans-serif' }), .4, .1, 24.5, 1.45, 29.79, PI);
+// sprinkler heads in the ceiling
+{ const heads = []; for (let x = 5; x < W; x += 4) for (let z = 4.2; z < D; z += 3.6) heads.push([x, z]);
+  const im = new THREE.InstancedMesh(gCyl(.03, .045, .06, 8), M.chrome, heads.length); const o = new THREE.Object3D();
+  heads.forEach(([x, z], i) => { o.position.set(x, CEIL - .03, z); o.updateMatrix(); im.setMatrixAt(i, o.matrix); }); scene.add(im); }
+// air horn (shows once rigged) and the loose ceiling tile (shows once the clock is hidden)
+const hornMesh = new THREE.Group(); hornMesh.position.set(38.88, 2.02, 9.86); scene.add(hornMesh); hornMesh.visible = false;
+put(gCyl(.035, .035, .14, 12), M.red, 0, 0, 0, hornMesh); put(new THREE.ConeGeometry(.05, .1, 12), M.black, 0, -.1, 0, hornMesh, { rx: PI });
+const looseTile = put(gBox(.6, .02, .6), mStd(0xe9e8e3, 1), 27.5, CEIL - .06, 21.2, scene, { cast: false }); looseTile.rotation.z = .12; looseTile.visible = false;
+// copy room supply shelf goodies
+boxB(.25, .16, .3, mStd(0xffd21a, .6), 12.75, 1.1, 5.5, { cast: false });
+boxB(.28, .18, .32, mStd(0xff5d8f, .6), 12.75, .4, 4.6, { cast: false });
+boxB(.22, .14, .22, mStd(0xd9c2ff, .2, .8), 12.75, 1.6, 6.3, { cast: false });
+
 // =====================================================================
 // GRIDS (navigation + sight)
 // =====================================================================
 const navBlock = new Uint8Array(GW * GH), sightWall = new Uint8Array(GW * GH), sightLow = new Uint8Array(GW * GH);
 function cellIdx(x, z) { const gx = Math.floor(x / CELL), gz = Math.floor(z / CELL); if (gx < 0 || gz < 0 || gx >= GW || gz >= GH) return -1; return gz * GW + gx; }
-function buildGrids() {
-  const INF = .32;
-  for (const b of blockers) {
+const INF = .32;
+function buildGrids() { for (const b of blockers) markBlocker(b); }
+function markBlocker(b) {
+  {
     const isWall = b.kind === 'wall' || b.kind === 'solid';
     const gx0 = Math.max(0, Math.floor(b.x0 / CELL)), gx1 = Math.min(GW - 1, Math.floor((b.x1 - 1e-4) / CELL));
     const gz0 = Math.max(0, Math.floor(b.z0 / CELL)), gz1 = Math.min(GH - 1, Math.floor((b.z1 - 1e-4) / CELL));
@@ -883,7 +969,9 @@ class Particles {
       vertexShader: `attribute vec3 aColor; attribute float aAlpha; attribute float aSize; varying vec3 vC; varying float vA; uniform float uScale;
         void main(){ vC=aColor; vA=aAlpha; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uScale/max(0.05,-mv.z); gl_Position=projectionMatrix*mv; }`,
       fragmentShader: `uniform sampler2D uTex; varying vec3 vC; varying float vA;
-        void main(){ vec4 t=texture2D(uTex,gl_PointCoord); float a=t.a*vA; if(a<0.01) discard; gl_FragColor=vec4(vC,a); }`,
+        void main(){ vec4 t=texture2D(uTex,gl_PointCoord); float a=t.a*vA; if(a<0.01) discard; gl_FragColor=vec4(pow(vC,vec3(2.2)),a);
+        #include <colorspace_fragment>
+        }`,
       transparent: true, depthWrite: false, blending: this.o.additive ? THREE.AdditiveBlending : THREE.NormalBlending
     });
     this.points = new THREE.Points(geo, mat); this.points.frustumCulled = false; this.points.renderOrder = 5; scene.add(this.points);
@@ -920,7 +1008,9 @@ const E = {
   stink: new Particles(700, { gravity: .04, size: .6, grow: 1.4, color: [.55, .78, .18], color2: [.42, .58, .16], life: [2, 3.5], drag: .9, alpha: .45 }),
   spark: new Particles(400, { additive: true, gravity: -9, size: .07, color: [1, .95, .6], color2: [1, .35, .05], life: [.25, .7] }),
   rain: new Particles(2600, { gravity: -5, size: .045, color: [.75, .88, 1], life: [.45, .7], alpha: .8 }),
-  dust: new Particles(200, { gravity: -6, size: .05, color: [.95, .95, 1], life: [.4, 1] }),
+  dust: new Particles(300, { gravity: -6, size: .05, color: [.95, .95, 1], life: [.4, 1] }),
+  glitter: new Particles(1600, { additive: true, gravity: -2.2, size: .05, color: [1, .92, .55], color2: [.95, .45, 1], life: [2.5, 5], drag: .9 }),
+  motes: new Particles(500, { gravity: 0, size: .022, color: [1, .97, .9], life: [6, 12], alpha: .55, floor: false }),
 };
 function burst(em, x, y, z, n, spd, up = 0, size) { for (let i = 0; i < n; i++) em.spawn(x, y, z, rand(-spd, spd), rand(-spd * .3, spd) + up, rand(-spd, spd), size); }
 
@@ -928,7 +1018,7 @@ function burst(em, x, y, z, n, spd, up = 0, size) { for (let i = 0; i < n; i++) 
 // AUDIO (all synthesized)
 // =====================================================================
 const A = { ctx: null, out: null, muted: false, noise: null, sprink: null, sprinkG: null };
-const OPT = { sens: 1, voices: true, sound: true };
+const OPT = { sens: 1, voices: true, sound: true, quality: 'high' };
 function audioStart() {
   if (A.ctx) { A.ctx.resume && A.ctx.resume(); return; }
   try { A.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
@@ -986,7 +1076,14 @@ const SFX = {
   fired() { const t = A.ctx.currentTime; [[196, 0], [185, .35], [174, .7], [130, 1.05]].forEach(([f, d]) => { osc('sawtooth', f, t + d, d === 1.05 ? 1.6 : .4, .14); osc('sawtooth', f * 1.5, t + d, d === 1.05 ? 1.6 : .4, .07); }); },
   win() { const t = A.ctx.currentTime; [523, 659, 784, 1046].forEach((f, i) => osc('triangle', f, t + i * .12, .5, .18)); },
   click() { const t = A.ctx.currentTime; osc('square', 2000, t, .02, .03); },
-  step(pos, run) { const t = A.ctx.currentTime, v = volAt(pos); nz(t, .07, (run ? .06 : .03) * v, { f: 500 }); },
+  step(pos, run, hard, crouch) { const t = A.ctx.currentTime, v = volAt(pos) * (crouch ? .35 : 1); if (hard) { nz(t, .05, (run ? .1 : .055) * v, { type: 'highpass', f: 1800 }); osc('sine', 160, t, .05, .05 * v, { f2: 90 }); } else nz(t, .08, (run ? .07 : .035) * v, { f: 450 }); },
+  pop(pos) { const t = A.ctx.currentTime, v = volAt(pos); nz(t, .08, .5 * v, { type: 'highpass', f: 1200 }); osc('sine', 180, t, .08, .3 * v, { f2: 60 }); },
+  airhorn(pos) { const t = A.ctx.currentTime, v = Math.max(.55, volAt(pos)); [466, 554, 698].forEach(f => { osc('sawtooth', f, t, 1.3, .15 * v, { attack: .02 }); osc('sawtooth', f * 1.006, t, 1.3, .09 * v, { attack: .02 }); }); },
+  beep(pos) { const t = A.ctx.currentTime, v = volAt(pos); for (let i = 0; i < 4; i++) osc('square', 2100, t + i * .12, .07, .12 * v); },
+  breaker(pos) { const t = A.ctx.currentTime; osc('square', 140, t, .1, .3); nz(t, .15, .4, { f: 2500 }); osc('sawtooth', 120, t + .05, 1.2, .2, { f2: 30 }); },
+  valve(pos) { const t = A.ctx.currentTime, v = volAt(pos); osc('sawtooth', 900, t, .5, .08 * v, { f2: 1400 }); nz(t + .3, 1.5, .3, { type: 'bandpass', f: 2500, q: .7, attack: .4 }); },
+  crash(pos) { const t = A.ctx.currentTime, v = volAt(pos); osc('sine', 70, t, .7, .9 * v, { f2: 25 }); nz(t, .9, .7 * v, { f: 900, f2: 200 }); for (let i = 0; i < 14; i++) osc('triangle', rand(500, 2500), t + Math.random() * .8, .08, .08 * v); },
+  meow(pos) { const t = A.ctx.currentTime, v = volAt(pos); const o = osc('sawtooth', 500, t, .6, .07 * v, { attack: .05 }); o.frequency.linearRampToValueAtTime(900, t + .2); o.frequency.linearRampToValueAtTime(450, t + .6); },
 };
 function sfx(name, ...a) { if (!A.ctx || !OPT.sound) return; try { SFX[name](...a); } catch (e) {} }
 // lounge muzak / tension
@@ -1105,6 +1202,10 @@ function animatePerson(p, pose, t) {
     case 'fix': chestX = .4; s0 = s1 = -1.2 + Math.sin(t * 8) * .1; e0 = e1 = -.4; break;
     case 'fallen': bodyRX = -PI / 2; bodyY = .14; h0 = -.3; h1 = .25; s0 = -2.6; s1 = -2.9; k0 = .4; z0 = -.4; z1 = .4; break;
     case 'point': s1 = -1.5; e1 = 0; s0 = 0; break;
+    case 'grope': { const s = Math.sin(t * 5); h0 = -s * .35; h1 = s * .35; k0 = Math.max(0, s) * .4; k1 = Math.max(0, -s) * .4; s0 = s1 = -1.45 + Math.sin(t * 3) * .1; e0 = e1 = -.1; break; }
+    case 'fan': s1 = -2.3 + Math.sin(t * 14) * .25; e1 = -1.4; z1 = .3; chestX = .05; break;
+    case 'lookup': headX = -.75; s0 = s1 = -.2; break;
+    case 'grab': chestX = .85; s0 = s1 = -1.1; e0 = e1 = -.2; hipY = .86; k0 = k1 = .3; h0 = h1 = -.3; break;
     default: s0 = Math.sin(t * 1.2) * .03; s1 = -s0; hipY += Math.sin(t * 2) * .004;
   }
   L0.hip.rotation.x = h0; L1.hip.rotation.x = h1; L0.knee.rotation.x = k0; L1.knee.rotation.x = k1;
@@ -1121,8 +1222,9 @@ const G = {
   evac: { active: false, t: 0 }, meeting: { active: false, t: 0, inside: 0, total: 0, talkT: 3, started: false, wait: 0, n: 0 },
   flood: { active: false, level: 0 }, printer: { t: 0, spawn: 0, sheets: 0 }, huntCd: 30, witnessed: 0, farts: 0,
   hintIdx: 0, hintT: 2, laughCheck: 0, smashed: 0, ducks: 0, kickT: 0, kickLaughs: 0, seenNow: false, prankCount: 0,
+  heat: { t: 0 }, heatK: 0, sprink: { t: 0 }, wet: 0, lightK: 1, lightTarget: 1, lightFlick: 0, lightApplied: 1, shake: 0, combo: 0, lastChaosT: -99, clockT: 0, alarmClock: null, vend: null, catT: 0,
 };
-const P = { pos: V(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15), vel: V(), yaw: PI, pitch: -.08, crouch: false, run: false, eye: 1.62, bob: 0, stepT: 0 };
+const P = { pos: V(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15), vel: V(), yaw: PI, pitch: -.08, crouch: false, run: false, eye: 1.62, bob: 0, stepT: 0, y: 0, vy: 0, ground: true, stamina: 1, tired: false, roll: 0, fov: 72, landT: 0, shoveCd: 0 };
 const keys = {};
 const MIN_PER_SEC = 1 / 1.1;
 
@@ -1140,12 +1242,25 @@ const PRANKS = [
   { id: 'toilet', title: 'Clog the toilet', pts: 150 },
   { id: 'ducks', title: 'Leave rubber ducks on 4 desks', pts: 200, need: 'ducks' },
   { id: 'smash', title: 'Smash 3 monitors', pts: 200 },
+  { id: 'thermostat', title: 'Crank the thermostat to 35°C', pts: 150 },
+  { id: 'lights', title: 'Flip the main breaker (blackout)', pts: 250 },
+  { id: 'sprinklers', title: 'Open the sprinkler test valve', pts: 300 },
+  { id: 'balloons', title: 'Fill the meeting room with balloons', pts: 200, need: 'balloons' },
+  { id: 'airhorn', title: "Rig an air horn on the boss's door", pts: 200, need: 'airhorn' },
+  { id: 'glitter', title: "Glitter-bomb the boss's desk drawer", pts: 200, need: 'glitter' },
+  { id: 'cattv', title: 'Put cat videos on the meeting TV', pts: 200 },
+  { id: 'clock', title: 'Hide a beeping alarm clock in the ceiling', pts: 150, need: 'clock' },
+  { id: 'vending', title: 'Tip over the vending machine', pts: 250 },
 ];
 const ITEM = {
   jello: { name: 'Jello mix', where: 'break room fridge' },
   cushion: { name: 'Whoopee cushion', where: 'your desk drawer' },
   note: { name: 'KICK ME note', where: 'your desk drawer' },
   ducks: { name: 'Bag of rubber ducks', where: 'copy room shelf' },
+  airhorn: { name: 'Air horn', where: 'your desk drawer' },
+  clock: { name: 'Alarm clock', where: 'your desk drawer' },
+  balloons: { name: 'Bag of balloons', where: 'copy room shelf' },
+  glitter: { name: 'Glitter bomb', where: 'copy room shelf' },
 };
 
 // =====================================================================
@@ -1192,6 +1307,7 @@ class NPC {
     this.isBoss = d.id === 'boss'; this.x = 0; this.z = 0; this.yaw = 0; this.headYaw = 0; this.pose = 'stand'; this.task = null; this.prio = 0;
     this.path = []; this.pi = 0; this.overlay = null; this.hidden = false; this.seeT = 0; this.seeing = false; this.markT = 0; this.sayCd = 0; this.t = Math.random() * 10;
     this.flags = {}; this.hazT = Math.random() * .5; this.distracted = 0; this.cone = [];
+    this.aware = 0; this.lastSeen = null; this.glance = { t: 0, x: 0, z: 0 }; this.spd = 0; this.watchT = 0; this.greetCd = rand(8, 30); this.socialLook = false; this.prevZ = 0;
     if (d.desk != null) { this.deskRef = desks[d.desk]; this.seat = this.deskRef.seat; this.deskRef.owner = this; }
     const el = document.createElement('div'); el.className = 'tag';
     el.innerHTML = `<div class="tag-mark"></div><div class="tag-bubble"></div><div class="tag-name">${d.name}<small>${d.role}</small></div>`;
@@ -1209,6 +1325,8 @@ class NPC {
     if (this.hidden || (this.sayCd > 0 && !force)) return;
     this.sayCd = 3; this.tag.bubble.textContent = text; this.tag.bubble.classList.add('on'); this.tag.bt = 2.6 + text.length * .03; speak(text, this, force);
   }
+  glanceAt(x, z, t) { this.glance.x = x; this.glance.z = z; this.glance.t = t; }
+  separate() { if (this.sitting) return; for (const o of npcs) { if (o === this || o.hidden) continue; const dx = this.x - o.x, dz = this.z - o.z, d = Math.hypot(dx, dz); if (d < .6 && d > 1e-3) { const k = (.6 - d) * .5, nx = this.x + dx / d * k, nz = this.z + dz / d * k; if (navFree(nx, nz)) { this.x = nx; this.z = nz; } } } }
   mark(kind, t = 1.5) { this.tag.mark.textContent = kind; this.tag.mark.classList.toggle('alert', kind === '!'); this.markT = t; }
   react(pose, dur, line) { if (this.hidden) return; this.overlay = { pose, t: dur }; if (line) this.say(line, true); }
   assign(task, prio = 1) {
@@ -1234,18 +1352,34 @@ class NPC {
     return losGrid(this.x, this.z, tx, tz, crouch || this.sitting);
   }
   update(dt) {
-    this.t += dt; this.sayCd -= dt; this.markT -= dt; if (this.distracted > 0) this.distracted -= dt;
+    this.t += dt; this.sayCd -= dt; this.markT -= dt; this.greetCd -= dt; if (this.distracted > 0) this.distracted -= dt;
     const tg = this.tag; if (tg.bt > 0) { tg.bt -= dt; if (tg.bt <= 0) tg.bubble.classList.remove('on'); }
     if (this.hidden) { this.p.root.visible = false; tg.el.style.display = 'none'; this.coneMesh.visible = false; return; }
     this.p.root.visible = true; tg.el.style.display = '';
     let pose = 'stand';
-    if (this.overlay) { this.overlay.t -= dt; pose = this.overlay.pose; if (this.overlay.t <= 0) this.overlay = null; }
-    else {
+    if (this.watchT > 0) this.watchT -= dt;
+    if (this.glance.t > 0) this.glance.t -= dt;
+    const seated = this.task && this.task.phase === 'perform' && ['sit', 'type', 'toilet'].includes(this.task.pose);
+    if (this.overlay) { this.overlay.t -= dt; pose = this.overlay.pose; this.spd = 0; if (this.overlay.t <= 0) this.overlay = null; }
+    else if (this.watchT > 0 && !seated && this.prio < 3) {
+      // something is off: stop and stare at the player
+      this.spd = 0; this.turnTo(Math.atan2(P.pos.x - this.x, P.pos.z - this.z), dt * 5);
+    } else {
       if (!this.task) this.assign(scheduleTask(this), 1);
       const T = this.task;
       if (T.phase === 'travel') {
-        const arrived = this.follow(dt, T.run ? 3.4 : this.speed); pose = T.run ? 'run' : 'walk'; this.headYaw *= .9;
-        if (arrived) { T.phase = 'perform'; T.timer = T.dur; if (T.onArrive) T.onArrive(this, T); }
+        let arrived = false;
+        if (T.chase) {
+          const c = T.chase(); if (!c || c.hidden) { this.clearTask(); return; }
+          T.rp = (T.rp || 0) - dt; if (T.rp <= 0) { T.rp = 1.2; this.path = findPath(this.x, this.z, c.x, c.z); this.pi = 0; }
+          if (Math.hypot(c.x - this.x, c.z - this.z) < 1.3) arrived = true;
+        }
+        const want = (T.run ? 3.5 : this.speed) * (G.heatK > .5 ? .8 : 1) * (G.lightK < .5 ? .55 : 1);
+        this.spd = lerp(this.spd, want, Math.min(1, dt * 3.5));
+        if (!arrived) arrived = this.follow(dt, Math.max(.4, this.spd));
+        pose = T.run ? (T.panic ? 'panic' : 'run') : (G.lightK < .5 ? 'grope' : 'walk'); this.headYaw *= .9;
+        if (this.spd > .3) pushChairs(this.x, this.z, Math.sin(this.yaw) * this.spd, Math.cos(this.yaw) * this.spd, .3, true);
+        if (arrived) { T.phase = 'perform'; T.timer = T.dur; this.spd = 0; if (T.onArrive) T.onArrive(this, T); }
       } else {
         if (T.spot.yaw != null) this.turnTo(T.spot.yaw, dt * 6);
         pose = T.pose; T.timer -= dt; if (T.perform) T.perform(this, dt, T);
@@ -1255,6 +1389,10 @@ class NPC {
         if (T.timer <= 0 && this.task === T) { this.clearTask(); if (T.onDone) T.onDone(this, T); }
       }
     }
+    this.separate();
+    // head: glance toward sounds, track the player when watching or close by
+    const look = this.glance.t > 0 ? this.glance : (this.watchT > 0 || this.socialLook) ? P.pos : null;
+    if (look && !(this.overlay && this.overlay.pose === 'fallen')) { const want = clamp(angDiff(Math.atan2(look.x - this.x, look.z - this.z), this.yaw), -1.3, 1.3); this.headYaw = lerp(this.headYaw, want, Math.min(1, dt * 6)); }
     this.pose = pose;
     const T = this.task; let ox = 0, y = 0;
     if (T && T.phase === 'perform' && !this.overlay && T.spot.sx) ox = T.spot.sx;
@@ -1310,13 +1448,31 @@ function scheduleTask(n) {
     default: return T_wander();
   }
 }
+function T_search(n, x, z, extra = 1) {
+  const pts = [[x, z]];
+  for (let i = 0; i < extra; i++) for (let k = 0; k < 14; k++) { const a = rand(0, PI * 2), r = rand(2, 5), px = x + Math.cos(a) * r, pz = z + Math.sin(a) * r; if (navFree(px, pz)) { pts.push([px, pz]); break; } }
+  const mk = i => spotT('search', { x: pts[i][0], z: pts[i][1], yaw: null }, 'stand', rand(1.8, 3), { look: true, onDone: nn => { if (i + 1 < pts.length) nn.assign(mk(i + 1), 2.4); else nn.aware *= .5; } });
+  return mk(0);
+}
 function bossHunt(toPlayer = true) {
   if (boss.hidden || (boss.task && boss.prio > 2)) return;
   const x = toPlayer ? P.pos.x : rand(14, 40), z = toPlayer ? P.pos.z : rand(14, 28);
-  boss.assign(spotT('hunt', { x, z, yaw: null }, 'stand', 3.5, { look: true, onArrive: n => {
-    if (G.working && Math.hypot(P.pos.x - n.x, P.pos.z - n.z) < 6) { n.say('Good. Keep it that way.', true); addSus(-8); }
-    else n.say(pick(LINES.bossHunt));
-  } }), 2);
+  const t = T_search(boss, x, z, 2);
+  t.onArrive = n => { if (G.working && Math.hypot(P.pos.x - n.x, P.pos.z - n.z) < 6) { n.say('Good. Keep it that way.', true); addSus(-8); } else if (Math.random() < .6) n.say(pick(LINES.bossHunt)); };
+  boss.assign(t, 2);
+}
+function reportToBoss(n, verb) {
+  if (G.mode !== 'play' || n.hidden || boss.hidden || n.prio >= 3 || G.evac.active) return;
+  n.say(pick(["I'm telling Mr. Dennings.", 'BOSS! You need to hear this!', "That's IT. I'm reporting you."]), true);
+  n.assign(spotT('report', { x: boss.x, z: boss.z, yaw: null }, 'talk', 2.6, { run: n.id === 'karen', chase: () => boss,
+    onArrive: nn => {
+      nn.turnTo(Math.atan2(boss.x - nn.x, boss.z - nn.z), 1); boss.glanceAt(nn.x, nn.z, 3); nn.say(`They were ${verb}!`, true);
+      later(1.6, () => { boss.say(pick(['Is that so...', 'WHERE?', "I'll handle this."]), true); addSus(10, `${nn.name} reported you to the boss for ${verb}`); later(1.2, () => bossHunt(true)); });
+    } }), 3);
+}
+function T_panic(n, k) {
+  for (let i = 0; i < 20; i++) { const x = rand(11, 43), z = rand(11, 29.5); if (navFree(x, z)) return spotT('panic', { x, z, yaw: null }, 'shock', .6, { run: true, panic: true, onDone: nn => { if (k > 1 && G.sprink.t > 0) nn.assign(T_panic(nn, k - 1), 3.5); } }); }
+  return T_wander();
 }
 function laughNear(src, r, exclude = src) {
   let k = 0;
@@ -1350,6 +1506,16 @@ function onPrinter(n, T) {
 }
 function onBossDesk(n) {
   let d = .8;
+  if (G.flags.glitter && !G.flags.glitterDone) {
+    G.flags.glitterDone = true;
+    later(d, () => {
+      for (let i = 0; i < 420; i++) E.glitter.spawn(n.x + rand(-.2, .2), .95, n.z + .55, rand(-2.6, 2.6), rand(1, 4.8), rand(-2.6, 2.6));
+      sfx('pop', n); sfx('crash', n); shake(Math.hypot(P.pos.x - n.x, P.pos.z - n.z) < 8 ? .35 : 0);
+      n.react('shock', 2.4, "GLITTER?! IT'S IN MY MUSTACHE!"); n.flags.glitter = true; laughNear(n, 16); addChaos(250, 'The boss exploded in glitter');
+      const sm = n.p.chest.children[0].material; sm.color.set(0x8a5aa8); sm.metalness = .65; sm.roughness = .3; sm.emissive.set(0x2a0a2a);
+    });
+    d += 3.2;
+  }
   if (G.flags.whoopee && !G.flags.whoopeeDone) {
     G.flags.whoopeeDone = true;
     later(d, () => { sfx('fart', n, 1.8, 1.5); burst(E.stink, n.x, .6, n.z, 6, .3, .2, .5); n.react('shock', 1.6, "THAT WASN'T ME!"); laughNear(n, 16); addChaos(250, 'The boss sat on the whoopee cushion'); });
@@ -1393,8 +1559,13 @@ function feed(pts, text, kind = '') {
   const f = $('feed'); f.prepend(el); while (f.children.length > 6) f.lastChild.remove();
   setTimeout(() => el.classList.add('out'), 4200); setTimeout(() => el.remove(), 4700);
 }
+function shake(a) { G.shake = Math.max(G.shake, a); }
 function addChaos(n, text) {
-  if (G.mode !== 'play' || !n) return; G.chaos += n; feed('+' + n, text);
+  if (G.mode !== 'play' || !n) return;
+  G.combo = G.clockT - G.lastChaosT < 6 ? Math.min(G.combo + 1, 8) : 0; G.lastChaosT = G.clockT;
+  const mult = 1 + G.combo * .25, pts = Math.round(n * mult); G.chaos += pts;
+  feed('+' + pts, text + (G.combo ? `  ×${mult.toFixed(2)}` : ''));
+  if (G.combo) { $('combo').hidden = false; $('comboTxt').textContent = 'x' + mult.toFixed(2); }
   const c = $('chaosTxt'); c.textContent = G.chaos.toLocaleString('en-US'); c.classList.add('bump'); setTimeout(() => c.classList.remove('bump'), 160);
 }
 function addSus(n, reason) {
@@ -1415,6 +1586,9 @@ const HINTS = [
   'Smashing things is LOUD. People come to look. Leave fast.',
   'Press <kbd>F</kbd> next to two or more coworkers. They will blame each other.',
   'Meetings at 11:00 and 3:00. The boss notices if you skip them.',
+  'Pranks done within 6 seconds of each other build a COMBO multiplier.',
+  'Click with empty hands to shove chairs, knock things over and pop balloons. <kbd>Space</kbd> jumps.',
+  'If someone sees you mid-prank, they may run off to tell the boss. Stay out of sight.',
 ];
 function showHint(html, dur = 7) { const h = $('hint'); h.innerHTML = html; h.style.opacity = 1; G.hintShown = dur; }
 
@@ -1532,7 +1706,7 @@ function completePrank(id) {
 }
 const pv = (o, x, y, z) => o.localToWorld(V(x, y, z));
 // your desk
-addInteract({ pos: [PLAYER_DESK.pedX, .45, PLAYER_DESK.dz - PLAYER_DESK.facing * .33], label: 'Raid your desk drawer', hold: .6, minDot: .7, available: () => !G.flags.drawer, onDone: () => { G.flags.drawer = true; giveItem('cushion'); giveItem('note'); } });
+addInteract({ pos: [PLAYER_DESK.pedX, .45, PLAYER_DESK.dz - PLAYER_DESK.facing * .33], label: 'Raid your desk drawer', hold: .6, minDot: .7, available: () => !G.flags.drawer, onDone: () => { G.flags.drawer = true; giveItem('cushion'); giveItem('note'); giveItem('airhorn'); giveItem('clock'); } });
 addInteract({ getPos: () => pv(PLAYER_DESK.mon.g, 0, .44, 0), label: 'Pretend to work', hold: .25, available: () => !G.working, onDone: startWorking, repeat: true });
 // items
 addInteract({ pos: [9.3, 1.1, 1.05], label: 'Grab a box of jello mix from the fridge', hold: .8, available: () => !G.items.jello && !G.done.jello, onDone: () => giveItem('jello') });
@@ -1563,14 +1737,299 @@ desks.forEach((d, i) => {
   if (i !== 0) addInteract({ getPos: () => pv(d.mon.g, 0, .44, 0), label: 'Smash this monitor', verb: 'smashing a monitor', hold: 1.1, sus: true, available: () => !d.smashed, onDone: () => smashMonitor(d) });
 });
 
+// =====================================================================
+// ROLLING OFFICE CHAIRS
+// =====================================================================
+const chairs = [];
+desks.forEach(d => chairs.push({ g: d.chair.g, seat: d.chair.seat, home: { x: d.seat.x, z: d.seat.z, yaw: d.seat.yaw }, vx: 0, vz: 0, spin: 0, hitCd: 0 }));
+meetChairs.forEach((c, i) => chairs.push({ g: c.g, seat: c.seat, home: { ...MEET_SEATS[i] }, vx: 0, vz: 0, spin: 0, hitCd: 0 }));
+chairs.push({ g: bossChair.g, seat: bossChair.seat, home: { ...SPOT.bossDesk }, vx: 0, vz: 0, spin: 0, hitCd: 0 });
+function pushChairs(x, z, vx, vz, r, onlyLoose) {
+  for (const c of chairs) {
+    const p = c.g.position; if (c.occupied) continue;
+    if (onlyLoose && Math.hypot(p.x - c.home.x, p.z - c.home.z) < .3) continue;
+    const dx = p.x - x, dz = p.z - z, d = Math.hypot(dx, dz), min = r + .27;
+    if (d >= min || d < 1e-4) continue;
+    const nx = dx / d, nz = dz / d; p.x += nx * (min - d); p.z += nz * (min - d);
+    const along = vx * nx + vz * nz;
+    if (along > 0) { c.vx += nx * along * .9; c.vz += nz * along * .9; c.spin += (Math.random() - .5) * along * 2.5; }
+  }
+}
+const _cp = V();
+function updateChairs(dt) {
+  for (const c of chairs) {
+    const p = c.g.position;
+    c.occupied = npcs.some(n => !n.hidden && n.sitting && Math.hypot(n.x - c.home.x, n.z - c.home.z) < .45) || (G.working && c === chairs[0]);
+    if (c.occupied) {
+      if (Math.hypot(p.x - c.home.x, p.z - c.home.z) > .02) { p.set(c.home.x, 0, c.home.z); c.g.rotation.y = c.home.yaw; c.vx = c.vz = c.spin = 0; }
+      continue;
+    }
+    const sp = Math.hypot(c.vx, c.vz); c.hitCd -= dt;
+    if (sp < .03 && Math.abs(c.spin) < .03) continue;
+    p.x += c.vx * dt; p.z += c.vz * dt; c.g.rotation.y += c.spin * dt;
+    const f = Math.max(0, 1 - dt * 1.8); c.vx *= f; c.vz *= f; c.spin *= f;
+    _cp.copy(p); collideCircle(p, .27);
+    const mx = p.x - _cp.x, mz = p.z - _cp.z, ml = Math.hypot(mx, mz);
+    if (ml > 1e-5) { const nx = mx / ml, nz = mz / ml, vn = c.vx * nx + c.vz * nz; if (vn < 0) { c.vx -= 1.6 * vn * nx; c.vz -= 1.6 * vn * nz; if (sp > 2) sfx('thud', p); } }
+    for (const o of chairs) {
+      if (o === c || o.occupied) continue; const q = o.g.position, dx = q.x - p.x, dz = q.z - p.z, d = Math.hypot(dx, dz);
+      if (d >= .54 || d < 1e-4) continue;
+      const nx = dx / d, nz = dz / d, rel = (c.vx - o.vx) * nx + (c.vz - o.vz) * nz;
+      q.x += nx * (.54 - d) * .5; q.z += nz * (.54 - d) * .5; p.x -= nx * (.54 - d) * .5; p.z -= nz * (.54 - d) * .5;
+      if (rel > 0) { o.vx += nx * rel * .8; o.vz += nz * rel * .8; c.vx -= nx * rel * .6; c.vz -= nz * rel * .6; if (rel > 1.5) sfx('thud', p); }
+    }
+    if (sp > 2.2 && c.hitCd <= 0 && G.mode === 'play') for (const n of npcs) {
+      if (n.hidden || n.sitting || Math.hypot(n.x - p.x, n.z - p.z) > .5) continue;
+      c.hitCd = 2; c.vx *= -.3; c.vz *= -.3; n.react('shock', 1.2, pick(['WHOA!', 'Did that chair just—?!', 'HEY!']));
+      addChaos(40, `Rammed ${n.name} with a rolling chair`);
+      later(.2, () => { if (n.sees(P.pos.x, P.pos.z, P.crouch)) addSus(10 * n.mult, `${n.name} saw you launch a chair at them`); });
+      break;
+    }
+  }
+}
+
+// =====================================================================
+// BALLOONS
+// =====================================================================
+const balloons = [];
+const balloonGeo = new THREE.SphereGeometry(.17, 18, 14), stringGeo = new THREE.CylinderGeometry(.003, .003, .55, 4);
+const balloonMats = [0xff4d6d, 0xffd23a, 0x4dabff, 0x7be07b, 0xc77dff, 0xff9f43].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: .22, metalness: .05 }));
+function spawnBalloons() {
+  delete G.items.balloons; renderPockets();
+  for (let i = 0; i < 64; i++) {
+    const m = new THREE.Mesh(balloonGeo, pick(balloonMats)); m.scale.y = 1.15; m.castShadow = true;
+    const st = new THREE.Mesh(stringGeo, M.offwhite); st.position.y = -.45; m.add(st); scene.add(m);
+    balloons.push({ m, x: rand(20.6, 31.4), y: rand(.4, 1.5), z: rand(.6, 9.4), vx: 0, vy: rand(.5, 1.5), vz: 0, ph: rand(0, 6) });
+  }
+  sfx('pop'); completePrank('balloons');
+  addHazard({ x: 26, z: 5, r: 7, pose: 'laugh', chaos: 30, lines: ['Why is the meeting room full of BALLOONS?!', "Is it someone's birthday?!", 'Party in the meeting room!'], label: '{n} found the balloon room', active: () => balloons.length > 10 });
+}
+function popBalloon(i) { const b = balloons[i]; balloons.splice(i, 1); scene.remove(b.m); sfx('pop', V(b.x, b.y, b.z)); burst(E.confetti, b.x, b.y, b.z, 12, 1.2, .5); addChaos(5, 'Popped a balloon'); }
+function updateBalloons(dt) {
+  if (!balloons.length) return;
+  const t = G.clockT;
+  for (const b of balloons) {
+    const ty = CEIL - .27 + Math.sin(t * 1.3 + b.ph) * .03;
+    b.vy += (ty - b.y) * 2.2 * dt; b.vx += rand(-.2, .2) * dt; b.vz += rand(-.2, .2) * dt;
+    const bump = (hx, hy, hz, r) => { const dx = b.x - hx, dy = b.y - hy, dz = b.z - hz, d = Math.hypot(dx, dy, dz); if (d < r && d > 1e-3) { const k = (r - d) * 56 * dt; b.vx += dx / d * k; b.vy += dy / d * k; b.vz += dz / d * k; } };
+    bump(P.pos.x, P.eye + P.y, P.pos.z, .6); bump(P.pos.x, 1.0, P.pos.z, .5);
+    for (const n of npcs) if (!n.hidden) bump(n.x, 1.6, n.z, .5);
+    const f = Math.max(0, 1 - dt * 1.4); b.vx *= f; b.vy *= f; b.vz *= f;
+    b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
+    if (b.x < 20.3) { b.x = 20.3; b.vx = Math.abs(b.vx) * .5; } if (b.x > 31.7) { b.x = 31.7; b.vx = -Math.abs(b.vx) * .5; }
+    if (b.z < .3) { b.z = .3; b.vz = Math.abs(b.vz) * .5; } if (b.z > 9.7) { b.z = 9.7; b.vz = -Math.abs(b.vz) * .5; }
+    b.y = clamp(b.y, .25, CEIL - .2);
+    b.m.position.set(b.x, b.y, b.z); b.m.rotation.set(-b.vz * .4, 0, b.vx * .4);
+  }
+  for (let i = 0; i < balloons.length; i++) for (let j = i + 1; j < balloons.length; j++) {
+    const a = balloons[i], c = balloons[j], dx = c.x - a.x, dy = c.y - a.y, dz = c.z - a.z, d2 = dx * dx + dy * dy + dz * dz;
+    if (d2 < .1 && d2 > 1e-6) { const d = Math.sqrt(d2), k = (.32 - d) * .5, nx = dx / d, ny = dy / d, nz = dz / d; a.x -= nx * k; a.y -= ny * k; a.z -= nz * k; c.x += nx * k; c.y += ny * k; c.z += nz * k; }
+  }
+  for (const pr of props) if (pr.active && pr.thrown) for (let i = balloons.length - 1; i >= 0; i--) { const b = balloons[i]; if (Math.hypot(b.x - pr.pos.x, b.y - pr.pos.y, b.z - pr.pos.z) < .25) popBalloon(i); }
+}
+
+// =====================================================================
+// SHOVE (click with empty hands)
+// =====================================================================
+function shove() {
+  if (P.shoveCd > 0 || G.mode !== 'play') return; P.shoveCd = .35;
+  const cam = camera.position, fwd = camera.getWorldDirection(V()); shake(.08); sfx('whoosh');
+  for (let i = balloons.length - 1; i >= 0; i--) {
+    const b = balloons[i], dx = b.x - cam.x, dy = b.y - cam.y, dz = b.z - cam.z, d = Math.hypot(dx, dy, dz);
+    if (d < 2.3 && (dx * fwd.x + dy * fwd.y + dz * fwd.z) / d > .9) { popBalloon(i); return; }
+  }
+  const fl = Math.hypot(fwd.x, fwd.z) || 1, fx = fwd.x / fl, fz = fwd.z / fl;
+  for (const c of chairs) {
+    if (c.occupied) continue; const p = c.g.position, dx = p.x - P.pos.x, dz = p.z - P.pos.z, d = Math.hypot(dx, dz);
+    if (d < 1.4 && (dx * fx + dz * fz) / d > .6) { c.vx += fx * 6; c.vz += fz * 6; c.spin += rand(-6, 6); sfx('thud', p); addChaos(5, 'Launched a chair'); return; }
+  }
+  for (const pr of props) {
+    if (pr.active) continue; const dx = pr.pos.x - cam.x, dy = pr.pos.y - cam.y, dz = pr.pos.z - cam.z, d = Math.hypot(dx, dy, dz);
+    if (d < 1.9 && (dx * fwd.x + dy * fwd.y + dz * fwd.z) / d > .8) { pr.active = true; pr.thrown = true; pr.vel.set(fwd.x * 4.5, 1.5, fwd.z * 4.5); pr.spin.set(rand(-8, 8), 0, rand(-8, 8)); return; }
+  }
+  for (const n of npcs) {
+    if (n.hidden) continue; const dx = n.x - P.pos.x, dz = n.z - P.pos.z, d = Math.hypot(dx, dz);
+    if (d < 1.2 && (dx * fx + dz * fz) / d > .5) { n.react('shock', 1, pick(['HEY! Watch it!', 'Excuse YOU.', 'Did you just shove me?!'])); n.aware = Math.max(n.aware, .5); n.watchT = 2; addChaos(15, `Shoved ${n.name}`); addSus(8 * n.mult, `${n.name} got shoved by you`); return; }
+  }
+}
+
+// =====================================================================
+// NEW PRANKS
+// =====================================================================
+addInteract({ pos: [12.75, .55, 4.6], label: 'Grab the bag of party balloons', hold: .8, available: () => !G.items.balloons && !G.done.balloons, onDone: () => giveItem('balloons') });
+addInteract({ pos: [12.75, 1.7, 6.3], label: 'Grab the glitter bomb from the craft box', hold: .8, available: () => !G.items.glitter && !G.done.glitter, onDone: () => giveItem('glitter') });
+addInteract({ id: 'thermostat', pos: [10.16, 1.45, 19.5], label: 'Crank the thermostat to 35°C', verb: 'messing with the thermostat', hold: 1.5, sus: true, available: () => !G.done.thermostat, onDone: startHeat });
+addInteract({ id: 'lights', pos: [3.3, 1.3, 29.72], label: 'Flip the main breaker', verb: 'flipping the main breaker', hold: 1.8, sus: true, available: () => !G.done.lights, onDone: startBlackout });
+addInteract({ id: 'sprinklers', pos: [24.5, 1.1, 29.7], label: 'Open the sprinkler test valve', verb: 'opening the sprinkler valve', hold: 2.5, sus: true, available: () => !G.done.sprinklers, onDone: startSprinklers });
+addInteract({ id: 'balloons', pos: [26, 1.0, 5], range: 2.6, minDot: .7, label: 'Fill the meeting room with balloons', verb: 'filling the meeting room with balloons', hold: 4, sus: true, need: 'balloons', available: () => !G.done.balloons && !G.meeting.active, onDone: spawnBalloons });
+addInteract({ id: 'airhorn', pos: [38.9, 1.95, 9.85], label: "Tape the air horn behind the boss's door", verb: "rigging the boss's door", hold: 2, sus: true, need: 'airhorn', available: () => !G.done.airhorn, onDone: () => { G.flags.horn = true; hornMesh.visible = true; delete G.items.airhorn; renderPockets(); completePrank('airhorn'); } });
+addInteract({ id: 'glitter', pos: [41.0, .5, 3.25], label: "Load the glitter bomb into his desk drawer", verb: "loading the boss's desk drawer", hold: 2, sus: true, need: 'glitter', available: () => !G.done.glitter, onDone: () => { G.flags.glitter = true; delete G.items.glitter; renderPockets(); completePrank('glitter'); } });
+addInteract({ id: 'cattv', pos: [31.8, 1.55, 5], label: 'Hack the meeting TV: 10 hours of cat videos', verb: 'hacking the meeting room TV', hold: 2.5, sus: true, available: () => !G.done.cattv, onDone: startCatTV, sfxHold: 'click' });
+addInteract({ id: 'clock', pos: [27.5, 2.95, 21.2], range: 2.0, minDot: .75, label: 'Hide the alarm clock above a ceiling tile', verb: 'hiding something in the ceiling', hold: 2, sus: true, need: 'clock', available: () => !G.done.clock, onDone: placeClock });
+addInteract({ id: 'vending', pos: [10.95, 1.2, 3], label: 'Rock the vending machine until it tips over', verb: 'tipping over the vending machine', hold: 3.5, sus: true, available: () => !G.done.vending, onDone: tipVending, sfxHold: 'thud' });
+
+function sendGary(spot, dur, startLine, endLine, onFix, area) {
+  const go = () => {
+    if (G.mode !== 'play') return;
+    if (gary.hidden || gary.prio > 3) { later(6, go); return; }
+    gary.say(startLine, true);
+    gary.assign(spotT('fix', spot, 'fix', dur, {
+      perform: (n, dt, T) => { if (!T.warned && Math.hypot(P.pos.x - spot.x, P.pos.z - spot.z) < 4 && n.sees(P.pos.x, P.pos.z, P.crouch)) { T.warned = true; addSus(14, `Gary caught you hanging around the ${area}`); n.mark('!'); n.say('What are YOU doing here?!', true); } },
+      onDone: n => { onFix(); n.say(endLine, true); }
+    }), 3);
+  };
+  go();
+}
+function startHeat() {
+  G.heat = { t: 80, complained: new Set() }; thermoDraw(35); sfx('click'); completePrank('thermostat');
+  later(22, () => sendGary({ x: 10.75, z: 19.5, yaw: -PI / 2 }, 5, "It's a SAUNA in here. I'll check the thermostat.", 'WHO set this to 35?!', () => { G.heat.t = 0; thermoDraw(21); }, 'thermostat'));
+}
+function startBlackout() {
+  G.lightTarget = 0; breakerLever.rotation.x = 1; sfx('breaker'); shake(.2); completePrank('lights');
+  npcs.forEach((n, i) => later(.4 + i * .5, () => {
+    if (n.hidden) return; n.say(pick(['WHO TURNED OFF THE LIGHTS?!', "I can't see ANYTHING!", 'Is this a power outage?!', 'Ow, my knee!']), true);
+    addChaos(30, `${n.name} is stumbling in the dark`); if (n !== gary && n.prio < 2 && !n.sitting) n.assign(T_wander(), 1.5);
+  }));
+  later(8, () => sendGary({ x: 3.3, z: 29.2, yaw: 0 }, 5, "Ugh. I'll find the breaker.", 'Who flipped the MAIN breaker?!', endBlackout, 'breaker panel'));
+  later(45, endBlackout);
+}
+function endBlackout() { if (G.lightTarget === 1) return; G.lightTarget = 1; G.lightFlick = 1.4; breakerLever.rotation.x = 0; sfx('breaker'); }
+function startSprinklers() {
+  G.sprink.t = 18; G.wet = 1; valveWheel.rotation.z = 2; sfx('valve', V(24.5, 0, 29.8)); completePrank('sprinklers');
+  npcs.forEach((n, i) => later(.3 + i * .4, () => {
+    if (n.hidden) return; n.overlay = null;
+    n.say(pick(['WHY IS IT RAINING INSIDE?!', 'MY LAPTOP!', 'My HAIR!!', 'Is this a fire?! IS THIS A FIRE?!', 'AAAAH!']), true);
+    addChaos(35, `${n.name} got soaked`); if (n.prio < 4) n.assign(T_panic(n, 3), 3.5);
+  }));
+  later(4, () => {
+    const pool = desks.filter(d => !d.smashed && d !== PLAYER_DESK);
+    for (let i = 0; i < 3 && pool.length; i++) {
+      const d = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+      later(i * 2.5, () => { const p = pv(d.mon.g, 0, .44, .05); burst(E.spark, p.x, p.y, p.z, 30, 2, 1); sfx('zap', p); d.smashed = true; d.mon.scr.material.map = pick(T.cracked); addChaos(40, 'A wet monitor shorted out'); });
+    }
+  });
+  later(20, () => { if (!boss.hidden) { boss.say('WHO TOUCHED THE SPRINKLERS?!', true); bossHunt(false); } });
+}
+const catCanvas = document.createElement('canvas'); catCanvas.width = 256; catCanvas.height = 144;
+const catTex = new THREE.CanvasTexture(catCanvas); catTex.colorSpace = THREE.SRGBColorSpace;
+function drawCat(t) {
+  const g = catCanvas.getContext('2d'); g.fillStyle = `hsl(${(t * 40) % 360},70%,72%)`; g.fillRect(0, 0, 256, 144);
+  const x = 128 + Math.sin(t * 2.1) * 70, y = 80 - Math.abs(Math.sin(t * 4)) * 22;
+  g.fillStyle = '#ff9f43'; g.beginPath(); g.arc(x, y, 30, 0, PI * 2); g.fill();
+  [-1, 1].forEach(s => { g.beginPath(); g.moveTo(x + s * 26, y - 12); g.lineTo(x + s * 18, y - 44); g.lineTo(x + s * 4, y - 26); g.fill(); });
+  g.fillStyle = '#111'; g.beginPath(); g.arc(x - 10, y - 4, 4, 0, PI * 2); g.arc(x + 10, y - 4, 4, 0, PI * 2); g.fill();
+  g.fillStyle = '#ff6b8a'; g.beginPath(); g.arc(x, y + 6, 3, 0, PI * 2); g.fill();
+  g.strokeStyle = '#111'; g.lineWidth = 1.5; [-1, 1].forEach(s => { for (let k = -1; k <= 1; k++) { g.beginPath(); g.moveTo(x + s * 8, y + 8); g.lineTo(x + s * 30, y + 6 + k * 6); g.stroke(); } });
+  g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 124, 256, 20); g.fillStyle = '#fff'; g.font = '700 11px monospace'; g.fillText('CATS_COMPILATION_10HRS.mp4', 8, 138);
+  g.fillStyle = '#e33'; g.fillRect(0, 122, (t * 3) % 256, 2); catTex.needsUpdate = true;
+}
+function startCatTV() {
+  G.flags.catTV = true; drawCat(0); meetTV.material.map = catTex; completePrank('cattv');
+  addHazard({ x: 29.5, z: 5, r: 7, notBoss: true, pose: 'laugh', chaos: 30, lines: ['Is the TV playing CAT videos?!', 'Aww, look at him!', 'This is the best meeting ever.'], label: '{n} got distracted by cat videos' });
+}
+function placeClock() { G.alarmClock = { next: 12, rings: 0, ringT: 0, beepT: 0 }; looseTile.visible = true; delete G.items.clock; renderPockets(); completePrank('clock'); }
+function updateClock(dt) {
+  const c = G.alarmClock; if (!c || c.rings >= 9) return;
+  if (c.ringT > 0) { c.ringT -= dt; c.beepT -= dt; if (c.beepT <= 0) { c.beepT = .55; sfx('beep', V(27.5, 2.9, 21.2)); } return; }
+  c.next -= dt; if (c.next > 0) return;
+  c.next = 24; c.rings++; c.ringT = 4; let k = 0;
+  for (const n of npcs) {
+    if (n.hidden || n.prio > 2.5 || Math.hypot(n.x - 27.5, n.z - 21.2) > 13) continue; k++;
+    n.say(pick(['WHERE is that BEEPING coming from?!', 'Is that... the ceiling?', 'Make it STOP!', 'Every 24 seconds. EVERY. 24. SECONDS.']));
+    n.assign(spotT('clocksearch', { x: 27.5 + rand(-1.5, 1.5), z: 21.2 + rand(-1.2, 1.2), yaw: null }, 'lookup', 4, {}), 2.5);
+  }
+  if (k && G.mode === 'play') addChaos(30 * k, 'The ceiling is beeping again');
+}
+function tipVending() { G.vend = { a: 0, v: 0, done: false }; completePrank('vending'); sfx('thud', vending.position); }
+function updateVending(dt) {
+  const s = G.vend; if (!s || s.done) return;
+  s.v += dt * (2.5 + 9 * Math.sin(s.a)); s.a += s.v * dt;
+  if (s.a >= PI / 2) { s.a = PI / 2; s.done = true; crashVending(); }
+  vending.rotation.z = s.a;
+}
+function crashVending() {
+  sfx('crash', V(10, 0, 3)); shake(Math.hypot(P.pos.x - 10, P.pos.z - 3) < 10 ? .7 : .1);
+  burst(E.dust, 10, .2, 3, 40, 2.5, 1); burst(E.smoke, 10, .3, 3, 10, .6, .2);
+  const b = { x0: 9.1, x1: 11.0, z0: 2.6, z1: 3.4, h: .9, kind: 'low' }; blockers.push(b); markBlocker(b); drawMapBase();
+  const cols = [0xf4c430, 0xe85d2a, 0x3d8ee8, 0x55b04a, 0xd040a0];
+  for (let i = 0; i < 14; i++) {
+    const g = new THREE.Group(); put(gBox(.1, .14, .035, .01), mStd(pick(cols), .5), 0, 0, 0, g); scene.add(g);
+    const p = { kind: 'snack', name: 'bag of chips', r: .06, breakable: false, mesh: g, pos: V(rand(9.3, 10.8), .4, 3 + rand(-.3, .3)), vel: V(rand(-3, -.5), rand(1, 3), rand(-2.5, 2.5)), spin: V(rand(-8, 8), 0, rand(-8, 8)), active: true, thrown: false };
+    g.position.copy(p.pos); props.push(p);
+  }
+  noise(10, 3, 14); addChaos(100, 'Snack avalanche');
+  addHazard({ x: 10, z: 3, r: 8, pose: 'shock', chaos: 40, lines: ['The vending machine FELL OVER?!', 'FREE SNACKS!!', 'Did it just... fall?!'], label: '{n} found the fallen vending machine',
+    onSeen: n => { if (!n.isBoss) later(2, () => { if (n.prio < 2.5) n.assign(spotT('grab', { x: rand(8, 8.6), z: 3 + rand(-.8, .8), yaw: PI / 2 }, 'grab', 3, { onDone: nn => nn.say(pick(['Mine now.', 'Lunch is SOLVED.', 'Nobody saw that.'])) }), 2.5); }); } });
+}
+
+// =====================================================================
+// LIGHTS, WEATHER, GRADE
+// =====================================================================
+let stdMats = null;
+function applyLights(k) {
+  if (!stdMats) { stdMats = new Set(); scene.traverse(o => { if (o.isMesh && o.material && o.material.isMeshStandardMaterial) stdMats.add(o.material); }); stdMats.forEach(m => m.userData.env0 = m.envMapIntensity); }
+  M.lightPanel.emissiveIntensity = 1.3 * k; hemi.intensity = LIGHT_BASE.hemi * (.08 + .92 * k); amb.intensity = LIGHT_BASE.amb * (.1 + .9 * k); sun.intensity = LIGHT_BASE.sun * (.45 + .55 * k);
+  roomLights.forEach(l => l.intensity = l.userData.base * k); stdMats.forEach(m => m.envMapIntensity = m.userData.env0 * (.08 + .92 * k)); G.lightApplied = k;
+}
+function updateChaosSystems(dt) {
+  const t = G.clockT;
+  let k;
+  if (G.lightTarget === 0) k = Math.max(0, G.lightK - dt * 6);
+  else if (G.lightFlick > 0) { G.lightFlick -= dt; k = G.lightFlick <= 0 ? 1 : Math.random() < .5 ? .15 : 1; }
+  else k = Math.min(1, G.lightK + dt * 3);
+  G.lightK = k; if (Math.abs(k - G.lightApplied) > .005) applyLights(k);
+  flickerMat.emissiveIntensity = 1.3 * k * (Math.random() < .04 ? .1 : 1);
+  emerLights.forEach((l, i) => l.intensity = (1 - k) * (1.4 + Math.sin(t * 7 + i) * 1.1));
+  // heat wave
+  if (G.heat.t > 0) {
+    G.heat.t -= dt; G.heatK = Math.min(1, G.heatK + dt * .4);
+    for (const n of npcs) {
+      if (n.hidden || n.overlay) continue;
+      if (Math.random() < dt * 1.2) E.dust.spawn(n.x + rand(-.1, .1), 1.75, n.z + rand(-.1, .1), 0, .2, 0);
+      if (Math.random() < dt * .07) {
+        const line = pick(['Is it HOT in here?!', "I'm MELTING.", 'Who turned on the SUN?!', 'I am sweating through my shirt.']);
+        if (n.sitting) n.say(line); else n.react('fan', 2.6, line); n.distracted = 4;
+        if (!G.heat.complained.has(n.id)) { G.heat.complained.add(n.id); addChaos(35, `${n.name} is melting`); }
+      }
+    }
+  } else G.heatK = Math.max(0, G.heatK - dt * .3);
+  // indoor rain
+  if (G.sprink.t > 0) {
+    G.sprink.t -= dt; const cx = camera.position.x, cz = camera.position.z;
+    for (let i = 0; i < 9; i++) { const x = cx + rand(-9, 9), z = cz + rand(-9, 9); if (x > .2 && x < W - .2 && z > .2 && z < D - .2) E.rain.spawn(x, CEIL - .1, z, rand(-.3, .3), -rand(4, 7), rand(-.3, .3)); }
+    if (A.sprinkG) A.sprinkG.gain.value = .22; G.wet = 1;
+  } else { if (A.sprinkG) A.sprinkG.gain.value = 0; if (G.wet > 0) G.wet = Math.max(0, G.wet - dt / 70); }
+  G.wetT = (G.wetT || 0) - dt;
+  if (G.wetT <= 0 && (G.wet > 0 || G.wetApplied)) { G.wetT = .25; floorMats.forEach(m => { m.roughness = lerp(m.userData.r0, .1, G.wet * .9); m.color.setScalar(1 - .22 * G.wet); }); G.wetApplied = G.wet > 0; }
+  // glitter trail behind the boss
+  if (boss.flags.glitter && !boss.hidden && boss.spd > .3 && Math.random() < dt * 25) E.glitter.spawn(boss.x + rand(-.2, .2), rand(.8, 1.5), boss.z + rand(-.2, .2), rand(-.3, .3), rand(0, .6), rand(-.3, .3));
+  // air horn on the boss's door
+  if (G.flags.horn && !G.flags.hornDone && !boss.hidden && (boss.prevZ < 10) !== (boss.z < 10) && boss.x > 36.2 && boss.x < 39.8) {
+    G.flags.hornDone = true; hornMesh.visible = false; sfx('airhorn', V(38.5, 2, 10)); if (Math.hypot(P.pos.x - 38, P.pos.z - 10) < 10) shake(.5);
+    boss.react('shock', 2.2, 'AAAAAAAAH!'); laughNear(boss, 16); addChaos(250, 'The boss jumped out of his skin');
+    later(2.6, () => { boss.say('WHO DID THAT?!', true); bossHunt(false); });
+  }
+  boss.prevZ = boss.z;
+  // cat videos
+  if (G.flags.catTV) { G.catT += dt; if (G.catT > 1 / 12) { G.catT = 0; drawCat(performance.now() / 1000); if (Math.random() < .03 && Math.hypot(P.pos.x - 30, P.pos.z - 5) < 12) sfx('meow', V(31.5, 1.5, 5)); } }
+  updateClock(dt); updateVending(dt); updateBalloons(dt); updateChairs(dt);
+  if (OPT.quality === 'high' && Math.random() < dt * 30) E.motes.spawn(camera.position.x + rand(-6, 6), rand(.3, 2.8), camera.position.z + rand(-6, 6), rand(-.03, .03), rand(-.02, .02), rand(-.03, .03));
+}
+function updateGrade(dt) {
+  if (!gradePass) return; const u = gradePass.uniforms;
+  u.uTime.value += dt; u.uWarm.value = G.heatK * .8;
+  u.uRed.value = G.mode === 'busted' ? 1 : G.mode === 'play' ? (G.seenNow ? .25 + G.sus / 220 : G.sus > 70 ? .25 : 0) : 0;
+  u.uAberr.value = G.shake * 2 + (G.sus > 80 && G.mode === 'play' ? .4 : 0); u.uVig.value = P.crouch ? .5 : .2;
+}
+
 function startWorking() { G.working = true; P.pos.set(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z); P.vel.set(0, 0, 0); P.crouch = false; }
 function stickyBomb() {
   G.flags.stickies = true; const dummy = new THREE.Object3D(), geo = new THREE.PlaneGeometry(.13, .13);
   const surfaces = [
-    () => { dummy.position.set(rand(38.7, 41.3), .763, rand(3.35, 4.65)); dummy.rotation.set(-PI / 2, 0, rand(-PI, PI)); },
+    () => { dummy.position.set(rand(38.7, 41.3), .785, rand(3.35, 4.65)); dummy.rotation.set(-PI / 2, 0, rand(-PI, PI)); },
     () => { dummy.position.set(rand(32.3, 43.7), rand(.3, 2.1), 9.93); dummy.rotation.set(0, PI, rand(-.4, .4)); },
     () => { dummy.position.set(32.09, rand(.3, 2.7), rand(.4, 9.6)); dummy.rotation.set(0, PI / 2, rand(-.4, .4)); },
-    () => { dummy.position.set(rand(32.8, 43.2), rand(.9, 2.5), .1); dummy.rotation.set(0, 0, rand(-.4, .4)); },
+    () => { dummy.position.set(rand(32.8, 43.2), rand(.9, 2.5), .125); dummy.rotation.set(0, 0, rand(-.4, .4)); },
     () => { dummy.position.set(rand(33, 43), .012, rand(.5, 9.5)); dummy.rotation.set(-PI / 2, 0, rand(-PI, PI)); },
     () => { const p = pv(bossMon, rand(-.33, .33), rand(.26, .64), .021); dummy.position.copy(p); dummy.rotation.set(0, PI, rand(-.3, .3)); },
   ];
@@ -1593,13 +2052,13 @@ function sendEmail() {
 function placeDuck(d) {
   d.duck = true; const g = new THREE.Group(); g.position.set(d.dx + (d.s % 2 ? -.45 : .45), .74, d.dz); g.rotation.y = d.seat.yaw + PI; scene.add(g);
   const y = mStd(0xffd21a, .4); put(gSph(.05, 12, 10), y, 0, .045, 0, g).scale.set(1.2, .9, 1); put(gSph(.032, 12, 10), y, 0, .1, .03, g); put(gBox(.03, .012, .03), mStd(0xff7a1a, .5), 0, .098, .065, g);
-  sfx('pickup'); G.ducks++; feed(G.ducks + '/4', 'Rubber duck deployed', 'item');
+  sfx('pickup'); G.ducks++; renderTodo(); feed(G.ducks + '/4', 'Rubber duck deployed', 'item');
   if (G.ducks >= 4) { delete G.items.ducks; renderPockets(); completePrank('ducks'); }
 }
 function smashMonitor(d) {
   d.smashed = true; d.mon.scr.material.map = pick(T.cracked); d.mon.g.rotation.z = rand(-.25, .25); d.mon.g.rotation.x = rand(-.15, .05);
   const p = pv(d.mon.g, 0, .44, .05); burst(E.spark, p.x, p.y, p.z, 40, 2.5, 1); burst(E.dust, p.x, p.y, p.z, 18, 1.5, 1); burst(E.smoke, p.x, p.y, p.z, 6, .2, .3);
-  sfx('smash', p); sfx('zap', p); noise(p.x, p.z, 12); G.smashed++; addChaos(75, 'Smashed a monitor');
+  sfx('smash', p); sfx('zap', p); noise(p.x, p.z, 12); shake(.25); G.smashed++; renderTodo(); addChaos(75, 'Smashed a monitor');
   addHazard({ x: p.x, z: p.z, r: 6, pose: 'shock', chaos: 25, lines: ['Who SMASHED this?!', 'That was a brand new monitor!', 'Oh my god.'], label: '{n} found a smashed monitor' });
   if (G.smashed >= 3) completePrank('smash');
 }
@@ -1686,7 +2145,13 @@ function updateMeeting(dt) {
   m.wait += dt; if (m.wait > 40) m.started = true;
   if (!m.started) return;
   m.t += dt; m.total += dt; if (inMeetingRoom()) m.inside += dt;
-  m.talkT -= dt; if (m.talkT <= 0) { m.talkT = 6; boss.say(G.flags.email && Math.random() < .3 ? 'And NO. There will be no hugs at 3.' : pick(LINES.bossMeeting)); }
+  m.talkT -= dt;
+  if (m.talkT <= 0) {
+    m.talkT = 6;
+    if (G.flags.catTV && !m.cats) { m.cats = true; boss.say('WHY ARE THERE CATS ON MY SLIDES?!', true); laughNear(boss, 12); addChaos(150, 'The meeting turned into a cat video party'); }
+    else if (balloons.length && !m.balloons) { m.balloons = true; boss.say('WHY IS MY MEETING ROOM FULL OF BALLOONS?!', true); laughNear(boss, 12); addChaos(150, 'Balloon meeting'); }
+    else boss.say(G.flags.email && Math.random() < .3 ? 'And NO. There will be no hugs at 3.' : pick(LINES.bossMeeting));
+  }
   if (m.t > 45) {
     m.active = false; npcs.forEach(n => { if (n.task && n.task.type === 'meeting') n.clearTask(); });
     boss.say('Meeting over. Back to WORK.', true);
@@ -1723,28 +2188,43 @@ function collideCircle(pos, r) {
     else { const l = pos.x - b.x0, rr = b.x1 - pos.x, t = pos.z - b.z0, bb = b.z1 - pos.z, m = Math.min(l, rr, t, bb); if (m === l) pos.x = b.x0 - r; else if (m === rr) pos.x = b.x1 + r; else if (m === t) pos.z = b.z0 - r; else pos.z = b.z1 + r; }
   }
 }
+function floorHard(x, z) { return (z < 10 && x < 20) || (x < 10 && z > 10) || (x > 32 && z < 10); }
 function updatePlayer(dt) {
   const f = (keys.KeyW || keys.KeyZ ? 1 : 0) - (keys.KeyS ? 1 : 0), s = (keys.KeyD ? 1 : 0) - (keys.KeyA || keys.KeyQ ? 1 : 0);
   if (keys.ArrowLeft) P.yaw += dt * 2.2; if (keys.ArrowRight) P.yaw -= dt * 2.2;
   if (keys.ArrowUp) P.pitch = clamp(P.pitch + dt * 1.6, -1.45, 1.45); if (keys.ArrowDown) P.pitch = clamp(P.pitch - dt * 1.6, -1.45, 1.45);
+  P.landT = Math.max(0, P.landT - dt); P.shoveCd -= dt;
   if (G.working) {
-    if (f || s) G.working = false;
+    if (f || s || keys.Space) G.working = false;
     else { P.vel.set(0, 0, 0); P.eye = lerp(P.eye, 1.12, dt * 6); }
   }
+  let sp = 0;
   if (!G.working) {
-    P.run = !!(keys.ShiftLeft || keys.ShiftRight) && !P.crouch && f > 0;
-    const speed = P.crouch ? 1.7 : P.run ? 5.2 : 3.1;
+    const wantRun = !!(keys.ShiftLeft || keys.ShiftRight) && !P.crouch && f > 0;
+    if (P.stamina <= .02) P.tired = true; if (P.tired && P.stamina > .35) P.tired = false;
+    P.run = wantRun && !P.tired;
+    P.stamina = clamp(P.stamina + (P.run ? -.22 : .15) * dt, 0, 1);
+    const speed = P.crouch ? 1.75 : P.run ? 5.6 : 3.2;
     const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw), rx = Math.cos(P.yaw), rz = -Math.sin(P.yaw);
     let wx = fx * f + rx * s, wz = fz * f + rz * s; const wl = Math.hypot(wx, wz); if (wl > 0) { wx /= wl; wz /= wl; }
-    const k = Math.min(1, dt * 12); P.vel.x = lerp(P.vel.x, wx * speed, k); P.vel.z = lerp(P.vel.z, wz * speed, k);
+    const k = Math.min(1, dt * (P.ground ? (wl > 0 ? 11 : 15) : 2.5));
+    P.vel.x = lerp(P.vel.x, wx * speed, k); P.vel.z = lerp(P.vel.z, wz * speed, k);
     P.pos.x += P.vel.x * dt; P.pos.z += P.vel.z * dt; collideCircle(P.pos, .3);
     for (const n of npcs) { if (n.hidden) continue; const dx = P.pos.x - n.x, dz = P.pos.z - n.z, d = Math.hypot(dx, dz); if (d < .55 && d > 1e-4) { P.pos.x = n.x + dx / d * .55; P.pos.z = n.z + dz / d * .55; } }
+    pushChairs(P.pos.x, P.pos.z, P.vel.x, P.vel.z, .32, false);
+    if (keys.Space && P.ground && !P.crouch) { P.vy = 4.4; P.ground = false; keys.Space = false; sfx('step', null, true, floorHard(P.pos.x, P.pos.z)); }
+    if (!P.ground) { P.vy -= 13 * dt; P.y += P.vy * dt; if (P.y <= 0) { P.y = 0; if (P.vy < -3) { P.landT = .3; sfx('thud', P.pos); shake(.12); } P.vy = 0; P.ground = true; } }
     P.eye = lerp(P.eye, P.crouch ? 1.0 : 1.62, dt * 10);
-    const sp = Math.hypot(P.vel.x, P.vel.z);
-    if (sp > .5) { P.bob += dt * sp * 2.6; P.stepT -= dt * sp; if (P.stepT <= 0) { P.stepT = 1.25; sfx('step', null, P.run); } }
+    sp = Math.hypot(P.vel.x, P.vel.z);
+    if (sp > .5 && P.ground) { P.bob += dt * sp * 2.4; P.stepT -= dt * sp; if (P.stepT <= 0) { P.stepT = P.run ? 1.6 : 1.25; sfx('step', null, P.run, floorHard(P.pos.x, P.pos.z), P.crouch); } }
   }
-  camera.position.set(P.pos.x, P.eye + Math.sin(P.bob * 2) * .03, P.pos.z);
-  camera.rotation.set(P.pitch, P.yaw, 0);
+  P.roll = lerp(P.roll, -s * (P.run ? .035 : .018), Math.min(1, dt * 6));
+  P.fov = lerp(P.fov, P.run && sp > 4 ? 80 : 72, Math.min(1, dt * 5));
+  if (Math.abs(camera.fov - P.fov) > .05) { camera.fov = P.fov; camera.updateProjectionMatrix(); }
+  const bobAmp = P.ground ? clamp(sp / 5, 0, 1) : 0, rxx = Math.cos(P.yaw), rzz = -Math.sin(P.yaw), side = Math.cos(P.bob) * .025 * bobAmp;
+  camera.position.set(P.pos.x + rxx * side, P.eye + P.y + Math.abs(Math.sin(P.bob)) * .045 * bobAmp - .02 * bobAmp, P.pos.z + rzz * side);
+  const sh = G.shake; G.shake = Math.max(0, G.shake - dt * 2.2);
+  camera.rotation.set(P.pitch + (Math.random() - .5) * sh * .05, P.yaw + (Math.random() - .5) * sh * .05, P.roll + (Math.random() - .5) * sh * .03);
 }
 function inBossOffice() { return P.pos.x > 32 && P.pos.z < 10; }
 
@@ -1786,6 +2266,7 @@ function updateInteraction(dt) {
       G.act.prog = 0; keys.KeyE = false; it.onDone();
       if (it.sus) for (const n of npcs) if (n.canLook() && n.seeT > .2 && n.sees(P.pos.x, P.pos.z, P.crouch)) {
         G.witnessed++; addSus((n.isBoss ? 40 : 28) * (n.isBoss ? 1 : n.mult), `${n.name} saw you ${it.verb}`); n.mark('!', 2.5); n.say(pick(n.isBoss ? LINES.bossWitness : LINES.witness), true); sfx('alert');
+        n.aware = 1; n.lastSeen = { x: P.pos.x, z: P.pos.z }; if (!n.isBoss) { const vv = it.verb; later(1.4, () => reportToBoss(n, vv)); }
       }
     }
   } else G.act.prog = Math.max(0, G.act.prog - dt * 1.5);
@@ -1804,17 +2285,33 @@ function behaviorFor(n) {
   return null;
 }
 function updateSuspicion(dt) {
-  let rate = 0, reason = '', who = null; G.seenNow = false;
+  let rate = 0, reason = '', best = 0; G.seenNow = false;
   for (const n of npcs) {
-    n.seeing = false;
+    n.seeing = false; n.socialLook = false;
     if (!n.canLook()) { n.seeT = 0; continue; }
+    const d = Math.hypot(P.pos.x - n.x, P.pos.z - n.z);
     const vis = n.sees(P.pos.x, P.pos.z, P.crouch);
     n.seeT = vis ? n.seeT + dt : Math.max(0, n.seeT - dt * 2);
-    if (!vis || n.seeT < .35) continue;
-    const b = behaviorFor(n); if (!b) continue;
-    const d = Math.hypot(P.pos.x - n.x, P.pos.z - n.z), distF = lerp(1.6, .5, clamp(d / n.rangeNow(), 0, 1));
-    const r = b.rate * n.mult * distF * (n.distracted > 0 ? .4 : 1); rate += r; n.seeing = true; G.seenNow = true;
-    if (r > rate - r) { reason = b.reason; who = n; }
+    if (!vis) {
+      // hearing: sprinting or landing a jump nearby makes people turn around
+      if ((P.run && d < 7) || (P.landT > 0 && d < 5)) n.glanceAt(P.pos.x, P.pos.z, 1.6);
+      // lost sight while alert: go check where they last saw you
+      if (n.aware > .45 && n.lastSeen && n.prio < 2.4 && !n.sitting && !n.overlay) {
+        const ls = n.lastSeen; n.lastSeen = null; n.say(pick(['Where did they go?', 'I KNOW I saw something.', 'Hello?']));
+        n.assign(T_search(n, ls.x, ls.z, n.isBoss ? 3 : 1), 2.4);
+      }
+      n.aware = Math.max(0, n.aware - dt * .1);
+      continue;
+    }
+    n.socialLook = d < 4.5;
+    if (d < 3 && !G.acting && n.greetCd <= 0 && !n.sitting && Math.random() < dt) { n.greetCd = rand(45, 90); n.say(pick(n.isBoss ? ['Morning.', 'Back to work.', 'Hm.'] : ['Hey.', 'Morning!', 'Sup.', 'Ugh, Thursday...'])); }
+    if (n.seeT < .35) continue;
+    const b = behaviorFor(n); if (!b) { n.aware = Math.max(0, n.aware - dt * .05); continue; }
+    const distF = lerp(1.6, .5, clamp(d / n.rangeNow(), 0, 1));
+    const r = b.rate * n.mult * distF * (n.distracted > 0 ? .4 : 1) * (G.lightK < .5 ? .5 : 1);
+    rate += r; n.seeing = true; G.seenNow = true; n.lastSeen = { x: P.pos.x, z: P.pos.z };
+    n.aware = Math.min(1, n.aware + dt * r / 18); if (n.aware > .25) n.watchT = 1.4;
+    if (r > best) { best = r; reason = b.reason; }
     if (n.markT <= 0) { n.mark('?', 1); sfx('notice'); if (Math.random() < .35) n.say(pick(n.isBoss ? (b.kind === 'office' ? LINES.bossOffice : LINES.bossSuspect) : n.id === 'karen' ? LINES.karenSuspect : LINES.suspect)); }
     else if (n.tag.mark.textContent === '?') n.markT = Math.max(n.markT, .4);
   }
@@ -1861,10 +2358,12 @@ function updateHUD(dt) {
   if (lastHud.st !== st) { $('susState').textContent = st; lastHud.st = st; }
   $('eye').classList.toggle('watch', G.seenNow);
   const vig = G.seenNow ? .25 + G.sus / 200 : G.sus > 70 ? .2 : 0;
-  if (G.mode === 'play') $('vignette').style.boxShadow = `inset 0 0 160px 40px rgba(224,53,43,${vig.toFixed(2)})`;
+  if (G.mode === 'play' && OPT.quality !== 'high') $('vignette').style.boxShadow = `inset 0 0 160px 40px rgba(224,53,43,${vig.toFixed(2)})`;
   const stance = G.working ? 'Working (very hard)' : P.crouch ? 'Sneaking' : P.run ? 'Running' : 'Walking';
   const fartTxt = G.fartCd > 0 ? `F · reloading ${Math.ceil(G.fartCd)}s` : 'F · fart ready';
-  const sh = stance + '|' + fartTxt; if (lastHud.sh !== sh) { $('stance').innerHTML = `<strong>${stance}</strong>${fartTxt}`; lastHud.sh = sh; }
+  const sh = stance + '|' + fartTxt; if (lastHud.sh !== sh) { $('stance').innerHTML = `<strong>${stance}</strong>${fartTxt}<div class="stam"><i id="stamFill"></i></div>`; lastHud.sh = sh; }
+  const sf = $('stamFill'); if (sf) { sf.style.width = (P.stamina * 100).toFixed(0) + '%'; sf.parentNode.classList.toggle('tired', P.tired); }
+  if (G.combo && G.clockT - G.lastChaosT > 6) { G.combo = 0; $('combo').hidden = true; }
   if (icTimer > 0) { icTimer -= dt; if (icTimer <= 0) $('intercom').hidden = true; }
   if (G.hintShown > 0) { G.hintShown -= dt; if (G.hintShown <= 0) $('hint').style.opacity = 0; }
   else { G.hintT -= dt; if (G.hintT <= 0 && G.hintIdx < HINTS.length) { showHint(HINTS[G.hintIdx++], 7); G.hintT = 16; } }
@@ -1886,11 +2385,12 @@ function updateTags() {
 // minimap
 const mapC = $('map'), mapG = mapC.getContext('2d'), MSX = mapC.width / W, MSZ = mapC.height / D;
 const mapBase = document.createElement('canvas'); mapBase.width = mapC.width; mapBase.height = mapC.height;
-{
+function drawMapBase() {
   const g = mapBase.getContext('2d'); g.fillStyle = '#151a21'; g.fillRect(0, 0, mapBase.width, mapBase.height);
   for (let gz = 0; gz < GH; gz++) for (let gx = 0; gx < GW; gx++) { const i = gz * GW + gx; if (sightWall[i]) g.fillStyle = '#c9ced4'; else if (sightLow[i]) g.fillStyle = '#3b4552'; else continue; g.fillRect(gx * CELL * MSX, gz * CELL * MSZ, CELL * MSX + .5, CELL * MSZ + .5); }
   g.fillStyle = '#6fb6e6'; for (const b of blockers) if (b.kind === 'glass') g.fillRect(b.x0 * MSX, b.z0 * MSZ, (b.x1 - b.x0) * MSX, Math.max(2, (b.z1 - b.z0) * MSZ));
 }
+drawMapBase();
 function computeCone(n) {
   const N = n.coneN, fov = n.fovNow(), range = n.rangeNow(), low = P.crouch || n.sitting, base = n.yaw + n.headYaw, pts = [];
   for (let i = 0; i <= N; i++) {
@@ -1938,6 +2438,7 @@ document.addEventListener('pointerlockchange', () => {
 document.addEventListener('pointerlockerror', () => { fallbackLook = true; showHint('Your browser blocked mouse capture. <b>Drag with the mouse</b> or use the arrow keys to look around.', 9); });
 function startGame() {
   audioStart(); OPT.sens = parseFloat($('optSens').value); OPT.voices = $('optVoice').checked; setSound($('optSound').checked);
+  OPT.quality = $('optQ').value; store.set('hw-quality', OPT.quality); if (OPT.quality === 'low') { sun.shadow.mapSize.set(1024, 1024); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
   G.mode = 'play'; G.min = 0; $('hud').hidden = false; showScreen(null); renderTodo(); renderPockets();
   P.pos.set(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15); P.yaw = PI; P.pitch = -.08;
   lockPointer(); later(1.2, () => { sfx('chime'); intercom('"Good morning, team. I\'ll be watching." — Dennings', false, 5); });
@@ -1961,7 +2462,7 @@ function showEnd(won, reason) {
 $('btnStart').addEventListener('click', startGame);
 $('btnResume').addEventListener('click', resumeGame);
 $('btnAgain').addEventListener('click', () => location.reload());
-{ const b = parseInt(store.get(BEST_KEY) || '0', 10); if (b) $('bestTxt').textContent = `PERSONAL BEST · ${b.toLocaleString('en-US')} CHAOS`; }
+{ const b = parseInt(store.get(BEST_KEY) || '0', 10); if (b) $('bestTxt').textContent = `PERSONAL BEST · ${b.toLocaleString('en-US')} CHAOS`; const q = store.get('hw-quality'); if (q) { $('optQ').value = q; OPT.quality = q; } }
 
 // input
 addEventListener('keydown', e => {
@@ -1984,9 +2485,9 @@ renderer.domElement.addEventListener('mousedown', e => {
   if (G.mode !== 'play') return;
   if (!locked && !fallbackLook) { lockPointer(); return; }
   if (fallbackLook) { drag = { x: e.clientX, y: e.clientY, moved: 0 }; return; }
-  if (e.button === 0) throwHeld();
+  if (e.button === 0) { if (G.hand) throwHeld(); else shove(); }
 });
-addEventListener('mouseup', e => { if (drag && drag.moved < 5 && e.button === 0 && G.mode === 'play') throwHeld(); drag = null; });
+addEventListener('mouseup', e => { if (drag && drag.moved < 5 && e.button === 0 && G.mode === 'play') { if (G.hand) throwHeld(); else shove(); } drag = null; });
 addEventListener('mousemove', e => {
   if (G.mode !== 'play') return;
   if (!locked && !drag) return; if (drag) drag.moved += Math.abs(e.movementX) + Math.abs(e.movementY);
@@ -1995,7 +2496,8 @@ addEventListener('mousemove', e => {
 });
 function resize() {
   renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  const v = renderer.getDrawingBufferSize(new THREE.Vector2()); pScale.value = v.y / (2 * Math.tan(camera.fov * PI / 360));
+  const v = renderer.getDrawingBufferSize(new THREE.Vector2()); pScale.value = v.y / (2 * Math.tan(72 * PI / 360));
+  if (composer) composer.setSize(innerWidth, innerHeight);
 }
 addEventListener('resize', resize); resize();
 
@@ -2023,17 +2525,19 @@ function updateWorld(dt) {
     if (G.min >= 480) { sfx('chime'); showEnd(true); }
     const k = clamp((G.min - 300) / 180, 0, 1); skyMats.forEach(m => m.color.copy(skyDay).lerp(skyEve, k)); sun.color.copy(sunDay).lerp(sunEve, k);
   }
+  updateChaosSystems(dt);
   ledT -= dt; if (ledT <= 0) { ledT = .15; for (let i = 0; i < 6; i++) { const l = pick(leds); if (!G.flags.serverDown) l.visible = Math.random() < .8; } }
   for (const k in E) E[k].update(dt);
 }
 function frame() {
   requestAnimationFrame(frame);
   const dt = Math.min(clock.getDelta(), .05);
-  if (G.mode === 'pause' || G.mode === 'loading') { renderer.render(scene, camera); return; }
+  if (G.mode === 'play') G.clockT += dt;
+  if (G.mode === 'pause' || G.mode === 'loading') { draw(); return; }
   if (G.mode === 'title' || G.mode === 'over') {
-    titleT += dt; for (const n of npcs) n.update(dt); updateWorld(dt);
+    titleT += dt; for (const n of npcs) n.update(dt); updateWorld(dt); updateGrade(dt);
     const x = 27 + Math.sin(titleT * .05) * 13; camera.position.set(x, 2.45, 28.6); camera.lookAt(x - 6, .9, 16.5);
-    renderer.render(scene, camera); musicTick(); return;
+    draw(); musicTick(); return;
   }
   if (G.mode === 'play') {
     if (G.fartCd > 0) G.fartCd -= dt;
@@ -2043,10 +2547,10 @@ function frame() {
     boss.p.root.position.set(boss.x, 0, boss.z); boss.p.root.rotation.y = boss.yaw; boss.t += dt; animatePerson(boss.p, 'point', boss.t); if (boss.tag.bt > 0) boss.tag.bt -= dt;
     camera.position.set(P.pos.x, 1.62, P.pos.z); camera.lookAt(boss.x, 1.65, boss.z);
   }
-  updateTimers(dt); updateWorld(dt);
+  updateTimers(dt); updateWorld(dt); updateGrade(dt);
   for (const n of npcs) { if (!n.hidden) computeCone(n); n.coneMesh.visible = G.mode === 'play' && P.crouch && !n.hidden && n.canLook(); }
   if (G.mode === 'play' || G.mode === 'busted') { updateHUD(dt); updateTags(); mapT -= dt; if (mapT <= 0) { mapT = 1 / 15; drawMap(); } }
-  musicTick(); renderer.render(scene, camera);
+  musicTick(); draw();
 }
 G.mode = 'title'; showScreen('scr-title'); $('loading').remove();
 camera.position.set(30, 2.45, 28.6); camera.lookAt(24, .9, 16.5);
