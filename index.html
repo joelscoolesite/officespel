@@ -254,7 +254,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
   <div id="sticky">
     <h3>To do today (don't get fired)</h3>
     <ul id="todo"></ul>
-    <p class="sticky-foot">TAB TO HIDE</p>
+    <p class="sticky-foot">TAB: FULL / TARGETS ONLY / HIDDEN</p>
   </div>
   <div id="pockets"><span class="lbl">POCKETS</span><div id="pocketList" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
   <div id="prompt" hidden><div class="key">E</div><div><div id="promptTxt"></div><div id="promptSub"></div><div class="pbar"><i id="promptFill"></i></div></div></div>
@@ -351,6 +351,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 <div id="achToast" hidden><small>ACHIEVEMENT UNLOCKED</small><b id="achName"></b><span id="achDesc"></span></div>
 <div id="flash"></div>
 <div id="loading">LOADING THE OFFICE…</div>
+<script>setTimeout(function () { var l = document.getElementById("loading"); if (l) l.textContent = "COULD NOT LOAD THE 3D ENGINE. CHECK YOUR CONNECTION AND RELOAD."; }, 25000);</script>
 
 <script type="importmap">
 { "imports": {
@@ -1795,39 +1796,50 @@ desks.forEach((d, i) => {
 addProp('mug', 5.6, .745, 5.4); addProp('mug', 6.5, .745, 5.7); addProp('trophy', 43.5, 1.41, 4.0); addProp('plant', 39.0, .78, 4.45);
 addProp('mug', PLAYER_DESK.dx - .5, .74, PLAYER_DESK.dz);
 function updateProps(dt) {
-  for (const p of props) {
-    if (!p.active) continue;
-    p.vel.y -= 9.8 * dt; p.pos.addScaledVector(p.vel, dt);
-    p.mesh.rotation.x += p.spin.x * dt; p.mesh.rotation.z += p.spin.z * dt;
-    let impact = 0;
-    if (p.thrown && p.vel.length() > 3.5) {
-      for (const n of npcs) {
-        if (n.hidden) continue; const top = n.sitting ? 1.35 : 1.85;
-        if (Math.hypot(p.pos.x - n.x, p.pos.z - n.z) < .4 && p.pos.y < top) { hitNPC(n, p); p.vel.multiplyScalar(-.2); p.thrown = false; break; }
-      }
-    }
-    for (const b of blockers) {
-      if (p.pos.x < b.x0 - .3 || p.pos.x > b.x1 + .3 || p.pos.z < b.z0 - .3 || p.pos.z > b.z1 + .3) continue;
-      const cx = clamp(p.pos.x, b.x0, b.x1), cy = clamp(p.pos.y, 0, b.h), cz = clamp(p.pos.z, b.z0, b.z1);
-      let nx = p.pos.x - cx, ny = p.pos.y - cy, nzv = p.pos.z - cz; const d = Math.hypot(nx, ny, nzv);
-      if (d < p.r) {
-        if (d < 1e-5) { nx = 0; ny = 1; nzv = 0; } else { nx /= d; ny /= d; nzv /= d; }
-        p.pos.set(cx + nx * p.r, cy + ny * p.r, cz + nzv * p.r);
-        const vn = p.vel.x * nx + p.vel.y * ny + p.vel.z * nzv;
-        if (vn < 0) { impact = Math.max(impact, -vn); p.vel.x -= 1.4 * vn * nx; p.vel.y -= 1.4 * vn * ny; p.vel.z -= 1.4 * vn * nzv; p.vel.multiplyScalar(.6); }
-      }
-    }
-    if (p.pos.y < p.r) { impact = Math.max(impact, -p.vel.y); p.pos.y = p.r; p.vel.y *= -.3; p.vel.x *= .6; p.vel.z *= .6; }
-    if (p.pos.y > CEIL - p.r) { p.pos.y = CEIL - p.r; p.vel.y = -Math.abs(p.vel.y) * .3; }
-    if (impact > 5.5 && p.breakable) { shatter(p); continue; }
-    if (impact > 2) { sfx('thud', p.pos); if (p.thrown) noise(p.pos.x, p.pos.z, 6); }
-    if (p.vel.length() < .25 && impact > 0) { p.active = false; p.thrown = false; p.vel.set(0, 0, 0); p.mesh.rotation.set(0, p.mesh.rotation.y, 0); if (p.kind === 'toupee') { checkFlush(p); continue; } }
+  for (let i = props.length - 1; i >= 0; i--) {
+    const p = props[i]; if (!p || !p.active) continue;
+    const n = Math.min(10, Math.max(1, Math.ceil(p.vel.length() * dt / .05)));
+    let state = null;
+    for (let k = 0; k < n && !state; k++) state = propStep(p, dt / n);
+    if (state === 'gone') continue;
+    if (state === 'rest' && p.kind === 'toupee' && checkFlush(p)) continue;
     p.mesh.position.copy(p.pos);
   }
   for (const f of fragments) {
     if (f.rest) continue; f.vel.y -= 9.8 * dt; f.m.position.addScaledVector(f.vel, dt); f.m.rotation.x += f.vel.z * dt * 4;
     if (f.m.position.y < .015) { f.m.position.y = .015; f.vel.y *= -.25; f.vel.x *= .5; f.vel.z *= .5; if (Math.abs(f.vel.y) < .3) f.rest = true; }
   }
+}
+function propStep(p, dt) {
+  p.vel.y -= 9.8 * dt; p.pos.addScaledVector(p.vel, dt);
+  p.mesh.rotation.x += p.spin.x * dt; p.mesh.rotation.z += p.spin.z * dt;
+  let impact = 0;
+  if (p.thrown && p.vel.length() > 3.5) {
+    for (const n of npcs) {
+      if (n.hidden) continue; const top = n.sitting ? 1.35 : 1.85;
+      if (Math.hypot(p.pos.x - n.x, p.pos.z - n.z) < .4 && p.pos.y < top) { hitNPC(n, p); p.vel.multiplyScalar(-.2); p.thrown = false; break; }
+    }
+  }
+  for (const b of blockers) {
+    if (p.pos.x < b.x0 - .3 || p.pos.x > b.x1 + .3 || p.pos.z < b.z0 - .3 || p.pos.z > b.z1 + .3) continue;
+    const cx = clamp(p.pos.x, b.x0, b.x1), cy = clamp(p.pos.y, 0, b.h), cz = clamp(p.pos.z, b.z0, b.z1);
+    let nx = p.pos.x - cx, ny = p.pos.y - cy, nzv = p.pos.z - cz; const d = Math.hypot(nx, ny, nzv);
+    if (d < p.r) {
+      if (d < 1e-5) { nx = 0; ny = 1; nzv = 0; } else { nx /= d; ny /= d; nzv /= d; }
+      p.pos.set(cx + nx * p.r, cy + ny * p.r, cz + nzv * p.r);
+      const vn = p.vel.x * nx + p.vel.y * ny + p.vel.z * nzv;
+      if (vn < 0) { impact = Math.max(impact, -vn); p.vel.x -= 1.4 * vn * nx; p.vel.y -= 1.4 * vn * ny; p.vel.z -= 1.4 * vn * nzv; p.vel.multiplyScalar(.6); }
+    }
+  }
+  const lo = .2 + p.r, hiX = W - .2 - p.r, hiZ = D - .2 - p.r;
+  if (p.pos.x < lo) { p.pos.x = lo; p.vel.x = Math.abs(p.vel.x) * .4; } if (p.pos.x > hiX) { p.pos.x = hiX; p.vel.x = -Math.abs(p.vel.x) * .4; }
+  if (p.pos.z < lo) { p.pos.z = lo; p.vel.z = Math.abs(p.vel.z) * .4; } if (p.pos.z > hiZ) { p.pos.z = hiZ; p.vel.z = -Math.abs(p.vel.z) * .4; }
+  if (p.pos.y < p.r) { impact = Math.max(impact, -p.vel.y); p.pos.y = p.r; p.vel.y *= -.3; p.vel.x *= .6; p.vel.z *= .6; }
+  if (p.pos.y > CEIL - p.r) { p.pos.y = CEIL - p.r; p.vel.y = -Math.abs(p.vel.y) * .3; }
+  if (impact > 5.5 && p.breakable) { shatter(p); return 'gone'; }
+  if (impact > 2) { sfx('thud', p.pos); if (p.thrown) noise(p.pos.x, p.pos.z, 6); }
+  if (p.vel.length() < .25 && impact > 0) { p.active = false; p.thrown = false; p.vel.set(0, 0, 0); p.mesh.rotation.set(0, p.mesh.rotation.y, 0); return 'rest'; }
+  return null;
 }
 function shatter(p) {
   const i = props.indexOf(p); if (i >= 0) props.splice(i, 1); scene.remove(p.mesh);
@@ -1845,7 +1857,7 @@ function hitNPC(n, p) {
 }
 function throwHeld() {
   const p = G.hand; if (!p) return; G.hand = null; if (p.mesh.parent) p.mesh.parent.remove(p.mesh); scene.add(p.mesh);
-  const dir = camera.getWorldDirection(V()); p.pos.copy(camera.position).addScaledVector(dir, .45); p.pos.y -= .1;
+  const dir = camera.getWorldDirection(V()); p.pos.copy(camera.position).addScaledVector(dir, .2); p.pos.y -= .1;
   p.vel.copy(dir).multiplyScalar(13).add(V(0, 1.2, 0)); p.spin.set(rand(-12, 12), 0, rand(-12, 12)); p.active = true; p.thrown = true;
   p.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; }); p.mesh.position.copy(p.pos); p.mesh.scale.setScalar(1);
   sfx('whoosh'); G.vmThrow = .3; renderPockets();
@@ -1853,7 +1865,7 @@ function throwHeld() {
 }
 function dropHeld() {
   const p = G.hand; if (!p) return; G.hand = null; if (p.mesh.parent) p.mesh.parent.remove(p.mesh); scene.add(p.mesh);
-  const dir = camera.getWorldDirection(V()); p.pos.copy(camera.position).addScaledVector(dir, .5); p.vel.set(dir.x, 0, dir.z); p.active = true; p.thrown = false;
+  const dir = camera.getWorldDirection(V()); p.pos.copy(camera.position).addScaledVector(dir, .2); p.vel.set(dir.x, 0, dir.z); p.active = true; p.thrown = false;
   p.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; }); p.mesh.scale.setScalar(1); renderPockets();
 }
 function pickUp(p) {
@@ -1929,7 +1941,7 @@ function pushChairs(x, z, vx, vz, r, onlyLoose) {
     if (onlyLoose && Math.hypot(p.x - c.home.x, p.z - c.home.z) < .3) continue;
     const dx = p.x - x, dz = p.z - z, d = Math.hypot(dx, dz), min = r + .27;
     if (d >= min || d < 1e-4) continue;
-    const nx = dx / d, nz = dz / d; p.x += nx * (min - d); p.z += nz * (min - d);
+    const nx = dx / d, nz = dz / d; p.x += nx * (min - d); p.z += nz * (min - d); collideCircle(p, .27);
     const along = vx * nx + vz * nz;
     if (along > 0) { c.vx += nx * along * .9; c.vz += nz * along * .9; c.spin += (Math.random() - .5) * along * 2.5; }
   }
@@ -1945,9 +1957,10 @@ function updateChairs(dt) {
     }
     const sp = Math.hypot(c.vx, c.vz); c.hitCd -= dt;
     if (sp < .03 && Math.abs(c.spin) < .03) continue;
-    p.x += c.vx * dt; p.z += c.vz * dt; c.g.rotation.y += c.spin * dt;
+    c.g.rotation.y += c.spin * dt; _cp.copy(p);
+    const cs = Math.max(1, Math.ceil(sp * dt / .1)); for (let k = 0; k < cs; k++) { p.x += c.vx * dt / cs; p.z += c.vz * dt / cs; collideCircle(p, .27); }
+    p.x = clamp(p.x, .45, W - .45); p.z = clamp(p.z, .45, D - .45);
     const f = Math.max(0, 1 - dt * 1.8); c.vx *= f; c.vz *= f; c.spin *= f;
-    _cp.copy(p); collideCircle(p, .27);
     const mx = p.x - _cp.x, mz = p.z - _cp.z, ml = Math.hypot(mx, mz);
     if (ml > 1e-5) { const nx = mx / ml, nz = mz / ml, vn = c.vx * nx + c.vz * nz; if (vn < 0) { c.vx -= 1.6 * vn * nx; c.vz -= 1.6 * vn * nz; if (sp > 2) sfx('thud', p); } }
     for (const o of chairs) {
@@ -2064,7 +2077,7 @@ function startHeat() {
   later(22, () => sendGary({ x: 10.75, z: 19.5, yaw: -PI / 2 }, 5, "It's a SAUNA in here. I'll check the thermostat.", 'WHO set this to 35?!', () => { G.heat.t = 0; thermoDraw(21); }, 'thermostat'));
 }
 function startBlackout() {
-  G.lightTarget = 0; breakerLever.rotation.x = 1; sfx('breaker'); shake(.2); completePrank('lights');
+  stdMats = null; G.lightTarget = 0; breakerLever.rotation.x = 1; sfx('breaker'); shake(.2); completePrank('lights');
   npcs.forEach((n, i) => later(.4 + i * .5, () => {
     if (n.hidden) return; n.say(pick(['WHO TURNED OFF THE LIGHTS?!', "I can't see ANYTHING!", 'Is this a power outage?!', 'Ow, my knee!']), true);
     addChaos(30, `${n.name} is stumbling in the dark`); if (n !== gary && n.prio < 2 && !n.sitting) n.assign(T_wander(), 1.5);
@@ -2175,7 +2188,7 @@ function updateChaosSystems(dt) {
   // indoor rain
   if (G.sprink.t > 0) {
     G.sprink.t -= dt; const cx = camera.position.x, cz = camera.position.z;
-    for (let i = 0; i < 9; i++) { const x = cx + rand(-9, 9), z = cz + rand(-9, 9); if (x > .2 && x < W - .2 && z > .2 && z < D - .2) E.rain.spawn(x, CEIL - .1, z, rand(-.3, .3), -rand(4, 7), rand(-.3, .3)); }
+    const drops = Math.round(dt * 520 + Math.random()); for (let i = 0; i < drops; i++) { const x = cx + rand(-9, 9), z = cz + rand(-9, 9); if (x > .2 && x < W - .2 && z > .2 && z < D - .2) E.rain.spawn(x, CEIL - .1, z, rand(-.3, .3), -rand(4, 7), rand(-.3, .3)); }
     if (A.sprinkG) A.sprinkG.gain.value = .22; G.wet = 1;
   } else { if (A.sprinkG) A.sprinkG.gain.value = 0; if (G.wet > 0) G.wet = Math.max(0, G.wet - dt / 70); }
   G.wetT = (G.wetT || 0) - dt;
@@ -2282,10 +2295,11 @@ function retrieveToupee() {
   } }), 3.5);
 }
 function checkFlush(p) {
-  if (p.kind !== 'toupee' || !(p.pos.x < 2.2 && p.pos.z > 13.1 && p.pos.z < 19.8)) return;
+  if (p.kind !== 'toupee' || !(p.pos.x < 2.2 && p.pos.z > 13.1 && p.pos.z < 19.8)) return false;
   props.splice(props.indexOf(p), 1); scene.remove(p.mesh); G.toupeeProp = null; sfx('flush', p.pos);
   addChaos(300, "Flushed the boss's toupee"); unlock('flush');
   later(2, () => { if (!boss.hidden) { boss.say('MY HAIR!!! WHERE IS MY HAIR?!', true); bossHunt(false); } });
+  return true;
 }
 
 // =====================================================================
@@ -2568,8 +2582,10 @@ function updatePlayer(dt) {
       const k = Math.min(1, dt * (P.ground ? (wl > 0 ? 11 : 15) : 2.5));
       P.vel.x = lerp(P.vel.x, wx * speed, k); P.vel.z = lerp(P.vel.z, wz * speed, k);
     }
-    P.pos.x += P.vel.x * dt; P.pos.z += P.vel.z * dt; collideCircle(P.pos, .3);
+    const ms = Math.max(1, Math.ceil(Math.hypot(P.vel.x, P.vel.z) * dt / .1));
+    for (let k = 0; k < ms; k++) { P.pos.x += P.vel.x * dt / ms; P.pos.z += P.vel.z * dt / ms; collideCircle(P.pos, .3); }
     for (const n of npcs) { if (n.hidden) continue; const dx = P.pos.x - n.x, dz = P.pos.z - n.z, d = Math.hypot(dx, dz); if (d < .55 && d > 1e-4) { P.pos.x = n.x + dx / d * .55; P.pos.z = n.z + dz / d * .55; } }
+    collideCircle(P.pos, .3); P.pos.x = clamp(P.pos.x, .4, W - .4); P.pos.z = clamp(P.pos.z, .4, D - .4);
     pushChairs(P.pos.x, P.pos.z, P.vel.x * (P.slideT > 0 ? 1.4 : 1), P.vel.z * (P.slideT > 0 ? 1.4 : 1), .32, false);
     if (keys.Space && P.ground && !P.crouch) { P.vy = 4.4; P.ground = false; keys.Space = false; sfx('step', null, true, floorHard(P.pos.x, P.pos.z)); }
     if (!P.ground) { P.vy -= 13 * dt; P.y += P.vy * dt; if (P.y <= 0) { P.y = 0; if (P.vy < -3) { P.landT = .3; sfx('thud', P.pos); shake(.12); } P.vy = 0; P.ground = true; } }
@@ -2690,8 +2706,14 @@ function updateSuspicion(dt) {
 function bust(reason) {
   if (G.mode !== 'play') return; G.mode = 'busted'; G.working = false;
   try { document.exitPointerLock && document.exitPointerLock(); } catch (e) {}
-  const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
-  boss.hidden = false; boss.overlay = null; boss.clearTask(); boss.place(P.pos.x + fx * 1.3, P.pos.z + fz * 1.3, Math.atan2(-fx, -fz)); boss.pose = 'point';
+  // put the boss somewhere free and visible in front of the player (try straight ahead first, then fan out)
+  let bx = P.pos.x - Math.sin(P.yaw) * 1.3, bz = P.pos.z - Math.cos(P.yaw) * 1.3;
+  for (const off of [0, .5, -.5, 1, -1, 1.6, -1.6, 2.4, -2.4, PI]) {
+    const a = P.yaw + off, x = P.pos.x - Math.sin(a) * 1.3, z = P.pos.z - Math.cos(a) * 1.3;
+    if (navFree(x, z) && losGrid(P.pos.x, P.pos.z, x, z, true)) { bx = x; bz = z; break; }
+  }
+  boss.hidden = false; boss.overlay = null; boss.clearTask(); boss.place(bx, bz, Math.atan2(P.pos.x - bx, P.pos.z - bz)); boss.pose = 'point';
+  $('prompt').hidden = true; $('cross').classList.remove('on'); $('meters').hidden = true; $('speed').style.opacity = 0; VM.visible = false;
   P.pitch = .05; P.eye = 1.62; boss.say("YOU'RE #$%& FIRED!", true); sfx('fired');
   $('vignette').style.boxShadow = 'inset 0 0 200px 80px rgba(224,53,43,.6)';
   later(2.6, () => showEnd(false, reason));
@@ -2700,15 +2722,18 @@ function bust(reason) {
 // =====================================================================
 // HUD
 // =====================================================================
+let todoMode = 0;
 function renderTodo() {
   const li = (p, req) => {
     const need = p.need && !G.done[p.id] && !G.items[p.need] && !(p.id === 'ducks' && G.ducks) ? ` <small>(${ITEM[p.need].where})</small>` : '';
     const extra = p.id === 'smash' && !G.done.smash ? ` <small>${G.smashed}/3</small>` : p.id === 'ducks' && !G.done.ducks && G.ducks ? ` <small>${G.ducks}/4</small>` : '';
     return `<li class="${G.done[p.id] ? 'done' : ''}${req ? ' req' : ''}"><span>${p.title}${extra}${need}</span></li>`;
   };
-  const req = DAY.req.map(id => PRANKS.find(p => p.id === id)), bonus = PRANKS.filter(p => !DAY.req.includes(p.id));
-  $('todo').innerHTML = `<li class="sec">TODAY'S TARGETS · ${reqDone()}/${DAY.req.length}</li>` + req.map(p => li(p, true)).join('') +
-    `<li class="sec">CHAOS GOAL · ${Math.min(G.chaos, DAY.goal).toLocaleString('en-US')} / ${DAY.goal.toLocaleString('en-US')}</li><li class="sec">BONUS PRANKS</li>` + bonus.map(p => li(p, false)).join('');
+  const req = DAY.req.map(id => PRANKS.find(p => p.id === id)), bonus = PRANKS.filter(p => !DAY.req.includes(p.id)), bonusDone = bonus.filter(p => G.done[p.id]).length;
+  let html = `<li class="sec">TODAY'S TARGETS · ${reqDone()}/${DAY.req.length}</li>` + req.map(p => li(p, true)).join('') +
+    `<li class="sec">CHAOS GOAL · ${Math.min(G.chaos, DAY.goal).toLocaleString('en-US')} / ${DAY.goal.toLocaleString('en-US')}</li>`;
+  if (todoMode === 0) html += `<li class="sec">BONUS PRANKS · ${bonusDone}/${bonus.length} DONE</li>` + bonus.filter(p => !G.done[p.id]).map(p => li(p, false)).join('');
+  $('todo').innerHTML = html;
 }
 function renderPockets() {
   const list = Object.keys(G.items).map(k => `<span class="chip">${ITEM[k].name}</span>`);
@@ -2874,7 +2899,7 @@ function startGame() {
 }
 function pauseGame() { if (G.mode !== 'play') return; G.mode = 'pause'; G.fartCharge = 0; showScreen('scr-pause'); try { speechSynthesis.cancel(); } catch (e) {} }
 function resumeGame() { if (G.mode !== 'pause') return; G.mode = 'play'; showScreen(null); audioStart(); if (!fallbackLook) lockPointer(); }
-function reloadTo(day) { try { if (day != null) sessionStorage.setItem('hw-autoday', String(day)); } catch (e) {} location.reload(); }
+function reloadTo(day) { store.set('hw-autoday', day == null ? '' : String(day)); try { if (day != null) sessionStorage.setItem('hw-autoday', String(day)); } catch (e) {} location.reload(); }
 const RANKS = [[0, 'Mildly Annoying Intern'], [1200, 'Disgruntled Employee'], [2800, "HR's Worst Nightmare"], [4800, 'Agent of Chaos'], [7000, 'CEO of Carnage']];
 const gradeChaos = r => r >= 2.2 ? 'A+' : r >= 1.6 ? 'A' : r >= 1 ? 'B' : r >= .6 ? 'C' : r >= .3 ? 'D' : 'F';
 const gradeStealth = (m, fired) => fired ? 'F' : m < 25 ? 'A+' : m < 45 ? 'A' : m < 65 ? 'B' : m < 85 ? 'C' : 'D';
@@ -2911,6 +2936,7 @@ function bootMenu() {
   try { const st = JSON.parse(store.get('hw-settings') || 'null'); if (st) { $('optSens').value = st.sens; $('optVoice').checked = st.voices; $('optSound').checked = st.sound; $('optQ').value = st.quality; OPT.quality = st.quality; } } catch (e) {}
   renderMenu();
   let auto = null; try { auto = sessionStorage.getItem('hw-autoday'); sessionStorage.removeItem('hw-autoday'); } catch (e) {}
+  if (auto == null || auto === '') { const a = store.get('hw-autoday'); if (a) auto = a; } store.set('hw-autoday', ''); if (auto === '') auto = null;
   if (auto != null && +auto < PROG.unlocked) { selDay = +auto; showIntro(); } else { G.mode = 'title'; showScreen('scr-title'); }
 }
 $('btnStart').addEventListener('click', () => { audioStart(); showIntro(); });
@@ -2932,7 +2958,7 @@ addEventListener('keydown', e => {
     if (e.code === 'KeyF') { if (!P.ground) fartJump(); else if (G.fartCd <= 0 && !G.fartCharge) G.fartCharge = .001; }
     if (e.code === 'KeyB') burp();
     if (e.code === 'KeyG') dropHeld();
-    if (e.code === 'Tab') $('sticky').classList.toggle('hide');
+    if (e.code === 'Tab') { todoMode = (todoMode + 1) % 3; $('sticky').classList.toggle('hide', todoMode === 2); renderTodo(); }
     if (e.code === 'Escape' && fallbackLook) pauseGame();
   } else if (G.mode === 'pause' && e.code === 'Escape' && fallbackLook) resumeGame();
   if (e.code === 'KeyM') { setSound(!OPT.sound); $('optSound').checked = OPT.sound; }
@@ -2991,7 +3017,7 @@ function updateWorld(dt) {
 function frame() {
   requestAnimationFrame(frame);
   const dt = Math.min(clock.getDelta(), .05);
-  if (G.mode === 'play') G.clockT += dt;
+  if (G.mode === 'play') G.clockT += dt; else VM.visible = false;
   if (G.mode === 'pause' || G.mode === 'loading') { draw(); return; }
   if (G.mode === 'title' || G.mode === 'over' || G.mode === 'intro') {
     titleT += dt; for (const n of npcs) n.update(dt); updateWorld(dt); updateGrade(dt);
