@@ -76,6 +76,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 #todo li.done{text-decoration:line-through;opacity:.5}
 #todo li.done::before{background:var(--stickyInk)}
 #todo li small{opacity:.65;font-size:11px}
+#todo li.sec{font:700 10px/1.2 var(--f-mono);letter-spacing:.12em;margin-top:6px}
+#todo li.sec::before{display:none}
+#todo li.req{font-weight:600}
 .sticky-foot{margin:8px 0 0;font:600 10px/1 var(--f-mono);letter-spacing:.08em;opacity:.6}
 #sticky.hide{display:none}
 
@@ -165,6 +168,60 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 .pause-card h2{margin:0;font:400 44px/1 var(--f-display);letter-spacing:.04em}
 .pause-card p{margin:0;color:var(--dim);font:400 14px/1.45 var(--f-body)}
 #loading{position:fixed;inset:0;display:grid;place-items:center;font:600 13px/1 var(--f-mono);letter-spacing:.2em;color:var(--dim);background:var(--ink)}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--memoInk);flex-wrap:wrap}
+.tab-btn{border:0;background:transparent;font:700 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--memoDim);padding:8px 8px 7px;cursor:pointer;border-radius:3px 3px 0 0}
+.tab-btn.on{background:var(--memoInk);color:var(--memo)}
+.tab{display:flex;flex-direction:column;gap:12px}
+.days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.day{border:2px solid var(--memoInk);background:transparent;border-radius:4px;padding:9px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;color:var(--memoInk);font:400 20px/1 var(--f-display);letter-spacing:.04em}
+.day small{font:600 9px/1 var(--f-mono);letter-spacing:.1em;color:var(--memoDim)}
+.day .st{font:400 13px/1 var(--f-body);color:#b58a00;letter-spacing:1px}
+.day.sel{background:var(--memoInk);color:var(--memo)}
+.day.sel small{color:#c9c2b0}
+.day.locked{opacity:.38;cursor:not-allowed}
+.day-info{font:400 13px/1.45 var(--f-body);min-height:92px}
+.day-info b{font-weight:600}
+.ach-list{display:flex;flex-direction:column;gap:6px;max-height:360px;overflow:auto}
+.ach{display:flex;gap:10px;align-items:center;font:400 12.5px/1.3 var(--f-body);padding:6px 8px;border:1px solid #cfc7b3;border-radius:4px}
+.ach i{flex:0 0 22px;height:22px;border-radius:50%;background:#cfc7b3;display:grid;place-items:center;font:700 12px/1 var(--f-mono);font-style:normal;color:var(--memo)}
+.ach.got i{background:#1f8a46}
+.ach:not(.got){opacity:.62}
+.ach b{display:block;font-weight:600}
+.set{flex-direction:column;align-items:flex-start;border-top:0;padding-top:0;gap:14px}
+.ghost-btn{pointer-events:auto;cursor:pointer;border:2px solid currentColor;background:transparent;color:inherit;font:400 18px/1 var(--f-display);letter-spacing:.06em;padding:12px 16px 10px;border-radius:4px;text-transform:uppercase}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.intro{background:radial-gradient(ellipse at 30% 40%,rgba(10,12,16,.55),rgba(10,12,16,.92))}
+.intro-card{max-width:640px;width:100%;display:flex;flex-direction:column;gap:16px;align-items:flex-start}
+.intro-day{font:400 clamp(64px,12vw,150px)/.85 var(--f-display);color:#fff;letter-spacing:.02em;animation:introIn .6s cubic-bezier(.2,1.4,.4,1)}
+.intro-tag{font:600 12px/1 var(--f-mono);letter-spacing:.24em;color:var(--amber);text-transform:uppercase}
+.intro-memo{transform:rotate(-.6deg);max-width:460px}
+.intro-goals h4{margin:0 0 6px;font:700 11px/1 var(--f-mono);letter-spacing:.18em;color:var(--dim)}
+.intro-goals ul{margin:0;padding-left:18px;font:400 15px/1.55 var(--f-body)}
+.intro-goals p{margin:8px 0 0;font:600 14px/1 var(--f-mono);color:var(--chaos)}
+@keyframes introIn{from{transform:scale(1.6);opacity:0}to{transform:none;opacity:1}}
+.stars{font:400 30px/1 var(--f-body);color:#b58a00;letter-spacing:4px;min-height:30px}
+.grades{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;border-top:2px solid var(--memoInk);border-bottom:2px solid var(--memoInk);padding:12px 0}
+.grades div{display:flex;flex-direction:column;gap:3px}
+.grades span{font:600 10px/1 var(--f-mono);letter-spacing:.14em;color:var(--memoDim)}
+.grades strong{font:400 34px/1 var(--f-display)}
+.grades em{font:400 12px/1 var(--f-mono);font-style:normal;color:var(--memoDim)}
+#achToast{position:fixed;left:50%;top:84px;transform:translateX(-50%);background:#16130a;border:2px solid var(--chaos);border-radius:6px;padding:10px 18px;display:flex;flex-direction:column;gap:4px;align-items:center;z-index:20;animation:fdIn .3s ease-out;pointer-events:none;text-align:center}
+#achToast small{font:700 10px/1 var(--f-mono);letter-spacing:.2em;color:var(--chaos)}
+#achToast b{font:400 22px/1 var(--f-display);letter-spacing:.04em;color:#fff}
+#achToast span{font:400 12px/1.3 var(--f-body);color:var(--dim)}
+#stampFx{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%) rotate(-4deg);display:flex;flex-direction:column;align-items:center;gap:5px;border:4px solid var(--chaos);padding:10px 18px 8px;border-radius:6px;background:rgba(16,13,6,.6);animation:stampIn .35s cubic-bezier(.2,1.6,.4,1)}
+#stampFx.req{border-color:var(--green)}
+#stampFx small{font:700 10px/1 var(--f-mono);letter-spacing:.2em;color:var(--dim)}
+#stampFx span{font:400 30px/1.05 var(--f-display);color:var(--chaos);letter-spacing:.03em;text-transform:uppercase;text-align:center;max-width:70vw}
+#stampFx b{font:700 16px/1 var(--f-mono);color:#fff}
+@keyframes stampIn{from{transform:translate(-50%,-50%) rotate(-4deg) scale(2.2);opacity:0}to{transform:translate(-50%,-50%) rotate(-4deg) scale(1);opacity:1}}
+#speed{position:absolute;inset:0;pointer-events:none;opacity:0;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,0) 0deg 3deg,rgba(255,255,255,.2) 3.3deg 3.6deg);-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 34%,#000 80%);mask-image:radial-gradient(circle at 50% 50%,transparent 34%,#000 80%)}
+#meters{position:absolute;left:50%;top:calc(50% + 20px);transform:translateX(-50%);display:flex;flex-direction:column;gap:4px;align-items:center}
+.meter{width:72px;height:4px;border-radius:2px;background:rgba(0,0,0,.5);overflow:hidden;opacity:0;transition:opacity .2s}
+.meter i{display:block;height:100%;width:100%;background:var(--blue)}
+.meter.on{opacity:1}
+.meter.tired i{background:var(--red)}
+.meter.fart i{background:#8fd14f}
 @media (max-width:820px){
   .title-wrap{grid-template-columns:minmax(0,1fr);gap:24px}
   #sticky,#feed{display:none}
@@ -180,7 +237,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
 <div id="hud" hidden>
   <div id="clock" class="panel">
     <div class="clock-time"><span id="clockTxt">9:00</span><span id="ampm">AM</span></div>
-    <div class="clock-day">Thursday · shift ends 5:00 PM</div>
+    <div class="clock-day" id="clockDay">Monday · shift ends 5:00 PM</div>
     <div class="daybar"><i id="dayFill"></i><b style="left:25%" title="Meeting 11:00"></b><b style="left:75%" title="Meeting 3:00"></b></div>
     <div class="chaos"><span>CHAOS</span><strong id="chaosTxt">0</strong></div>
     <div id="combo" hidden>COMBO <b id="comboTxt">x1.25</b></div>
@@ -206,6 +263,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
   <div id="intercom" hidden><span class="ic-label">INTERCOM</span><span id="icTxt"></span></div>
   <div id="hint"></div>
   <div id="stance"></div>
+  <div id="speed"></div>
+  <div id="meters"><div id="stamMeter" class="meter"><i></i></div><div id="fartMeter" class="meter fart"><i></i></div></div>
+  <div id="stampFx" hidden><small id="stampKind">PRANK COMPLETE</small><span id="stampTitle"></span><b id="stampPts"></b></div>
   <div id="vignette"></div>
 </div>
 
@@ -214,31 +274,52 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
     <div class="title-left">
       <div class="eyebrow">Dunmore Paper &amp; Synergy Co. · Floor 3</div>
       <h1 class="title">Hostile<span>Workplace</span></h1>
-      <p class="tagline">It's Thursday. You've had enough. Wreck the office from 9 to 5 and walk out with your job.</p>
+      <p class="tagline">Five days. One boss. Zero dignity. Wreck the office from 9 to 5 and walk out with your job.</p>
       <div class="stamp">CONFIDENTIAL</div>
     </div>
     <div class="memo">
-      <div class="memo-head"><span>TO:</span>Junior Associate (you)<br><span>FROM:</span>D. Dennings, Regional Manager<br><span>RE:</span>Your "attitude"</div>
-      <p>Cause chaos, rack up points, and keep your <b>suspicion</b> under 100%. Anyone who sees you mid-prank gets suspicious. The boss counts double. Sit at your desk and pretend to work to cool off.</p>
-      <div class="keys">
-        <kbd>W A S D</kbd><span>Walk · <b>Shift</b> run</span>
-        <kbd>MOUSE</kbd><span>Look (arrow keys work too)</span>
-        <kbd>E (hold)</kbd><span>Prank, pick up, interact</span>
-        <kbd>C</kbd><span>Crouch: hide behind partitions, shows sight cones</span>
-        <kbd>F</kbd><span>Fart. Blame someone nearby.</span>
-        <kbd>SPACE</kbd><span>Jump</span>
-        <kbd>CLICK</kbd><span>Throw what you hold, or shove chairs / pop stuff · <b>G</b> drop</span>
-        <kbd>TAB</kbd><span>To-do list · <b>M</b> mute · <b>ESC</b> pause</span>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn on" data-tab="play">Play</button><button class="tab-btn" data-tab="ach">Achievements</button><button class="tab-btn" data-tab="ctrl">Controls</button><button class="tab-btn" data-tab="set">Settings</button>
       </div>
-      <div class="opts">
-        <label for="optSens">MOUSE <input id="optSens" type="range" min="0.4" max="2.2" step="0.1" value="1"></label>
-        <label for="optVoice"><input id="optVoice" type="checkbox" checked> VOICES</label>
-        <label for="optSound"><input id="optSound" type="checkbox" checked> SOUND</label>
-        <label for="optQ">GRAPHICS <select id="optQ"><option value="high">High</option><option value="low">Low</option></select></label>
+      <div class="tab" id="tab-play">
+        <div id="dayList" class="days"></div>
+        <div id="dayInfo" class="day-info"></div>
+        <button id="btnStart" class="big-btn">Clock in</button>
+        <div class="best" id="bestTxt"></div>
       </div>
-      <button id="btnStart" class="big-btn">Clock in</button>
-      <div class="best" id="bestTxt"></div>
+      <div class="tab" id="tab-ach" hidden><div id="achList" class="ach-list"></div></div>
+      <div class="tab" id="tab-ctrl" hidden>
+        <div class="keys">
+          <kbd>W A S D</kbd><span>Walk · hold <b>Shift</b> to sprint</span>
+          <kbd>C</kbd><span>Crouch (shows sight cones) · while sprinting: <b>slide</b></span>
+          <kbd>SPACE</kbd><span>Jump</span>
+          <kbd>MOUSE</kbd><span>Look (arrow keys work too)</span>
+          <kbd>E (hold)</kbd><span>Prank, pick up, interact</span>
+          <kbd>CLICK</kbd><span>Throw what you hold, or shove · <b>G</b> drop</span>
+          <kbd>F (hold)</kbd><span>Charge a fart. Tap F in mid-air to fart-jump</span>
+          <kbd>B</kbd><span>Burp</span>
+          <kbd>TAB</kbd><span>To-do list · <b>M</b> mute · <b>ESC</b> pause</span>
+        </div>
+      </div>
+      <div class="tab" id="tab-set" hidden>
+        <div class="opts set">
+          <label for="optSens">MOUSE SENSITIVITY <input id="optSens" type="range" min="0.4" max="2.2" step="0.1" value="1"></label>
+          <label for="optVoice"><input id="optVoice" type="checkbox" checked> SPOKEN VOICES</label>
+          <label for="optSound"><input id="optSound" type="checkbox" checked> SOUND</label>
+          <label for="optQ">GRAPHICS <select id="optQ"><option value="high">High</option><option value="low">Low</option></select></label>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
+
+<div id="scr-intro" class="screen intro" hidden>
+  <div class="intro-card">
+    <div class="intro-tag" id="introTag"></div>
+    <div class="intro-day" id="introDay">MONDAY</div>
+    <div class="memo intro-memo"><div class="memo-head"><span>FROM:</span>D. Dennings, Regional Manager<br><span>RE:</span>Today</div><p id="introMemo"></p></div>
+    <div class="intro-goals"><h4>TODAY'S TARGETS</h4><ul id="introReq"></ul><p id="introGoal"></p></div>
+    <button id="btnClockIn" class="big-btn">Clock in</button>
   </div>
 </div>
 
@@ -246,7 +327,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
   <div class="pause-card">
     <h2>ON BREAK</h2>
     <p>The office is frozen in time. Nobody can see you. Enjoy it.</p>
-    <button id="btnResume" class="big-btn">Back to work</button>
+    <div class="btn-row"><button id="btnResume" class="big-btn">Back to work</button><button id="btnRestart" class="ghost-btn">Restart day</button><button id="btnQuit" class="ghost-btn">Quit to menu</button></div>
   </div>
 </div>
 
@@ -255,16 +336,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--chaos);outline-
     <div class="memo-head"><span>TO:</span>Junior Associate<br><span>FROM:</span>Human Resources (Karen)<br><span>RE:</span><span id="endRe" style="width:auto;color:inherit">Today</span></div>
     <div id="endStamp" class="end-stamp fired">FIRED</div>
     <h2 class="end-title" id="endTitle">Terminated</h2>
+    <div id="endStars" class="stars"></div>
     <p class="end-reason" id="endReason"></p>
-    <div class="end-stats">
-      <div><span>CHAOS</span><strong id="stChaos">0</strong></div>
-      <div><span>PRANKS</span><strong id="stPranks">0/13</strong></div>
-      <div><span>CLOCKED OUT</span><strong id="stTime">9:00</strong></div>
+    <div class="grades">
+      <div><span>CHAOS</span><strong id="gChaos">A</strong><em id="stChaos">0</em></div>
+      <div><span>STEALTH</span><strong id="gStealth">A</strong><em id="stSus">0%</em></div>
+      <div><span>TARGETS</span><strong id="gReq">A</strong><em id="stReq">0/4</em></div>
+      <div><span>PRANKS</span><strong id="gPr">0</strong><em id="stPranks">of 28</em></div>
     </div>
     <p class="small-note" id="endBest"></p>
-    <button id="btnAgain" class="big-btn">Reapply for your job</button>
+    <div class="btn-row"><button id="btnNext" class="big-btn">Next day</button><button id="btnAgain" class="ghost-btn">Retry day</button><button id="btnMenu" class="ghost-btn">Main menu</button></div>
   </div>
 </div>
+<div id="achToast" hidden><small>ACHIEVEMENT UNLOCKED</small><b id="achName"></b><span id="achDesc"></span></div>
 <div id="flash"></div>
 <div id="loading">LOADING THE OFFICE…</div>
 
@@ -525,6 +609,7 @@ function gBox(w, h, d, r = 0) {
 }
 function gCyl(rt, rb, h, s = 18) { const k = `c${rt}|${rb}|${h}|${s}`; if (!_gc.has(k)) _gc.set(k, new THREE.CylinderGeometry(rt, rb, h, s)); return _gc.get(k); }
 function gSph(r, ws = 18, hs = 12) { const k = `s${r}|${ws}`; if (!_gc.has(k)) _gc.set(k, new THREE.SphereGeometry(r, ws, hs)); return _gc.get(k); }
+function cap(r, len, segs = 10) { const k = `cap${r}|${len}|${segs}`; if (!_gc.has(k)) _gc.set(k, new THREE.CapsuleGeometry(r, len, 4, segs)); return _gc.get(k); }
 function gHemi(r) { const k = `h${r}`; if (!_gc.has(k)) _gc.set(k, new THREE.SphereGeometry(r, 18, 8, 0, PI * 2, 0, PI / 2)); return _gc.get(k); }
 const _mc = new Map();
 function mStd(color, rough = .8, metal = 0) { const k = `${color}|${rough}|${metal}`; if (!_mc.has(k)) _mc.set(k, new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal })); return _mc.get(k); }
@@ -1077,6 +1162,12 @@ const SFX = {
   win() { const t = A.ctx.currentTime; [523, 659, 784, 1046].forEach((f, i) => osc('triangle', f, t + i * .12, .5, .18)); },
   click() { const t = A.ctx.currentTime; osc('square', 2000, t, .02, .03); },
   step(pos, run, hard, crouch) { const t = A.ctx.currentTime, v = volAt(pos) * (crouch ? .35 : 1); if (hard) { nz(t, .05, (run ? .1 : .055) * v, { type: 'highpass', f: 1800 }); osc('sine', 160, t, .05, .05 * v, { f2: 90 }); } else nz(t, .08, (run ? .07 : .035) * v, { f: 450 }); },
+  burp(pos, big = 1) { const c = A.ctx, t = c.currentTime, v = volAt(pos), dur = .45 + .5 * big; const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(115 / big, t); o.frequency.linearRampToValueAtTime(70 / big, t + dur); const lfo = c.createOscillator(); lfo.frequency.value = 24; const lg = c.createGain(); lg.gain.value = 30; lfo.connect(lg); lg.connect(o.frequency); const f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.value = 650; f1.Q.value = 2.5; const g = c.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.7 * v, t + .04); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(f1); f1.connect(g); g.connect(A.out); o.start(t); lfo.start(t); o.stop(t + dur + .05); lfo.stop(t + dur + .05); nz(t, dur * .6, .1 * v, { type: 'bandpass', f: 400, q: 2 }); },
+  bleep() { const t = A.ctx.currentTime; osc('sine', 1000, t, .32, .16, { attack: .005 }); },
+  pant() { const t = A.ctx.currentTime; nz(t, .32, .05, { type: 'bandpass', f: 1300, f2: 700, q: 1.5, attack: .08 }); },
+  slide() { const t = A.ctx.currentTime; nz(t, .65, .16, { type: 'bandpass', f: 900, f2: 280, q: 1, attack: .02 }); },
+  plop(pos) { const t = A.ctx.currentTime, v = volAt(pos); osc('sine', 320, t, .12, .35 * v, { f2: 80 }); nz(t, .08, .1 * v, { f: 800 }); },
+  stamp() { const t = A.ctx.currentTime; osc('sine', 90, t, .2, .5, { f2: 40 }); nz(t, .08, .3, { f: 1500 }); },
   pop(pos) { const t = A.ctx.currentTime, v = volAt(pos); nz(t, .08, .5 * v, { type: 'highpass', f: 1200 }); osc('sine', 180, t, .08, .3 * v, { f2: 60 }); },
   airhorn(pos) { const t = A.ctx.currentTime, v = Math.max(.55, volAt(pos)); [466, 554, 698].forEach(f => { osc('sawtooth', f, t, 1.3, .15 * v, { attack: .02 }); osc('sawtooth', f * 1.006, t, 1.3, .09 * v, { attack: .02 }); }); },
   beep(pos) { const t = A.ctx.currentTime, v = volAt(pos); for (let i = 0; i < 4; i++) osc('square', 2100, t + i * .12, .07, .12 * v); },
@@ -1120,7 +1211,7 @@ function speak(text, n, force) {
   try {
     const d = Math.hypot(n.x - P.pos.x, n.z - P.pos.z); if (d > 17 && !force) return;
     if (speechSynthesis.speaking && !force && !n.isBoss) return; if (force || n.isBoss) speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/\*/g, '')); u.pitch = n.voice.pitch; u.rate = n.voice.rate; u.volume = clamp(1 - d / 20, .2, 1);
+    const u = new SpeechSynthesisUtterance(text.replace(/\*/g, '').replace(/#\$%&/g, ' ')); u.pitch = n.voice.pitch; u.rate = n.voice.rate; u.volume = clamp(1 - d / 20, .2, 1);
     const pool = n.voice.male ? voicesM : voicesF; if (pool.length) u.voice = pool[n.voice.vi % pool.length];
     speechSynthesis.speak(u);
   } catch (e) {}
@@ -1129,52 +1220,87 @@ function speak(text, n, force) {
 // =====================================================================
 // CHARACTERS
 // =====================================================================
+const FACE_MATS = { white: mStd(0xf7f5f0, .3), iris: mStd(0x2a1d14, .2), mouth: mStd(0x3a1212, .7), teeth: mStd(0xf2efe6, .4), belt: mStd(0x241a14, .5), buckle: mStd(0xc8b06a, .3, .8), sole: mStd(0x121212, .8) };
 function buildPerson(look) {
   const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
   const Wd = look.wide || 1;
-  const skin = mStd(look.skin, .7), shirt = mStd(look.shirt, .85), pants = mStd(look.pants, .85), shoe = mStd(look.shoes || 0x1b1b1b, .45), hair = mStd(look.hair, .9);
+  const skin = mStd(look.skin, .6), shirt = new THREE.MeshStandardMaterial({ color: look.shirt, roughness: .82 }), pants = mStd(look.pants, .78), shoe = mStd(look.shoes || 0x1b1b1b, .35), hair = mStd(look.hair, .85);
   const hips = new THREE.Group(); hips.position.y = .92; body.add(hips);
-  put(gBox(.36 * Wd, .16, .23 * Wd, .05), pants, 0, .02, 0, hips);
+  // pelvis + belt
+  const pel = put(cap(.13, .1, 12), pants, 0, .04, 0, hips); pel.rotation.z = PI / 2; pel.scale.set(1, Wd, .72 * Wd);
+  const belt = put(gCyl(.172 * Wd, .172 * Wd, .05, 20), FACE_MATS.belt, 0, .12, 0, hips); belt.scale.z = .66;
+  put(gBox(.05, .04, .015), FACE_MATS.buckle, 0, .12, .114 * Wd, hips, { cast: false });
+  // legs
   const legs = [-1, 1].map(s => {
-    const hip = new THREE.Group(); hip.position.set(.1 * s * Wd, 0, 0); hips.add(hip);
-    put(gBox(.155, .48, .17, .05), pants, 0, -.23, 0, hip);
-    const knee = new THREE.Group(); knee.position.y = -.46; hip.add(knee);
-    put(gBox(.135, .44, .15, .04), pants, 0, -.21, 0, knee);
-    put(gBox(.13, .08, .27, .03), shoe, 0, -.42, .05, knee);
+    const hip = new THREE.Group(); hip.position.set(.092 * s * Wd, 0, 0); hips.add(hip);
+    put(cap(.078, .3), pants, 0, -.22, 0, hip);
+    const knee = new THREE.Group(); knee.position.y = -.45; hip.add(knee);
+    put(cap(.062, .3), pants, 0, -.2, 0, knee);
+    put(gBox(.11, .075, .25, .03), shoe, 0, -.425, .045, knee);
+    put(gBox(.115, .02, .26, .008), FACE_MATS.sole, 0, -.465, .045, knee);
     return { hip, knee };
   });
+  // torso (must stay chest.children[0])
   const chest = new THREE.Group(); chest.position.y = .06; hips.add(chest);
-  put(gBox(.42 * Wd, .54, .25 * Wd, .08), shirt, 0, .3, 0, chest);
-  if (look.belly) { const b = put(gSph(.2), shirt, 0, .2, .07 * Wd, chest); b.scale.set(1.1, .9, .9); }
-  if (look.tie) { put(gBox(.06, .3, .015), mStd(look.tie, .5), 0, .36, .126 * Wd + (look.belly ? .06 : 0), chest); put(gBox(.08, .05, .02), mStd(look.tie, .5), 0, .52, .128 * Wd, chest); }
-  if (look.collar) put(gBox(.22, .05, .05), M.white, 0, .56, .09, chest);
-  put(gCyl(.05, .055, .1, 10), skin, 0, .6, 0, chest);
-  const head = new THREE.Group(); head.position.y = .6; chest.add(head);
-  const hd = put(gSph(.125), skin, 0, .13, 0, head); hd.scale.set(1, 1.12, 1.02);
-  [-1, 1].forEach(s => { put(gSph(.017, 8, 6), mStd(0x111111, .3), s * .045, .15, .112, head, { cast: false }); put(gBox(.04, .008, .01), hair, s * .045, .185, .115, head, { cast: false }); put(gSph(.03, 8, 6), skin, s * .125, .13, 0, head); });
-  put(gBox(.05, .012, .01), mStd(0x8a4a3a, .6), 0, .075, .122, head, { cast: false });
-  put(gBox(.03, .04, .03), skin, 0, .12, .125, head, { cast: false });
+  const torso = put(cap(.17, .26, 16), shirt, 0, .3, 0, chest); torso.scale.set(1.18 * Wd, 1, .72 * Wd);
+  const fz = look.belly ? .25 : .124 * Wd;
+  if (look.belly) { const b = put(gSph(.21, 20, 14), shirt, 0, .2, .06 * Wd, chest); b.scale.set(1.15, .95, 1); }
+  if (look.collar) [-1, 1].forEach(s => put(gBox(.075, .05, .02), M.white, s * .04, .55, .1 * Wd, chest, { rz: -s * .5, cast: false }));
+  if (look.tie) {
+    const tm = mStd(look.tie, .45);
+    put(gBox(.05, .045, .03, .01), tm, 0, .52, .11 * Wd + .01, chest);
+    put(gBox(.062, .28, .012), tm, 0, .36, fz + .004, chest, { cast: false });
+    put(gBox(.044, .044, .012), tm, 0, .215, fz + .004, chest, { rz: PI / 4, cast: false });
+  } else if (!look.belly) for (let i = 0; i < 4; i++) put(gSph(.009, 8, 6), FACE_MATS.white, 0, .14 + i * .1, fz + .002, chest, { cast: false });
+  put(cap(.05, .06), skin, 0, .6, 0, chest);
+  // head
+  const head = new THREE.Group(); head.position.y = .62; chest.add(head);
+  const skull = put(gSph(.12, 24, 18), skin, 0, .13, 0, head); skull.scale.set(.95, 1.1, 1.02);
+  const jaw = put(gSph(.1, 20, 14), skin, 0, .06, .02, head); jaw.scale.set(.95, .8, 1);
+  const nose = put(cap(.021, .03, 8), skin, 0, .118, .122, head); nose.rotation.x = .35;
+  [-1, 1].forEach(s => { const e = put(gSph(.03, 10, 8), skin, s * .115, .13, 0, head); e.scale.set(.45, 1, .8); });
+  const face = { blink: rand(1, 4), lids: [], brows: [], pupils: [], eyes: [], browY0: .19 };
+  [-1, 1].forEach(s => {
+    const eye = new THREE.Group(); eye.position.set(s * .042, .155, .106); head.add(eye); face.eyes.push(eye);
+    const w = put(gSph(.022, 14, 10), FACE_MATS.white, 0, 0, 0, eye, { cast: false }); w.scale.z = .6;
+    const pu = put(gSph(.011, 10, 8), FACE_MATS.iris, 0, 0, .012, eye, { cast: false }); face.pupils.push(pu);
+    const lid = new THREE.Group(); lid.position.set(0, .023, .006); eye.add(lid);
+    put(gBox(.052, .046, .036), skin, 0, -.023, 0, lid, { cast: false }); lid.scale.y = .06; face.lids.push(lid);
+    const brow = put(gBox(.046, .011, .014, .004), hair, s * .042, .19, .112, head, { cast: false }); face.brows.push(brow);
+  });
+  const mouth = new THREE.Group(); mouth.position.set(0, .07, .112); head.add(mouth);
+  const mi = put(gSph(.03, 14, 10), FACE_MATS.mouth, 0, 0, 0, mouth, { cast: false }); mi.scale.set(1.3, .5, .45);
+  put(gBox(.046, .008, .01), FACE_MATS.teeth, 0, .009, .008, mouth, { cast: false });
+  mouth.scale.y = .12; face.mouth = mouth;
+  // hair
   const hs = look.hairStyle;
-  if (hs === 'bald') { const r = put(new THREE.TorusGeometry(.115, .03, 6, 18, PI * 1.25), hair, 0, .12, -.01, head); r.rotation.set(PI / 2, 0, -PI * .12 - PI / 2 + PI * .38); }
-  else if (hs === 'bob') { put(gHemi(.135), hair, 0, .15, -.005, head); put(gBox(.29, .2, .16, .05), hair, 0, .07, -.06, head); put(gBox(.2, .05, .06, .02), hair, 0, .25, .085, head); }
-  else if (hs === 'messy') { put(gHemi(.133), hair, 0, .15, -.005, head); for (let i = 0; i < 6; i++) put(gSph(.05, 8, 6), hair, rand(-.08, .08), .26 + Math.random() * .03, rand(-.08, .06), head); }
-  else if (hs === 'spiky') { put(gHemi(.132), hair, 0, .155, -.005, head); for (let i = 0; i < 7; i++) { const c = put(new THREE.ConeGeometry(.035, .1, 6), hair, rand(-.08, .08), .28, rand(-.08, .08), head); c.rotation.set(rand(-.4, .4), 0, rand(-.4, .4)); } }
-  else if (hs === 'curly') { put(gHemi(.13), hair, 0, .15, 0, head); for (let i = 0; i < 12; i++) { const a = i / 12 * PI * 2; put(gSph(.06, 8, 6), hair, Math.cos(a) * .12, .2 + Math.sin(i * 1.7) * .04, Math.sin(a) * .12 - .02, head); } }
-  else if (hs === 'ponytail') { put(gHemi(.133), hair, 0, .15, -.005, head); put(gSph(.06, 10, 8), hair, 0, .2, -.14, head); const pt = put(gCyl(.04, .02, .25, 8), hair, 0, .06, -.17, head); pt.rotation.x = .3; }
-  if (look.glasses) { [-1, 1].forEach(s => put(new THREE.TorusGeometry(.03, .006, 6, 14), M.black, s * .046, .15, .125, head, { cast: false })); put(gBox(.03, .006, .006), M.black, 0, .155, .128, head, { cast: false }); }
-  if (look.beard) put(gBox(.2, .09, .1, .04), hair, 0, .04, .07, head);
-  if (look.mustache) put(gBox(.11, .025, .03, .01), mStd(0x3b2a20, .9), 0, .095, .125, head, { cast: false });
+  if (hs === 'bald') { const r = put(new THREE.TorusGeometry(.118, .028, 8, 20, PI * 1.25), hair, 0, .12, -.01, head); r.rotation.set(PI / 2, 0, PI * .13); }
+  else if (hs === 'bob') { put(gHemi(.137), hair, 0, .145, -.005, head); put(gBox(.27, .2, .15, .06), hair, 0, .07, -.06, head); put(gBox(.21, .05, .06, .02), hair, 0, .245, .085, head); [-1, 1].forEach(s => put(gBox(.04, .17, .1, .02), hair, s * .12, .1, .0, head)); }
+  else if (hs === 'messy') { put(gHemi(.135), hair, 0, .145, -.005, head); for (let i = 0; i < 8; i++) put(gSph(.05, 8, 6), hair, rand(-.09, .09), .25 + Math.random() * .03, rand(-.09, .07), head); }
+  else if (hs === 'spiky') { put(gHemi(.134), hair, 0, .148, -.005, head); for (let i = 0; i < 9; i++) { const c = put(new THREE.ConeGeometry(.035, .1, 6), hair, rand(-.08, .08), .27, rand(-.08, .08), head); c.rotation.set(rand(-.5, .5), 0, rand(-.5, .5)); } }
+  else if (hs === 'curly') { put(gHemi(.132), hair, 0, .145, 0, head); for (let i = 0; i < 16; i++) { const a = i / 16 * PI * 2; put(gSph(.055, 8, 6), hair, Math.cos(a) * .12, .19 + Math.sin(i * 1.7) * .05, Math.sin(a) * .11 - .03, head); } }
+  else if (hs === 'ponytail') { put(gHemi(.135), hair, 0, .145, -.005, head); put(gSph(.055, 10, 8), hair, 0, .2, -.14, head); const pt = put(cap(.035, .18, 8), hair, 0, .05, -.18, head); pt.rotation.x = .35; }
+  let toupee = null;
+  if (look.toupee) { toupee = put(gSph(.105, 18, 10), mStd(look.toupee, .95), 0, .262, .005, head); toupee.scale.set(1.05, .3, 1.1); }
+  if (look.glasses) { [-1, 1].forEach(s => put(new THREE.TorusGeometry(.03, .006, 6, 16), M.black, s * .043, .155, .13, head, { cast: false })); put(gBox(.03, .006, .006), M.black, 0, .16, .132, head, { cast: false }); }
+  if (look.beard) { const b = put(gSph(.1, 16, 10), hair, 0, .045, .035, head); b.scale.set(1, .75, .95); }
+  if (look.mustache) put(gBox(.11, .026, .03, .01), mStd(0x3b2a20, .9), 0, .095, .125, head, { cast: false });
+  // arms
   const arms = [-1, 1].map(s => {
-    const sh = new THREE.Group(); sh.position.set((.235 * Wd + .025) * s, .52, 0); chest.add(sh);
-    put(gBox(.11, .3, .12, .04), shirt, 0, -.14, 0, sh);
+    const sh = new THREE.Group(); sh.position.set((.165 * Wd + .035) * s, .475, 0); chest.add(sh);
+    put(gSph(.07, 14, 10), shirt, 0, 0, 0, sh);
+    put(cap(.058, .2), shirt, 0, -.14, 0, sh);
     const el = new THREE.Group(); el.position.y = -.28; sh.add(el);
-    put(gBox(.1, .26, .1, .04), look.shortSleeve ? skin : shirt, 0, -.12, 0, el);
-    put(gSph(.05, 10, 8), skin, 0, -.28, 0, el);
+    put(cap(.05, .18), look.shortSleeve ? skin : shirt, 0, -.12, 0, el);
+    const hand = new THREE.Group(); hand.position.y = -.26; el.add(hand);
+    put(gBox(.075, .085, .035, .015), skin, 0, -.02, 0, hand);
+    put(gBox(.068, .05, .03, .012), skin, 0, -.075, .004, hand);
+    const th = put(cap(.015, .035, 6), skin, -s * .04, -.01, .02, hand); th.rotation.z = s * .5;
     return { sh, el };
   });
-  const note = plane(.18, .18, new THREE.MeshStandardMaterial({ map: T.kickme, roughness: .9, side: THREE.DoubleSide }), 0, .32, -.127 * Wd - .01, { parent: chest, ry: PI }); note.visible = false;
+  const note = plane(.18, .18, new THREE.MeshStandardMaterial({ map: T.kickme, roughness: .9, side: THREE.DoubleSide }), 0, .32, -.122 * Wd - .012, { parent: chest, ry: PI }); note.visible = false;
   root.traverse(o => { if (o.isMesh && o.castShadow !== false) o.castShadow = true; });
-  return { root, body, hips, chest, head, legs, arms, note };
+  return { root, body, hips, chest, head, legs, arms, note, face, toupee, shirt };
 }
 function animatePerson(p, pose, t) {
   const [L0, L1] = p.legs, [A0, A1] = p.arms;
@@ -1222,9 +1348,9 @@ const G = {
   evac: { active: false, t: 0 }, meeting: { active: false, t: 0, inside: 0, total: 0, talkT: 3, started: false, wait: 0, n: 0 },
   flood: { active: false, level: 0 }, printer: { t: 0, spawn: 0, sheets: 0 }, huntCd: 30, witnessed: 0, farts: 0,
   hintIdx: 0, hintT: 2, laughCheck: 0, smashed: 0, ducks: 0, kickT: 0, kickLaughs: 0, seenNow: false, prankCount: 0,
-  heat: { t: 0 }, heatK: 0, sprink: { t: 0 }, wet: 0, lightK: 1, lightTarget: 1, lightFlick: 0, lightApplied: 1, shake: 0, combo: 0, lastChaosT: -99, clockT: 0, alarmClock: null, vend: null, catT: 0,
+  heat: { t: 0 }, heatK: 0, fartCharge: 0, airFartCd: 0, burpCd: 0, swoop: 0, vmPunch: 0, vmThrow: 0, vmBurp: 0, sockStink: null, toupeeProp: null, sprink: { t: 0 }, wet: 0, lightK: 1, lightTarget: 1, lightFlick: 0, lightApplied: 1, shake: 0, combo: 0, lastChaosT: -99, clockT: 0, alarmClock: null, vend: null, catT: 0,
 };
-const P = { pos: V(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15), vel: V(), yaw: PI, pitch: -.08, crouch: false, run: false, eye: 1.62, bob: 0, stepT: 0, y: 0, vy: 0, ground: true, stamina: 1, tired: false, roll: 0, fov: 72, landT: 0, shoveCd: 0 };
+const P = { pos: V(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15), vel: V(), yaw: PI, pitch: -.08, crouch: false, run: false, eye: 1.62, bob: 0, stepT: 0, y: 0, vy: 0, ground: true, stamina: 1, tired: false, roll: 0, fov: 72, landT: 0, shoveCd: 0, slideT: 0, slideDir: V(), pantT: 0 };
 const keys = {};
 const MIN_PER_SEC = 1 / 1.1;
 
@@ -1251,6 +1377,12 @@ const PRANKS = [
   { id: 'cattv', title: 'Put cat videos on the meeting TV', pts: 200 },
   { id: 'clock', title: 'Hide a beeping alarm clock in the ceiling', pts: 150, need: 'clock' },
   { id: 'vending', title: 'Tip over the vending machine', pts: 250 },
+  { id: 'poop', title: "Leave a rubber poop on the boss's desk", pts: 200, need: 'poop' },
+  { id: 'socks', title: 'Stuff sweaty gym socks in the air vent', pts: 250, need: 'socks' },
+  { id: 'burp', title: 'Burp the alphabet over the PA', pts: 300 },
+  { id: 'chairfart', title: "Fart deep into the boss's chair", pts: 250 },
+  { id: 'toilettv', title: 'Swap his slides for toilet sounds', pts: 250 },
+  { id: 'toupee', title: "Knock off the boss's toupee", pts: 300 },
 ];
 const ITEM = {
   jello: { name: 'Jello mix', where: 'break room fridge' },
@@ -1261,7 +1393,34 @@ const ITEM = {
   clock: { name: 'Alarm clock', where: 'your desk drawer' },
   balloons: { name: 'Bag of balloons', where: 'copy room shelf' },
   glitter: { name: 'Glitter bomb', where: 'copy room shelf' },
+  poop: { name: 'Rubber poop', where: 'your desk drawer' },
+  socks: { name: 'Sweaty gym socks', where: 'gym bag at your desk' },
 };
+const DAYS = [
+  { id: 'mon', name: 'Monday', tag: 'Ease into it', memo: "Welcome back. I've added a new company policy: no fun.", req: ['stickies', 'whoopee', 'smash', 'ducks'], goal: 1500, diff: 1.0 },
+  { id: 'tue', name: 'Tuesday', tag: 'Taco Tuesday aftermath', memo: 'Reminder: the printer is for WORK documents only. Looking at you, whoever printed 40 pages of memes.', req: ['printer', 'kickme', 'toilet', 'keyboard', 'poop'], goal: 3000, diff: 1.12 },
+  { id: 'wed', name: 'Wednesday', tag: 'Hump day', memo: 'Someone keeps touching the thermostat. I WILL find you.', req: ['thermostat', 'lights', 'server', 'socks', 'chair'], goal: 4500, diff: 1.25 },
+  { id: 'thu', name: 'Thursday', tag: 'Almost there', memo: 'Team-building meetings at 11 and 3. Attendance is NOT optional. Neither is enthusiasm.', req: ['balloons', 'cattv', 'toilettv', 'sprinklers', 'glitter', 'burp'], goal: 6500, diff: 1.38 },
+  { id: 'fri', name: 'Friday', tag: 'Last day. Go out loud.', memo: 'Corporate visits next week. If ANYTHING goes wrong today, heads will roll. Starting with yours.', req: ['airhorn', 'toupee', 'vending', 'pizza', 'email', 'chairfart'], goal: 9000, diff: 1.5 },
+];
+let DAY = DAYS[0];
+const ACH = [
+  { id: 'first', name: 'Day One Energy', desc: 'Complete your first prank.' },
+  { id: 'blame', name: 'Not It', desc: 'Fart next to 3+ people so they blame each other.' },
+  { id: 'mega', name: 'Weapons-Grade', desc: 'Release a fully charged MEGA fart.' },
+  { id: 'rocket', name: 'Rocket Man', desc: 'Fart-jump in mid-air.' },
+  { id: 'combo', name: 'Chain Reaction', desc: 'Reach a x3 chaos combo.' },
+  { id: 'toupee', name: 'Hair Today, Gone Tomorrow', desc: "Knock off the boss's toupee." },
+  { id: 'flush', name: 'Down the Drain', desc: "Flush the boss's toupee." },
+  { id: 'strike', name: 'Strike!', desc: 'Hit someone with a rolling office chair.' },
+  { id: 'slide', name: 'Baseball Slide', desc: 'Slide across the office floor.' },
+  { id: 'sprint', name: 'Cardio Is Hard', desc: 'Run completely out of stamina.' },
+  { id: 'burp', name: 'Alphabet Soup', desc: 'Burp the alphabet over the PA.' },
+  { id: 'ghost', name: 'Ghost', desc: 'Clear a day without going over 25% suspicion.' },
+  { id: 'fullsend', name: 'Full Send', desc: 'Do every single prank in one day.' },
+  { id: 'fired', name: 'Pack Your Desk', desc: 'Get fired.' },
+  { id: 'friday', name: 'Two Weeks Notice', desc: 'Clear Friday.' },
+];
 
 // =====================================================================
 // NPCs
@@ -1274,7 +1433,7 @@ const SPOT = {
   patrol: [[14, 11.6], [24, 11.6], [34, 11.6], [22.3, 15], [22.3, 20.2], [22.3, 28], [33, 15], [33, 21.2], [33, 28], [12.5, 21], [42, 21.2], [12.5, 28], [6, 11.6], [16, 6], [9, 6], [6, 17.5], [26, 21.2], [6, 26]],
 };
 const NPC_DEFS = [
-  { id: 'boss', name: 'Mr. Dennings', role: 'Regional Manager', look: { skin: 0xe4b291, shirt: 0x253149, pants: 0x1f2636, hair: 0x6b5644, hairStyle: 'bald', tie: 0xb3202a, wide: 1.16, belly: true, mustache: true, collar: true }, speed: 1.35, range: 14, fov: 105, mult: 1.6, voice: { pitch: .55, rate: .95, male: true, vi: 0 }, start: [40, 2.55] },
+  { id: 'boss', name: 'Mr. Dennings', role: 'Regional Manager', look: { skin: 0xe4b291, shirt: 0x253149, pants: 0x1f2636, hair: 0x6b5644, hairStyle: 'bald', toupee: 0x4a3322, tie: 0xb3202a, wide: 1.16, belly: true, mustache: true, collar: true }, speed: 1.35, range: 14, fov: 105, mult: 1.6, voice: { pitch: .55, rate: .95, male: true, vi: 0 }, start: [40, 2.55] },
   { id: 'karen', name: 'Karen', role: 'HR', look: { skin: 0xf1c9a5, shirt: 0x7d4a9c, pants: 0x2d2d35, hair: 0xe3c27a, hairStyle: 'bob' }, desk: 7, speed: 1.25, range: 12, fov: 110, mult: 1.25, voice: { pitch: 1.35, rate: 1.1, vi: 0 }, w: { desk: 40, coffee: 14, cooler: 10, bath: 7, printer: 9, copier: 6, chat: 14 } },
   { id: 'gary', name: 'Gary', role: 'IT', look: { skin: 0xd9a07a, shirt: 0x3f6b4a, pants: 0x4b4b4b, hair: 0x3b2a1e, hairStyle: 'messy', glasses: true, beard: true }, desk: 8, speed: 1.1, range: 10, fov: 95, mult: 1, voice: { pitch: .85, rate: 1.05, male: true, vi: 1 }, w: { desk: 50, coffee: 6, cooler: 10, bath: 8, printer: 8, fridge: 8, micro: 6 } },
   { id: 'todd', name: 'Todd', role: 'Sales', look: { skin: 0xf0c4a0, shirt: 0x8fb8de, pants: 0x30364a, hair: 0xc49a52, hairStyle: 'spiky', tie: 0x1f3d7a, collar: true }, desk: 13, speed: 1.4, range: 11, fov: 100, mult: 1, voice: { pitch: 1.15, rate: 1.2, male: true, vi: 2 }, w: { desk: 40, coffee: 8, cooler: 18, bath: 8, printer: 6, chat: 14, copier: 4 } },
@@ -1291,7 +1450,7 @@ const LINES = {
   witness: ['OH MY GOD.', "I'm telling the boss!", 'Did you just...?!', 'I SAW THAT!'],
   bossWitness: ['I SAW THAT!', "You're on THIN ice!", 'Unbelievable!'],
   noise: ['What was that?!', 'Did something break?', 'Hello?', 'Was that the printer again?'],
-  gag: ['UGH, who did that?!', 'Something DIED in here.', 'My eyes are WATERING.', 'Oh that is RANCID.'],
+  gag: ['UGH, who did that?!', 'Something DIED in here.', 'My eyes are WATERING.', 'Oh that is RANCID.', 'It smells like a dumpster had a baby.', 'I can TASTE it. Why can I taste it?!', 'Who ate a burrito at 9 AM?!'],
   laughBoss: ['Hehe. Nice note, boss.', 'Pffft— KICK ME?!', "I can't breathe— look at his back!", 'HAHAHA.'],
   serverDown: ['Is the internet down?', 'My spreadsheet just died!', 'GARY! The server!', 'Did anyone save?!'],
   email: ["'I love you all'?! LOL", 'He cries in his CAR?!', 'Mandatory hugs at 3?!', 'Aww... Denny.', 'Screenshotted. Forever.'],
@@ -1324,6 +1483,7 @@ class NPC {
   say(text, force) {
     if (this.hidden || (this.sayCd > 0 && !force)) return;
     this.sayCd = 3; this.tag.bubble.textContent = text; this.tag.bubble.classList.add('on'); this.tag.bt = 2.6 + text.length * .03; speak(text, this, force);
+    if (text.includes('#$%&')) later(.35, () => sfx('bleep'));
   }
   glanceAt(x, z, t) { this.glance.x = x; this.glance.z = z; this.glance.t = t; }
   separate() { if (this.sitting) return; for (const o of npcs) { if (o === this || o.hidden) continue; const dx = this.x - o.x, dz = this.z - o.z, d = Math.hypot(dx, dz); if (d < .6 && d > 1e-3) { const k = (.6 - d) * .5, nx = this.x + dx / d * k, nz = this.z + dz / d * k; if (navFree(nx, nz)) { this.x = nx; this.z = nz; } } } }
@@ -1400,6 +1560,10 @@ class NPC {
     this.p.root.position.set(this.x + ox, y, this.z); this.p.root.rotation.y = this.yaw; this.p.head.rotation.y = clamp(this.headYaw, -1.2, 1.2);
     this.p.note.visible = !!this.flags.kickMe;
     animatePerson(this.p, pose, this.t);
+    const ov = this.overlay && this.overlay.pose;
+    const expr = ov === 'shock' || pose === 'panic' ? 'shock' : ov === 'laugh' ? 'laugh' : ov === 'gag' ? 'gag' : (ov === 'argue' || pose === 'argue') ? 'angry' : ov === 'fan' ? 'sad' : ((this.isBoss && (G.sus > 55 || (this.task && this.task.type === 'search'))) || this.watchT > 0) ? 'angry' : 'neutral';
+    const lk = (this.socialLook || this.watchT > 0) ? -angDiff(Math.atan2(P.pos.x - this.x, P.pos.z - this.z), this.yaw + this.headYaw) * 2 : 0;
+    animFace(this.p, expr, this.tag.bt > 0 && this.tag.bubble.classList.contains('on'), this.t, dt, lk);
     if (pose === 'type' && Math.random() < dt * 4 && Math.hypot(this.x - P.pos.x, this.z - P.pos.z) < 6) sfx('click');
     this.hazT -= dt; if (this.hazT <= 0) { this.hazT = .5; checkHazards(this); }
   }
@@ -1506,6 +1670,17 @@ function onPrinter(n, T) {
 }
 function onBossDesk(n) {
   let d = .8;
+  if (G.flags.poop && !G.flags.poopSeen) {
+    G.flags.poopSeen = true;
+    later(d, () => { n.react('gag', 2.6, 'IS THAT... IS THAT REAL?! #$%&!'); addChaos(250, 'The boss found a poop on his desk'); laughNear(n, 14);
+      later(3, () => { deskPoop.visible = false; n.say("...It's rubber. WHO DID THIS?!", true); later(2, () => bossHunt(false)); }); });
+    d += 4.5;
+  }
+  if (G.flags.chairfart && !G.flags.chairfartDone) {
+    G.flags.chairfartDone = true;
+    later(d + .5, () => { burst(E.stink, n.x, .7, n.z, 25, .5, .3, .7); sfx('fart', n, 1.2, .7); n.react('gag', 2.6, 'Why does my chair smell like HOT GARBAGE?!'); addChaos(250, "The boss's chair exhaled"); laughNear(n, 12); });
+    d += 3.5;
+  }
   if (G.flags.glitter && !G.flags.glitterDone) {
     G.flags.glitterDone = true;
     later(d, () => {
@@ -1565,7 +1740,8 @@ function addChaos(n, text) {
   G.combo = G.clockT - G.lastChaosT < 6 ? Math.min(G.combo + 1, 8) : 0; G.lastChaosT = G.clockT;
   const mult = 1 + G.combo * .25, pts = Math.round(n * mult); G.chaos += pts;
   feed('+' + pts, text + (G.combo ? `  ×${mult.toFixed(2)}` : ''));
-  if (G.combo) { $('combo').hidden = false; $('comboTxt').textContent = 'x' + mult.toFixed(2); }
+  if (G.combo) { $('combo').hidden = false; $('comboTxt').textContent = 'x' + mult.toFixed(2); if (G.combo >= 8) unlock('combo'); }
+  renderTodo(); checkCleared();
   const c = $('chaosTxt'); c.textContent = G.chaos.toLocaleString('en-US'); c.classList.add('bump'); setTimeout(() => c.classList.remove('bump'), 160);
 }
 function addSus(n, reason) {
@@ -1578,17 +1754,18 @@ function addSus(n, reason) {
 let icTimer = 0;
 function intercom(text, alarm, dur = 5) { $('icTxt').textContent = text; $('intercom').hidden = false; $('intercom').classList.toggle('alarm', !!alarm); icTimer = dur; }
 const HINTS = [
-  'Your to-do list is on the sticky note. Walk up to things and <kbd>hold E</kbd>.',
-  'Raid your desk drawer first: there is a whoopee cushion and a KICK ME note in it.',
+  "Today's targets are at the top of the sticky note. Walk up to things and <kbd>hold E</kbd>.",
+  'Hold <kbd>Shift</kbd> to sprint. Press <kbd>C</kbd> while sprinting to slide.',
+  'Raid your desk drawer first. It is full of terrible ideas.',
   'The cones on the map show who is looking. Press <kbd>C</kbd> to crouch and see them on the floor.',
-  'Seated coworkers mostly stare at their screens. Walking people are the danger.',
+  'Hold <kbd>F</kbd> to charge a fart. Tap <kbd>F</kbd> in mid-air to fart-jump. <kbd>B</kbd> burps.',
   'Too suspicious? Look at your monitor and <kbd>hold E</kbd> to pretend to work.',
-  'Smashing things is LOUD. People come to look. Leave fast.',
-  'Press <kbd>F</kbd> next to two or more coworkers. They will blame each other.',
-  'Meetings at 11:00 and 3:00. The boss notices if you skip them.',
+  'If someone sees you mid-prank, they run to tell the boss. Stay out of sight.',
+  'Hit the boss in the head with something. Trust me.',
   'Pranks done within 6 seconds of each other build a COMBO multiplier.',
-  'Click with empty hands to shove chairs, knock things over and pop balloons. <kbd>Space</kbd> jumps.',
-  'If someone sees you mid-prank, they may run off to tell the boss. Stay out of sight.',
+  'Smashing things is LOUD. People come to look. Leave fast.',
+  'Meetings at 11:00 and 3:00. The boss notices if you skip them.',
+  'Targets done and chaos goal hit? You can clock out early at the EXIT door.',
 ];
 function showHint(html, dur = 7) { const h = $('hint'); h.innerHTML = html; h.style.opacity = 1; G.hintShown = dur; }
 
@@ -1644,7 +1821,7 @@ function updateProps(dt) {
     if (p.pos.y > CEIL - p.r) { p.pos.y = CEIL - p.r; p.vel.y = -Math.abs(p.vel.y) * .3; }
     if (impact > 5.5 && p.breakable) { shatter(p); continue; }
     if (impact > 2) { sfx('thud', p.pos); if (p.thrown) noise(p.pos.x, p.pos.z, 6); }
-    if (p.vel.length() < .25 && impact > 0) { p.active = false; p.thrown = false; p.vel.set(0, 0, 0); p.mesh.rotation.set(0, p.mesh.rotation.y, 0); }
+    if (p.vel.length() < .25 && impact > 0) { p.active = false; p.thrown = false; p.vel.set(0, 0, 0); p.mesh.rotation.set(0, p.mesh.rotation.y, 0); if (p.kind === 'toupee') { checkFlush(p); continue; } }
     p.mesh.position.copy(p.pos);
   }
   for (const f of fragments) {
@@ -1660,27 +1837,28 @@ function shatter(p) {
   sfx('smash', p.pos); noise(p.pos.x, p.pos.z, 9); addChaos(25, `Smashed a ${p.name}`);
 }
 function hitNPC(n, p) {
+  if (n.isBoss && p.pos.y > 1.4) later(.05, knockToupee);
   n.react('shock', 1.3, pick(['OW!', 'Who THREW that?!', 'HEY!', 'My HEAD!'])); n.turnTo(Math.atan2(P.pos.x - n.x, P.pos.z - n.z), 1);
   sfx('thud', n); addChaos(n.isBoss ? 200 : 80, `Beaned ${n.name} with a ${p.name}`);
   later(.15, () => { if (n.sees(P.pos.x, P.pos.z, P.crouch)) { addSus(22 * n.mult, `${n.name} saw you throw a ${p.name} at them`); n.mark('!'); } });
   if (n.isBoss) later(1.5, () => bossHunt(true));
 }
 function throwHeld() {
-  const p = G.hand; if (!p) return; G.hand = null; camera.remove(p.mesh); scene.add(p.mesh);
+  const p = G.hand; if (!p) return; G.hand = null; if (p.mesh.parent) p.mesh.parent.remove(p.mesh); scene.add(p.mesh);
   const dir = camera.getWorldDirection(V()); p.pos.copy(camera.position).addScaledVector(dir, .45); p.pos.y -= .1;
   p.vel.copy(dir).multiplyScalar(13).add(V(0, 1.2, 0)); p.spin.set(rand(-12, 12), 0, rand(-12, 12)); p.active = true; p.thrown = true;
   p.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; }); p.mesh.position.copy(p.pos); p.mesh.scale.setScalar(1);
-  sfx('whoosh'); renderPockets();
+  sfx('whoosh'); G.vmThrow = .3; renderPockets();
   for (const n of npcs) if (n.canLook() && n.sees(P.pos.x, P.pos.z, P.crouch)) { addSus(12 * n.mult, `${n.name} saw you throwing things around`); n.mark('?'); break; }
 }
 function dropHeld() {
-  const p = G.hand; if (!p) return; G.hand = null; camera.remove(p.mesh); scene.add(p.mesh);
+  const p = G.hand; if (!p) return; G.hand = null; if (p.mesh.parent) p.mesh.parent.remove(p.mesh); scene.add(p.mesh);
   const dir = camera.getWorldDirection(V()); p.pos.copy(camera.position).addScaledVector(dir, .5); p.vel.set(dir.x, 0, dir.z); p.active = true; p.thrown = false;
   p.mesh.traverse(o => { if (o.isMesh) o.castShadow = true; }); p.mesh.scale.setScalar(1); renderPockets();
 }
 function pickUp(p) {
-  if (G.hand) return; p.active = false; G.hand = p; scene.remove(p.mesh); camera.add(p.mesh);
-  p.mesh.position.set(.3, -.26, -.5); p.mesh.rotation.set(.2, .5, 0); p.mesh.scale.setScalar(1.6);
+  if (G.hand) return; p.active = false; G.hand = p; scene.remove(p.mesh); vmR.hand.add(p.mesh);
+  p.mesh.position.set(0, .04, -.1); p.mesh.rotation.set(0, .5, 0); p.mesh.scale.setScalar(1.25);
   p.mesh.traverse(o => { if (o.isMesh) o.castShadow = false; }); sfx('pickup'); renderPockets();
 }
 function noise(x, z, r) {
@@ -1701,12 +1879,13 @@ function addInteract(o) { const it = Object.assign({ hold: 1.5, range: 2.1, minD
 function giveItem(k) { G.items[k] = true; feed('GOT', ITEM[k].name, 'item'); sfx('pickup'); renderPockets(); }
 function completePrank(id) {
   if (G.done[id]) return; const pr = PRANKS.find(p => p.id === id); G.done[id] = true; G.prankCount++;
-  addChaos(pr.pts, pr.title); sfx('ding', true); renderTodo();
+  addChaos(pr.pts, pr.title); sfx('ding', true); renderTodo(); stampFx(pr.title, pr.pts, DAY.req.includes(id)); unlock('first');
+  if (G.prankCount === PRANKS.length) unlock('fullsend');
   if (G.prankCount === PRANKS.length) later(1, () => { addChaos(1500, 'EVERY. SINGLE. PRANK.'); intercom('All pranks done. You are a legend. Now survive until 5:00.', false, 6); });
 }
 const pv = (o, x, y, z) => o.localToWorld(V(x, y, z));
 // your desk
-addInteract({ pos: [PLAYER_DESK.pedX, .45, PLAYER_DESK.dz - PLAYER_DESK.facing * .33], label: 'Raid your desk drawer', hold: .6, minDot: .7, available: () => !G.flags.drawer, onDone: () => { G.flags.drawer = true; giveItem('cushion'); giveItem('note'); giveItem('airhorn'); giveItem('clock'); } });
+addInteract({ pos: [PLAYER_DESK.pedX, .45, PLAYER_DESK.dz - PLAYER_DESK.facing * .33], label: 'Raid your desk drawer', hold: .6, minDot: .7, available: () => !G.flags.drawer, onDone: () => { G.flags.drawer = true; giveItem('cushion'); giveItem('note'); giveItem('airhorn'); giveItem('clock'); giveItem('poop'); } });
 addInteract({ getPos: () => pv(PLAYER_DESK.mon.g, 0, .44, 0), label: 'Pretend to work', hold: .25, available: () => !G.working, onDone: startWorking, repeat: true });
 // items
 addInteract({ pos: [9.3, 1.1, 1.05], label: 'Grab a box of jello mix from the fridge', hold: .8, available: () => !G.items.jello && !G.done.jello, onDone: () => giveItem('jello') });
@@ -1781,7 +1960,7 @@ function updateChairs(dt) {
     if (sp > 2.2 && c.hitCd <= 0 && G.mode === 'play') for (const n of npcs) {
       if (n.hidden || n.sitting || Math.hypot(n.x - p.x, n.z - p.z) > .5) continue;
       c.hitCd = 2; c.vx *= -.3; c.vz *= -.3; n.react('shock', 1.2, pick(['WHOA!', 'Did that chair just—?!', 'HEY!']));
-      addChaos(40, `Rammed ${n.name} with a rolling chair`);
+      addChaos(40, `Rammed ${n.name} with a rolling chair`); unlock('strike');
       later(.2, () => { if (n.sees(P.pos.x, P.pos.z, P.crouch)) addSus(10 * n.mult, `${n.name} saw you launch a chair at them`); });
       break;
     }
@@ -1832,7 +2011,7 @@ function updateBalloons(dt) {
 // SHOVE (click with empty hands)
 // =====================================================================
 function shove() {
-  if (P.shoveCd > 0 || G.mode !== 'play') return; P.shoveCd = .35;
+  if (P.shoveCd > 0 || G.mode !== 'play') return; P.shoveCd = .35; G.vmPunch = .22;
   const cam = camera.position, fwd = camera.getWorldDirection(V()); shake(.08); sfx('whoosh');
   for (let i = balloons.length - 1; i >= 0; i--) {
     const b = balloons[i], dx = b.x - cam.x, dy = b.y - cam.y, dz = b.z - cam.z, d = Math.hypot(dx, dy, dz);
@@ -1849,7 +2028,7 @@ function shove() {
   }
   for (const n of npcs) {
     if (n.hidden) continue; const dx = n.x - P.pos.x, dz = n.z - P.pos.z, d = Math.hypot(dx, dz);
-    if (d < 1.2 && (dx * fx + dz * fz) / d > .5) { n.react('shock', 1, pick(['HEY! Watch it!', 'Excuse YOU.', 'Did you just shove me?!'])); n.aware = Math.max(n.aware, .5); n.watchT = 2; addChaos(15, `Shoved ${n.name}`); addSus(8 * n.mult, `${n.name} got shoved by you`); return; }
+    if (d < 1.2 && (dx * fx + dz * fz) / d > .5) { n.react('shock', 1, pick(['HEY! Watch it!', 'Excuse YOU.', 'Did you just shove me?!'])); if (n.isBoss) later(.05, knockToupee); n.aware = Math.max(n.aware, .5); n.watchT = 2; addChaos(15, `Shoved ${n.name}`); addSus(8 * n.mult, `${n.name} got shoved by you`); return; }
   }
 }
 
@@ -1908,7 +2087,7 @@ function startSprinklers() {
       later(i * 2.5, () => { const p = pv(d.mon.g, 0, .44, .05); burst(E.spark, p.x, p.y, p.z, 30, 2, 1); sfx('zap', p); d.smashed = true; d.mon.scr.material.map = pick(T.cracked); addChaos(40, 'A wet monitor shorted out'); });
     }
   });
-  later(20, () => { if (!boss.hidden) { boss.say('WHO TOUCHED THE SPRINKLERS?!', true); bossHunt(false); } });
+  later(20, () => { if (!boss.hidden) { boss.say('WHO THE #$%& TOUCHED THE SPRINKLERS?!', true); bossHunt(false); } });
 }
 const catCanvas = document.createElement('canvas'); catCanvas.width = 256; catCanvas.height = 144;
 const catTex = new THREE.CanvasTexture(catCanvas); catTex.colorSpace = THREE.SRGBColorSpace;
@@ -2006,13 +2185,13 @@ function updateChaosSystems(dt) {
   // air horn on the boss's door
   if (G.flags.horn && !G.flags.hornDone && !boss.hidden && (boss.prevZ < 10) !== (boss.z < 10) && boss.x > 36.2 && boss.x < 39.8) {
     G.flags.hornDone = true; hornMesh.visible = false; sfx('airhorn', V(38.5, 2, 10)); if (Math.hypot(P.pos.x - 38, P.pos.z - 10) < 10) shake(.5);
-    boss.react('shock', 2.2, 'AAAAAAAAH!'); laughNear(boss, 16); addChaos(250, 'The boss jumped out of his skin');
+    boss.react('shock', 2.2, 'AAAAAAAAH!'); laughNear(boss, 16); later(.1, knockToupee); addChaos(250, 'The boss jumped out of his skin');
     later(2.6, () => { boss.say('WHO DID THAT?!', true); bossHunt(false); });
   }
   boss.prevZ = boss.z;
   // cat videos
   if (G.flags.catTV) { G.catT += dt; if (G.catT > 1 / 12) { G.catT = 0; drawCat(performance.now() / 1000); if (Math.random() < .03 && Math.hypot(P.pos.x - 30, P.pos.z - 5) < 12) sfx('meow', V(31.5, 1.5, 5)); } }
-  updateClock(dt); updateVending(dt); updateBalloons(dt); updateChairs(dt);
+  updateClock(dt); updateVending(dt); updateBalloons(dt); updateChairs(dt); updateSockStink(dt);
   if (OPT.quality === 'high' && Math.random() < dt * 30) E.motes.spawn(camera.position.x + rand(-6, 6), rand(.3, 2.8), camera.position.z + rand(-6, 6), rand(-.03, .03), rand(-.02, .02), rand(-.03, .03));
 }
 function updateGrade(dt) {
@@ -2020,6 +2199,193 @@ function updateGrade(dt) {
   u.uTime.value += dt; u.uWarm.value = G.heatK * .8;
   u.uRed.value = G.mode === 'busted' ? 1 : G.mode === 'play' ? (G.seenNow ? .25 + G.sus / 220 : G.sus > 70 ? .25 : 0) : 0;
   u.uAberr.value = G.shake * 2 + (G.sus > 80 && G.mode === 'play' ? .4 : 0); u.uVig.value = P.crouch ? .5 : .2;
+}
+
+// =====================================================================
+// GROSS-OUT PRANKS + THE TOUPEE
+// =====================================================================
+const gymBag = boxB(.5, .26, .26, mStd(0x24324a, .7), PLAYER_DESK.dx + .55, 0, PLAYER_DESK.seat.z - .05, { r: .08 });
+const ventTex = tex(64, 64, g => { g.fillStyle = '#c9cdd1'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#5b6168'; for (let i = 6; i < 60; i += 8) g.fillRect(4, i, 56, 4); });
+const ventMat = new THREE.MeshStandardMaterial({ map: ventTex, roughness: .6 });
+const VENTS = [[16, 21.3], [28, 21.3], [40, 21.3], [24, 14.1], [34, 28.5]];
+VENTS.forEach(([x, z]) => plane(.6, .6, ventMat, x, CEIL - .012, z, { rx: PI / 2 }));
+plane(.5, .3, ventMat, 10.085, 2.45, 23.5, { ry: PI / 2 });
+const laptop = new THREE.Group(); laptop.position.set(24.3, .78, 4.55); laptop.rotation.y = .3; scene.add(laptop);
+put(gBox(.34, .018, .24, .006), mStd(0xb9bec4, .35, .7), 0, .009, 0, laptop);
+{ const hinge = new THREE.Group(); hinge.position.set(0, .018, -.12); hinge.rotation.x = -.25; laptop.add(hinge);
+  put(gBox(.34, .22, .01, .005), mStd(0xb9bec4, .35, .7), 0, .11, 0, hinge); put(new THREE.PlaneGeometry(.31, .19), new THREE.MeshBasicMaterial({ map: T.sheet, toneMapped: false }), 0, .11, .006, hinge, { cast: false }); }
+function makePoop() {
+  const g = new THREE.Group(), m = mStd(0x5b3a1d, .28);
+  [[.07, 0], [.055, .035], [.04, .065]].forEach(([r, y]) => put(new THREE.TorusGeometry(r, .022, 8, 18), m, 0, y + .022, 0, g, { rx: PI / 2 }));
+  put(new THREE.ConeGeometry(.026, .05, 10), m, 0, .115, 0, g); return g;
+}
+const deskPoop = makePoop(); deskPoop.position.set(40.6, .78, 3.75); scene.add(deskPoop); deskPoop.visible = false;
+
+addInteract({ pos: [PLAYER_DESK.dx + .55, .3, PLAYER_DESK.seat.z - .05], label: 'Dig your 3-week-old gym socks out of your bag', hold: .8, available: () => !G.items.socks && !G.done.socks, onDone: () => giveItem('socks') });
+addInteract({ id: 'socks', pos: [10.1, 2.45, 23.5], range: 2.3, minDot: .75, label: 'Stuff your sweaty socks into the air vent', verb: 'stuffing something into the air vent', hold: 2.5, sus: true, need: 'socks', available: () => !G.done.socks, onDone: startSockStink });
+addInteract({ id: 'poop', pos: [40.6, .85, 3.75], label: "Place the rubber poop on the boss's desk", verb: "putting something gross on the boss's desk", hold: 1.5, sus: true, need: 'poop', available: () => !G.done.poop,
+  onDone: () => { deskPoop.visible = true; G.flags.poop = true; delete G.items.poop; renderPockets(); completePrank('poop');
+    addHazard({ x: 39, z: 6, r: 9, notBoss: true, pose: 'laugh', chaos: 40, lines: ['Is that a POOP on his desk?!', "I'm not going in there. Ever.", 'Somebody call a priest.'], label: '{n} spotted the desk poop', active: () => deskPoop.visible }); } });
+addInteract({ id: 'chairfart', pos: [40, 1.05, 2.3], label: 'Sit in his chair and fart deep into the cushion', verb: "farting in the boss's chair", hold: 3, sus: true, available: () => !G.done.chairfart && !(boss.task && boss.task.type === 'bossdesk' && boss.task.phase === 'perform'),
+  onDone: () => { G.flags.chairfart = true; sfx('fart', P.pos, 1.6, .8); burst(E.stink, 40, .6, 2.55, 10, .3, .2, .5); completePrank('chairfart'); } });
+addInteract({ id: 'burp', pos: [PA.x + .14, 1.22, PA.z - .14], label: 'Burp the entire alphabet over the PA', verb: 'burping into the PA system', hold: 3.5, sus: true, available: () => !G.done.burp && !G.evac.active, onDone: burpPA });
+addInteract({ id: 'toilettv', pos: [24.3, .95, 4.55], label: "Swap his slides for 'Bathroom Sounds Vol. 3'", verb: 'messing with the meeting laptop', hold: 2.5, sus: true, available: () => !G.done.toilettv, sfxHold: 'click',
+  onDone: () => { G.flags.toiletTV = true; completePrank('toilettv'); if (G.min > 360 && !G.meeting.active) later(3, playBathroomSounds); } });
+addInteract({ pos: [31, 1.2, 29.7], label: 'Clock out early (targets done)', hold: 1, available: () => dayCleared(), onDone: () => { sfx('chime'); showEnd(true, 'early'); } });
+
+function startSockStink() {
+  G.sockStink = { t: 100, gagged: new Set() }; delete G.items.socks; renderPockets(); sfx('thud', P.pos); completePrank('socks');
+  later(4, () => { const n = npcs.find(x => !x.hidden && !x.isBoss); if (n) n.say('...Why does the AIR smell like feet?', true); });
+}
+function updateSockStink(dt) {
+  const s = G.sockStink; if (!s || s.t <= 0) return; s.t -= dt;
+  for (const [x, z] of VENTS) if (Math.random() < dt * 6) E.stink.spawn(x + rand(-.25, .25), CEIL - .1, z + rand(-.25, .25), rand(-.2, .2), -rand(.3, .8), rand(-.2, .2), .7);
+  for (const n of npcs) {
+    if (n.hidden || n.overlay || !VENTS.some(([x, z]) => Math.hypot(n.x - x, n.z - z) < 3.4)) continue;
+    if (Math.random() < dt * .25) {
+      n.react('gag', 2.4, pick(['WHAT IS THAT SMELL?!', 'It smells like feet and regret.', 'Is something DEAD in the ceiling?!', 'My eyes! MY EYES!', 'It smells like a gym bag ate a gym bag.'])); n.distracted = 3;
+      if (!s.gagged.has(n.id)) { s.gagged.add(n.id); addChaos(40, `${n.name} breathed in the vent air`); }
+    }
+  }
+}
+function burpPA() {
+  completePrank('burp'); unlock('burp'); intercom('"*BUUURP* A... *BRAAAP* B... *BUUUUURRRP* C..."', true, 6);
+  for (let i = 0; i < 9; i++) later(i * .55, () => sfx('burp', null, rand(.9, 1.5)));
+  npcs.forEach((n, i) => later(1 + i * .5, () => { if (n.hidden) return; if (n.isBoss) return; if (Math.random() < .5) { n.react('laugh', 2.5, pick(['HAHAHA, he got to Q!', 'Is that... the ALPHABET?!', 'Ten out of ten. No notes.'])); sfx('laugh', n, n.voice.pitch); } else n.react('gag', 2.2, pick(['I can HEAR the moisture.', 'Gross. GROSS.', 'Did it echo?!'])); addChaos(30, `${n.name} heard the burp alphabet`); }));
+  later(5.5, () => { if (!boss.hidden) { boss.react('argue', 3, 'WHO IS BURPING ON MY #$%& PA?!'); later(3, () => bossHunt(false)); } });
+}
+function playBathroomSounds() {
+  if (G.flags.toiletPlayed) return; G.flags.toiletPlayed = true; const tv = V(31.5, 1.5, 5);
+  intercom('Meeting room TV: "Bathroom Sounds Vol. 3, Track 1: Monday Morning"', false, 5);
+  [[0, () => sfx('fart', tv, 1.4, .9)], [1.4, () => sfx('plop', tv)], [1.9, () => sfx('plop', tv)], [2.6, () => sfx('fart', tv, 2, .7)], [3.8, () => sfx('flush', tv)]].forEach(([d, f]) => later(d, f));
+  later(1.2, () => { laughNear({ x: 26, z: 5 }, 9, boss); addChaos(250, 'The meeting got bathroom sounds'); });
+  later(2.4, () => { if (!boss.hidden) boss.react('shock', 2.5, 'THIS IS NOT MY PRESENTATION! #$%&!'); });
+}
+// the toupee
+const TOUPEE_HOME = { p: boss.p.toupee.position.clone(), r: boss.p.toupee.rotation.clone() };
+function knockToupee() {
+  if (boss.flags.bald || boss.hidden || G.mode !== 'play') return; boss.flags.bald = true;
+  const t = boss.p.toupee, wp = t.getWorldPosition(V()); t.parent.remove(t); t.position.set(0, 0, 0); t.rotation.set(0, 0, 0);
+  const g = new THREE.Group(); g.add(t); scene.add(g); g.position.copy(wp);
+  const p = { kind: 'toupee', name: "boss's toupee", r: .06, breakable: false, mesh: g, pos: wp, vel: V(rand(-1.5, 1.5), 3, rand(-1.5, 1.5)), spin: V(rand(-6, 6), 0, rand(-6, 6)), active: true, thrown: false };
+  props.push(p); G.toupeeProp = p; sfx('pop', wp);
+  later(.3, () => { boss.react('shock', 2.4, pick(['MY HAIR!! #$%&!', 'NOBODY LOOK AT ME!', "DON'T YOU DARE LAUGH!"])); laughNear(boss, 16); });
+  completePrank('toupee'); unlock('toupee'); later(3.2, retrieveToupee);
+}
+function retrieveToupee() {
+  const p = G.toupeeProp; if (!p || !boss.flags.bald || boss.hidden) return;
+  if (G.hand === p || !props.includes(p)) { boss.say(pick(['WHO HAS MY HAIR?!', 'Give it BACK. NOW.', 'I will find you, hair thief.']), true); bossHunt(true); return; }
+  boss.assign(spotT('toupee', { x: p.pos.x, z: p.pos.z, yaw: null }, 'grab', 1.5, { run: true, onArrive: n => {
+    if (G.hand === p || !props.includes(p) || Math.hypot(p.pos.x - n.x, p.pos.z - n.z) > 1.3) { n.say('WHERE DID IT GO?!', true); bossHunt(true); return; }
+    props.splice(props.indexOf(p), 1); scene.remove(p.mesh); const t = p.mesh.children[0];
+    t.position.copy(TOUPEE_HOME.p); t.rotation.copy(TOUPEE_HOME.r); n.p.head.add(t); n.flags.bald = false; G.toupeeProp = null; n.say('...Nobody saw that.', true);
+  } }), 3.5);
+}
+function checkFlush(p) {
+  if (p.kind !== 'toupee' || !(p.pos.x < 2.2 && p.pos.z > 13.1 && p.pos.z < 19.8)) return;
+  props.splice(props.indexOf(p), 1); scene.remove(p.mesh); G.toupeeProp = null; sfx('flush', p.pos);
+  addChaos(300, "Flushed the boss's toupee"); unlock('flush');
+  later(2, () => { if (!boss.hidden) { boss.say('MY HAIR!!! WHERE IS MY HAIR?!', true); bossHunt(false); } });
+}
+
+// =====================================================================
+// FARTS, FART-JUMPS, BURPS
+// =====================================================================
+const BLAME = ['Ugh, {o}! Was that YOU?!', '{o}, did you eat the gas station sushi again?', 'Smelled it, dealt it, {o}.', "That's {o}. That's DEFINITELY {o}.", 'Who brought a dead raccoon? {o}?'];
+function fartRelease(power) {
+  if (G.mode !== 'play') return; G.fartCharge = 0;
+  const mega = power >= .8, radius = 3.5 + power * 3.5;
+  G.fartCd = 5 + power * 9; G.farts++;
+  sfx('fart', P.pos, .8 + power * 1.6, mega ? .72 : rand(.9, 1.2));
+  burst(E.stink, P.pos.x, .7, P.pos.z, 10 + Math.round(power * 40), .5 + power, .2, .6 + power * .5);
+  if (mega) {
+    shake(.55); unlock('mega');
+    balloons.forEach(b => { const dx = b.x - P.pos.x, dz = b.z - P.pos.z, d = Math.hypot(dx, dz); if (d < 6 && d > .1) { b.vx += dx / d * 3; b.vz += dz / d * 3; } });
+    chairs.forEach(c => { if (c.occupied) return; const q = c.g.position, dx = q.x - P.pos.x, dz = q.z - P.pos.z, d = Math.hypot(dx, dz); if (d < 3 && d > .1) { c.vx += dx / d * 3; c.vz += dz / d * 3; c.spin += rand(-4, 4); } });
+    if (Math.hypot(boss.x - P.pos.x, boss.z - P.pos.z) < 3.2) later(.4, knockToupee);
+  }
+  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < radius);
+  if (!near.length) { addChaos(mega ? 40 : 10, mega ? 'A MEGA fart, wasted on nobody' : 'Farted into the void'); return; }
+  near.forEach((n, i) => later(.4 + i * .3, () => n.react('gag', mega ? 4 : 2.4)));
+  if (near.length === 1) {
+    const n = near[0]; later(.8, () => { n.say(pick(["...It was you, wasn't it?", 'Dude. What did you EAT?', 'I KNOW that was you.', 'That one had TEXTURE.']), true); addSus(14 * n.mult, `${n.name} knows you farted on them`); });
+    addChaos(mega ? 120 : 40, mega ? 'Point-blank MEGA fart' : 'Silent but deadly');
+  } else {
+    near.forEach((n, i) => { const o = near[(i + 1) % near.length]; later(.9 + i * .9, () => n.say(pick(BLAME).replace(/\{o\}/g, o.name), true)); });
+    addChaos((mega ? 120 : 60) * near.length, `Fart blamed on ${near[1].name}`); if (near.length >= 3) unlock('blame');
+    if (G.meeting.active && G.meeting.started && inMeetingRoom() && near.length >= 3) later(1, () => addChaos(300, 'Meeting-room fart'));
+  }
+}
+function fartJump() {
+  if (G.airFartCd > 0 || G.mode !== 'play') return; G.airFartCd = 2.2; P.vy = 5.4;
+  sfx('fart', P.pos, .5, 1.5); shake(.15); unlock('rocket'); addChaos(15, 'Fart-jumped');
+  for (let i = 0; i < 16; i++) E.stink.spawn(P.pos.x + rand(-.15, .15), P.y + .5, P.pos.z + rand(-.15, .15), rand(-.5, .5), rand(-3, -1), rand(-.5, .5), .35);
+  for (const n of npcs) if (n.canLook() && n.sees(P.pos.x, P.pos.z, false) && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < 8) { n.say(pick(['Did they just... FLY?!', 'What the #$%& was that?!', 'Physics is broken.']), true); addSus(6 * n.mult, `${n.name} saw you fart-propel yourself`); break; }
+}
+function burp() {
+  if (G.burpCd > 0 || G.mode !== 'play') return; G.burpCd = 5; G.vmBurp = .5; sfx('burp', P.pos, rand(.8, 1.3));
+  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < 5);
+  near.forEach((n, i) => later(.3 + i * .4, () => n.say(pick(['Ew. EW.', 'Say excuse me!', 'Disgusting. Do it again.', 'Were you raised in a dumpster?', 'I felt that in my soul.']))));
+  addChaos(10 + near.length * 10, near.length ? 'Burped in public' : 'Burped at nothing');
+  for (const n of near) if (n.seeT > .2) { addSus(4 * n.mult, `${n.name} is disgusted by your burping`); break; }
+}
+
+// =====================================================================
+// FIRST-PERSON ARMS
+// =====================================================================
+const VM = new THREE.Group(); camera.add(VM);
+const vmSkin = mStd(0xeab894, .6), vmSleeve = mStd(0xf0efe9, .85), vmCuff = mStd(0xd2d0c8, .8);
+function buildVMArm(s) {
+  const g = new THREE.Group(); VM.add(g);
+  const sleeve = put(cap(.05, .34), vmSleeve, 0, 0, .25, g, { cast: false }); sleeve.rotation.x = PI / 2;
+  put(gCyl(.054, .054, .04, 12), vmCuff, 0, 0, .065, g, { cast: false, rx: PI / 2 });
+  const hand = new THREE.Group(); g.add(hand);
+  put(gBox(.085, .035, .095, .016), vmSkin, 0, 0, -.02, hand, { cast: false });
+  for (let i = 0; i < 4; i++) { const f = put(cap(.012, .045, 6), vmSkin, (i - 1.5) * .02, -.006, -.09, hand, { cast: false }); f.rotation.x = PI / 2 + .3; }
+  const th = put(cap(.013, .04, 6), vmSkin, -s * .05, -.004, -.035, hand, { cast: false }); th.rotation.set(PI / 2, 0, s * .6);
+  return { g, hand, s };
+}
+const vmR = buildVMArm(1), vmL = buildVMArm(-1);
+VM.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
+const VM_REST = { R: V(.25, -.25, -.4), L: V(-.25, -.27, -.42) };
+const vmLook = { x: 0, y: 0 };
+function updateViewmodel(dt) {
+  VM.visible = G.mode === 'play' && !G.working; if (!VM.visible) return;
+  const sp = Math.hypot(P.vel.x, P.vel.z), k = clamp(sp / 5, 0, 1), t = G.clockT;
+  vmLook.x = lerp(vmLook.x, 0, Math.min(1, dt * 8)); vmLook.y = lerp(vmLook.y, 0, Math.min(1, dt * 8));
+  const swayX = clamp(-vmLook.x * .0006, -.04, .04), swayY = clamp(vmLook.y * .0006, -.04, .04);
+  G.vmPunch = Math.max(0, G.vmPunch - dt); G.vmThrow = Math.max(0, G.vmThrow - dt); G.vmBurp = Math.max(0, G.vmBurp - dt);
+  for (const a of [vmR, vmL]) {
+    const rest = a.s > 0 ? VM_REST.R : VM_REST.L;
+    let x = rest.x, y = rest.y + (P.crouch ? .03 : 0), z = rest.z, rx = 0, ry = -a.s * .12, rz = 0;
+    if ((P.run && sp > 3) || P.slideT > 0) { const ph = Math.sin(P.bob + (a.s > 0 ? 0 : PI)); z += ph * .09; y += -.05 + Math.abs(ph) * .03; rx = ph * .4; }
+    else { y += Math.sin(P.bob * 2) * .012 * k; x += Math.cos(P.bob) * .01 * k * a.s; }
+    y += Math.sin(t * 1.6) * .004;
+    if (G.acting) { x = a.s * .1 + Math.sin(t * 22 + a.s) * .012; y = -.17 + Math.cos(t * 19 + a.s) * .01; z = -.46; rx = -.3; }
+    if (a.s > 0 && G.vmPunch > 0) { const e = Math.sin((G.vmPunch / .22) * PI); z -= e * .3; y += e * .08; x -= e * .1; rx = -.2 * e; }
+    if (a.s > 0 && G.vmThrow > 0) { const q = 1 - G.vmThrow / .3; y += Math.sin(q * PI) * .18 - .05; z -= q * .25; rx = -1.2 + q * 1.2; }
+    if (a.s < 0 && G.vmBurp > 0) { const e = Math.sin((G.vmBurp / .5) * PI); x = lerp(x, -.13, e); y = lerp(y, -.17, e); z = lerp(z, -.38, e); rx = -.25 * e; }
+    if (a.s < 0 && G.fartCharge > 0) { y -= .05; rz = Math.sin(t * 30) * .06; }
+    a.g.position.set(x + swayX, y + swayY, z); a.g.rotation.set(rx, ry, rz);
+  }
+}
+
+// =====================================================================
+// FACES
+// =====================================================================
+function animFace(p, expr, talking, t, dt, look = 0) {
+  const f = p.face; if (!f) return;
+  f.blink -= dt; if (f.blink < -.12) f.blink = rand(2, 5);
+  const open = expr === 'gag' ? .45 : expr === 'angry' ? .72 : expr === 'laugh' ? .35 : 1;
+  f.lids.forEach(l => l.scale.y = f.blink < 0 ? 1 : lerp(1, .06, open));
+  f.eyes.forEach(e => e.scale.setScalar(expr === 'shock' ? 1.18 : 1));
+  const browY = expr === 'shock' ? .014 : expr === 'angry' ? -.006 : 0, browR = expr === 'angry' ? .38 : (expr === 'sad' || expr === 'gag') ? -.3 : expr === 'shock' ? -.12 : 0;
+  f.brows.forEach((b, i) => { const s = i ? 1 : -1; b.position.y = f.browY0 + browY; b.rotation.z = s * browR; });
+  let m = .12;
+  if (expr === 'shock') m = 1; else if (expr === 'laugh') m = .6 + Math.abs(Math.sin(t * 14)) * .4; else if (expr === 'gag') m = .55;
+  if (talking && expr !== 'shock') m = Math.max(m, .25 + Math.abs(Math.sin(t * 17)) * .75);
+  f.mouth.scale.y = m;
+  f.pupils.forEach(pu => pu.position.x = clamp(look, -1, 1) * .007);
 }
 
 function startWorking() { G.working = true; P.pos.set(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z); P.vel.set(0, 0, 0); P.crouch = false; }
@@ -2148,7 +2514,8 @@ function updateMeeting(dt) {
   m.talkT -= dt;
   if (m.talkT <= 0) {
     m.talkT = 6;
-    if (G.flags.catTV && !m.cats) { m.cats = true; boss.say('WHY ARE THERE CATS ON MY SLIDES?!', true); laughNear(boss, 12); addChaos(150, 'The meeting turned into a cat video party'); }
+    if (G.flags.toiletTV && !G.flags.toiletPlayed) playBathroomSounds();
+    else if (G.flags.catTV && !m.cats) { m.cats = true; boss.say('WHY ARE THERE CATS ON MY SLIDES?!', true); laughNear(boss, 12); addChaos(150, 'The meeting turned into a cat video party'); }
     else if (balloons.length && !m.balloons) { m.balloons = true; boss.say('WHY IS MY MEETING ROOM FULL OF BALLOONS?!', true); laughNear(boss, 12); addChaos(150, 'Balloon meeting'); }
     else boss.say(G.flags.email && Math.random() < .3 ? 'And NO. There will be no hugs at 3.' : pick(LINES.bossMeeting));
   }
@@ -2156,23 +2523,6 @@ function updateMeeting(dt) {
     m.active = false; npcs.forEach(n => { if (n.task && n.task.type === 'meeting') n.clearTask(); });
     boss.say('Meeting over. Back to WORK.', true);
     if (m.inside / m.total < .4) later(1.2, () => { addSus(22, 'You skipped the boss\'s meeting'); boss.say('Nice of you to skip MY meeting.', true); });
-  }
-}
-
-// fart
-function fart() {
-  if (G.fartCd > 0 || G.mode !== 'play') return; G.fartCd = 12; G.farts++;
-  sfx('fart', P.pos, 1, rand(.85, 1.2)); burst(E.stink, P.pos.x, .7, P.pos.z, 14, .5, .2, .6);
-  const near = npcs.filter(n => !n.hidden && Math.hypot(n.x - P.pos.x, n.z - P.pos.z) < 4.5);
-  if (!near.length) { addChaos(10, 'Farted into the void'); return; }
-  near.forEach((n, i) => later(.4 + i * .3, () => n.react('gag', 2.4)));
-  if (near.length === 1) {
-    const n = near[0]; later(.8, () => { n.say(pick(["...It was you, wasn't it?", 'Dude. Seriously?', 'I KNOW that was you.']), true); addSus(14 * n.mult, `${n.name} knows you farted on them`); });
-    addChaos(40, 'Silent but deadly');
-  } else {
-    near.forEach((n, i) => { const other = near[(i + 1) % near.length]; later(.9 + i * .9, () => n.say(`Ugh, ${other.name}! Was that YOU?!`, true)); });
-    addChaos(60 * near.length, `Fart blamed on ${near[1].name}`);
-    if (G.meeting.active && G.meeting.started && inMeetingRoom() && near.length >= 3) later(1, () => addChaos(300, 'Meeting-room fart'));
   }
 }
 
@@ -2201,30 +2551,47 @@ function updatePlayer(dt) {
   let sp = 0;
   if (!G.working) {
     const wantRun = !!(keys.ShiftLeft || keys.ShiftRight) && !P.crouch && f > 0;
-    if (P.stamina <= .02) P.tired = true; if (P.tired && P.stamina > .35) P.tired = false;
-    P.run = wantRun && !P.tired;
-    P.stamina = clamp(P.stamina + (P.run ? -.22 : .15) * dt, 0, 1);
-    const speed = P.crouch ? 1.75 : P.run ? 5.6 : 3.2;
+    if (P.stamina <= .02 && !P.tired) { P.tired = true; unlock('sprint'); }
+    if (P.tired && P.stamina > .35) P.tired = false;
+    P.run = wantRun && !P.tired && P.slideT <= 0;
+    P.stamina = clamp(P.stamina + (P.run ? -.2 : .14) * dt, 0, 1);
+    if (P.stamina < .3 && (P.run || P.tired)) { P.pantT -= dt; if (P.pantT <= 0) { P.pantT = .55; sfx('pant'); } }
+    const charging = G.fartCharge > 0;
+    const speed = (P.crouch ? 1.75 : P.run ? 5.8 : 3.2) * (charging ? .55 : 1);
     const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw), rx = Math.cos(P.yaw), rz = -Math.sin(P.yaw);
     let wx = fx * f + rx * s, wz = fz * f + rz * s; const wl = Math.hypot(wx, wz); if (wl > 0) { wx /= wl; wz /= wl; }
-    const k = Math.min(1, dt * (P.ground ? (wl > 0 ? 11 : 15) : 2.5));
-    P.vel.x = lerp(P.vel.x, wx * speed, k); P.vel.z = lerp(P.vel.z, wz * speed, k);
+    if (P.slideT > 0) {
+      P.slideT -= dt; const q = clamp(P.slideT / .8, 0, 1), v = lerp(1.4, 7.4, q);
+      P.vel.x = P.slideDir.x * v; P.vel.z = P.slideDir.z * v;
+      if (Math.random() < dt * 25) E.dust.spawn(P.pos.x + rand(-.2, .2), .06, P.pos.z + rand(-.2, .2), rand(-.6, .6), .6, rand(-.6, .6));
+    } else {
+      const k = Math.min(1, dt * (P.ground ? (wl > 0 ? 11 : 15) : 2.5));
+      P.vel.x = lerp(P.vel.x, wx * speed, k); P.vel.z = lerp(P.vel.z, wz * speed, k);
+    }
     P.pos.x += P.vel.x * dt; P.pos.z += P.vel.z * dt; collideCircle(P.pos, .3);
     for (const n of npcs) { if (n.hidden) continue; const dx = P.pos.x - n.x, dz = P.pos.z - n.z, d = Math.hypot(dx, dz); if (d < .55 && d > 1e-4) { P.pos.x = n.x + dx / d * .55; P.pos.z = n.z + dz / d * .55; } }
-    pushChairs(P.pos.x, P.pos.z, P.vel.x, P.vel.z, .32, false);
+    pushChairs(P.pos.x, P.pos.z, P.vel.x * (P.slideT > 0 ? 1.4 : 1), P.vel.z * (P.slideT > 0 ? 1.4 : 1), .32, false);
     if (keys.Space && P.ground && !P.crouch) { P.vy = 4.4; P.ground = false; keys.Space = false; sfx('step', null, true, floorHard(P.pos.x, P.pos.z)); }
     if (!P.ground) { P.vy -= 13 * dt; P.y += P.vy * dt; if (P.y <= 0) { P.y = 0; if (P.vy < -3) { P.landT = .3; sfx('thud', P.pos); shake(.12); } P.vy = 0; P.ground = true; } }
-    P.eye = lerp(P.eye, P.crouch ? 1.0 : 1.62, dt * 10);
+    if (charging) { G.fartCharge += dt; if (G.fartCharge > 1.7) fartRelease(1); }
+    P.eye = lerp(P.eye, P.slideT > 0 ? .85 : P.crouch ? 1.0 : 1.62, dt * 10);
     sp = Math.hypot(P.vel.x, P.vel.z);
-    if (sp > .5 && P.ground) { P.bob += dt * sp * 2.4; P.stepT -= dt * sp; if (P.stepT <= 0) { P.stepT = P.run ? 1.6 : 1.25; sfx('step', null, P.run, floorHard(P.pos.x, P.pos.z), P.crouch); } }
+    if (sp > .5 && P.ground && P.slideT <= 0) { P.bob += dt * sp * 2.4; P.stepT -= dt * sp; if (P.stepT <= 0) { P.stepT = P.run ? 1.6 : 1.25; sfx('step', null, P.run, floorHard(P.pos.x, P.pos.z), P.crouch); } }
   }
-  P.roll = lerp(P.roll, -s * (P.run ? .035 : .018), Math.min(1, dt * 6));
-  P.fov = lerp(P.fov, P.run && sp > 4 ? 80 : 72, Math.min(1, dt * 5));
+  P.roll = lerp(P.roll, -s * (P.run ? .035 : .018) + (P.slideT > 0 ? .08 : 0), Math.min(1, dt * 6));
+  P.fov = lerp(P.fov, P.slideT > 0 ? 86 : P.run && sp > 4 ? 82 : 72, Math.min(1, dt * 5));
   if (Math.abs(camera.fov - P.fov) > .05) { camera.fov = P.fov; camera.updateProjectionMatrix(); }
-  const bobAmp = P.ground ? clamp(sp / 5, 0, 1) : 0, rxx = Math.cos(P.yaw), rzz = -Math.sin(P.yaw), side = Math.cos(P.bob) * .025 * bobAmp;
+  const bobAmp = P.ground && P.slideT <= 0 ? clamp(sp / 5, 0, 1) : 0, rxx = Math.cos(P.yaw), rzz = -Math.sin(P.yaw), side = Math.cos(P.bob) * .025 * bobAmp;
   camera.position.set(P.pos.x + rxx * side, P.eye + P.y + Math.abs(Math.sin(P.bob)) * .045 * bobAmp - .02 * bobAmp, P.pos.z + rzz * side);
+  let swoopPitch = 0;
+  if (G.swoop > 0) { G.swoop -= dt; const e = Math.max(0, G.swoop / 1.6) ** 2; camera.position.y += e * 1.2; swoopPitch = -e * .6; }
   const sh = G.shake; G.shake = Math.max(0, G.shake - dt * 2.2);
-  camera.rotation.set(P.pitch + (Math.random() - .5) * sh * .05, P.yaw + (Math.random() - .5) * sh * .05, P.roll + (Math.random() - .5) * sh * .03);
+  camera.rotation.set(P.pitch + swoopPitch + (Math.random() - .5) * sh * .05, P.yaw + (Math.random() - .5) * sh * .05, P.roll + (Math.random() - .5) * sh * .03);
+  // sprint feedback
+  $('speed').style.opacity = ((P.run || P.slideT > 0) ? clamp((sp - 3.8) / 2.4, 0, 1) * .85 : 0).toFixed(2);
+  const sm = $('stamMeter'); sm.classList.toggle('on', P.stamina < .98); sm.classList.toggle('tired', P.tired); sm.firstChild.style.width = (P.stamina * 100).toFixed(0) + '%';
+  const fm = $('fartMeter'); fm.classList.toggle('on', G.fartCharge > 0); fm.firstChild.style.width = (Math.min(1, G.fartCharge / 1.2) * 100).toFixed(0) + '%';
+  updateViewmodel(dt);
 }
 function inBossOffice() { return P.pos.x > 32 && P.pos.z < 10; }
 
@@ -2265,7 +2632,7 @@ function updateInteraction(dt) {
     if (G.act.prog >= 1) {
       G.act.prog = 0; keys.KeyE = false; it.onDone();
       if (it.sus) for (const n of npcs) if (n.canLook() && n.seeT > .2 && n.sees(P.pos.x, P.pos.z, P.crouch)) {
-        G.witnessed++; addSus((n.isBoss ? 40 : 28) * (n.isBoss ? 1 : n.mult), `${n.name} saw you ${it.verb}`); n.mark('!', 2.5); n.say(pick(n.isBoss ? LINES.bossWitness : LINES.witness), true); sfx('alert');
+        G.witnessed++; addSus((n.isBoss ? 40 : 28) * (n.isBoss ? 1 : n.mult) * DAY.diff, `${n.name} saw you ${it.verb}`); n.mark('!', 2.5); n.say(pick(n.isBoss ? LINES.bossWitness : LINES.witness), true); sfx('alert');
         n.aware = 1; n.lastSeen = { x: P.pos.x, z: P.pos.z }; if (!n.isBoss) { const vv = it.verb; later(1.4, () => reportToBoss(n, vv)); }
       }
     }
@@ -2304,11 +2671,11 @@ function updateSuspicion(dt) {
       continue;
     }
     n.socialLook = d < 4.5;
-    if (d < 3 && !G.acting && n.greetCd <= 0 && !n.sitting && Math.random() < dt) { n.greetCd = rand(45, 90); n.say(pick(n.isBoss ? ['Morning.', 'Back to work.', 'Hm.'] : ['Hey.', 'Morning!', 'Sup.', 'Ugh, Thursday...'])); }
+    if (d < 3 && !G.acting && n.greetCd <= 0 && !n.sitting && Math.random() < dt) { n.greetCd = rand(45, 90); n.say(pick(n.isBoss ? ['Morning.', 'Back to work.', 'Hm.'] : ['Hey.', 'Morning!', 'You look like you slept under your desk.', 'Is that a stain or a lifestyle?', 'Ugh, another day...', 'Nice hair. Did you lose a bet?'])); }
     if (n.seeT < .35) continue;
     const b = behaviorFor(n); if (!b) { n.aware = Math.max(0, n.aware - dt * .05); continue; }
     const distF = lerp(1.6, .5, clamp(d / n.rangeNow(), 0, 1));
-    const r = b.rate * n.mult * distF * (n.distracted > 0 ? .4 : 1) * (G.lightK < .5 ? .5 : 1);
+    const r = b.rate * n.mult * distF * (n.distracted > 0 ? .4 : 1) * (G.lightK < .5 ? .5 : 1) * DAY.diff;
     rate += r; n.seeing = true; G.seenNow = true; n.lastSeen = { x: P.pos.x, z: P.pos.z };
     n.aware = Math.min(1, n.aware + dt * r / 18); if (n.aware > .25) n.watchT = 1.4;
     if (r > best) { best = r; reason = b.reason; }
@@ -2316,7 +2683,7 @@ function updateSuspicion(dt) {
     else if (n.tag.mark.textContent === '?') n.markT = Math.max(n.markT, .4);
   }
   if (rate > 0) { G.unseenT = 0; G.lastReason = reason; addSus(rate * dt); }
-  else { G.unseenT += dt; if (G.unseenT > 2.5) G.sus = Math.max(0, G.sus - (G.working ? 9 : 2.5) * dt); }
+  else { G.unseenT += dt; if (G.unseenT > 2.5) G.sus = Math.max(0, G.sus - (G.working ? 9 : 2.5) / DAY.diff * dt); }
   G.huntCd -= dt;
   if (G.sus > 55 && G.huntCd <= 0 && !G.evac.active && !G.meeting.active) { G.huntCd = 28; bossHunt(true); }
 }
@@ -2325,7 +2692,7 @@ function bust(reason) {
   try { document.exitPointerLock && document.exitPointerLock(); } catch (e) {}
   const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
   boss.hidden = false; boss.overlay = null; boss.clearTask(); boss.place(P.pos.x + fx * 1.3, P.pos.z + fz * 1.3, Math.atan2(-fx, -fz)); boss.pose = 'point';
-  P.pitch = .05; P.eye = 1.62; boss.say("YOU'RE FIRED!", true); sfx('fired');
+  P.pitch = .05; P.eye = 1.62; boss.say("YOU'RE #$%& FIRED!", true); sfx('fired');
   $('vignette').style.boxShadow = 'inset 0 0 200px 80px rgba(224,53,43,.6)';
   later(2.6, () => showEnd(false, reason));
 }
@@ -2334,11 +2701,14 @@ function bust(reason) {
 // HUD
 // =====================================================================
 function renderTodo() {
-  $('todo').innerHTML = PRANKS.map(p => {
+  const li = (p, req) => {
     const need = p.need && !G.done[p.id] && !G.items[p.need] && !(p.id === 'ducks' && G.ducks) ? ` <small>(${ITEM[p.need].where})</small>` : '';
     const extra = p.id === 'smash' && !G.done.smash ? ` <small>${G.smashed}/3</small>` : p.id === 'ducks' && !G.done.ducks && G.ducks ? ` <small>${G.ducks}/4</small>` : '';
-    return `<li class="${G.done[p.id] ? 'done' : ''}"><span>${p.title}${extra}${need}</span></li>`;
-  }).join('');
+    return `<li class="${G.done[p.id] ? 'done' : ''}${req ? ' req' : ''}"><span>${p.title}${extra}${need}</span></li>`;
+  };
+  const req = DAY.req.map(id => PRANKS.find(p => p.id === id)), bonus = PRANKS.filter(p => !DAY.req.includes(p.id));
+  $('todo').innerHTML = `<li class="sec">TODAY'S TARGETS · ${reqDone()}/${DAY.req.length}</li>` + req.map(p => li(p, true)).join('') +
+    `<li class="sec">CHAOS GOAL · ${Math.min(G.chaos, DAY.goal).toLocaleString('en-US')} / ${DAY.goal.toLocaleString('en-US')}</li><li class="sec">BONUS PRANKS</li>` + bonus.map(p => li(p, false)).join('');
 }
 function renderPockets() {
   const list = Object.keys(G.items).map(k => `<span class="chip">${ITEM[k].name}</span>`);
@@ -2359,8 +2729,8 @@ function updateHUD(dt) {
   $('eye').classList.toggle('watch', G.seenNow);
   const vig = G.seenNow ? .25 + G.sus / 200 : G.sus > 70 ? .2 : 0;
   if (G.mode === 'play' && OPT.quality !== 'high') $('vignette').style.boxShadow = `inset 0 0 160px 40px rgba(224,53,43,${vig.toFixed(2)})`;
-  const stance = G.working ? 'Working (very hard)' : P.crouch ? 'Sneaking' : P.run ? 'Running' : 'Walking';
-  const fartTxt = G.fartCd > 0 ? `F · reloading ${Math.ceil(G.fartCd)}s` : 'F · fart ready';
+  const stance = G.working ? 'Working (very hard)' : P.slideT > 0 ? 'SLIDING' : P.crouch ? 'Sneaking' : P.run ? 'Sprinting' : 'Walking';
+  const fartTxt = (G.fartCd > 0 ? `F · reloading ${Math.ceil(G.fartCd)}s` : 'F · hold to charge a fart') + ' · B burp';
   const sh = stance + '|' + fartTxt; if (lastHud.sh !== sh) { $('stance').innerHTML = `<strong>${stance}</strong>${fartTxt}<div class="stam"><i id="stamFill"></i></div>`; lastHud.sh = sh; }
   const sf = $('stamFill'); if (sf) { sf.style.width = (P.stamina * 100).toFixed(0) + '%'; sf.parentNode.classList.toggle('tired', P.tired); }
   if (G.combo && G.clockT - G.lastChaosT > 6) { G.combo = 0; $('combo').hidden = true; }
@@ -2425,7 +2795,33 @@ function drawMap() {
 // FLOW: title, start, pause, end
 // =====================================================================
 const BEST_KEY = 'hostile-workplace-best';
-function showScreen(id) { $('tags').hidden = !(id === null); ['scr-title', 'scr-pause', 'scr-end'].forEach(s => $(s).hidden = s !== id); }
+const PROG_KEY = 'hw-progress';
+const PROG = (() => { try { const p = JSON.parse(store.get(PROG_KEY) || 'null'); if (p && p.stars) return p; } catch (e) {} return { unlocked: 1, stars: {}, ach: {} }; })();
+function saveProg() { store.set(PROG_KEY, JSON.stringify(PROG)); }
+let selDay = Math.min(PROG.unlocked, DAYS.length) - 1;
+const achQueue = []; let achShowing = false;
+function unlock(id) {
+  if (PROG.ach[id]) return; const a = ACH.find(x => x.id === id); if (!a) return;
+  PROG.ach[id] = Date.now(); saveProg(); achQueue.push(a); if (!achShowing) nextAch();
+}
+function nextAch() {
+  const a = achQueue.shift(); if (!a) { achShowing = false; $('achToast').hidden = true; return; }
+  achShowing = true; $('achName').textContent = a.name; $('achDesc').textContent = a.desc; const el = $('achToast'); el.hidden = true; void el.offsetWidth; el.hidden = false;
+  sfx('ding', true); setTimeout(nextAch, 3200);
+}
+let stampTimer = null;
+function stampFx(title, pts, req) {
+  const el = $('stampFx'); $('stampKind').textContent = req ? "TARGET COMPLETE" : 'PRANK COMPLETE'; $('stampTitle').textContent = title; $('stampPts').textContent = '+' + pts + ' CHAOS';
+  el.classList.toggle('req', !!req); el.hidden = true; void el.offsetWidth; el.hidden = false; sfx('stamp');
+  clearTimeout(stampTimer); stampTimer = setTimeout(() => el.hidden = true, 1800);
+}
+function reqDone() { return DAY.req.filter(id => G.done[id]).length; }
+function dayCleared() { return reqDone() === DAY.req.length && G.chaos >= DAY.goal; }
+function checkCleared() {
+  if (G.flags.clearNotice || G.mode !== 'play' || !dayCleared()) return; G.flags.clearNotice = true;
+  later(1.5, () => { sfx('chime'); intercom("Targets done and chaos goal hit. Keep going, or clock out early at the EXIT.", false, 7); });
+}
+function showScreen(id) { $('tags').hidden = !(id === null); ['scr-title', 'scr-intro', 'scr-pause', 'scr-end'].forEach(s => $(s).hidden = s !== id); }
 let fallbackLook = false, locked = false;
 function lockPointer() {
   const el = renderer.domElement;
@@ -2436,33 +2832,95 @@ document.addEventListener('pointerlockchange', () => {
   if (!locked && G.mode === 'play' && !fallbackLook) pauseGame();
 });
 document.addEventListener('pointerlockerror', () => { fallbackLook = true; showHint('Your browser blocked mouse capture. <b>Drag with the mouse</b> or use the arrow keys to look around.', 9); });
-function startGame() {
-  audioStart(); OPT.sens = parseFloat($('optSens').value); OPT.voices = $('optVoice').checked; setSound($('optSound').checked);
-  OPT.quality = $('optQ').value; store.set('hw-quality', OPT.quality); if (OPT.quality === 'low') { sun.shadow.mapSize.set(1024, 1024); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
-  G.mode = 'play'; G.min = 0; $('hud').hidden = false; showScreen(null); renderTodo(); renderPockets();
-  P.pos.set(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15); P.yaw = PI; P.pitch = -.08;
-  lockPointer(); later(1.2, () => { sfx('chime'); intercom('"Good morning, team. I\'ll be watching." — Dennings', false, 5); });
+const starStr = n => '★'.repeat(n) + '☆'.repeat(3 - n);
+const prankTitle = id => PRANKS.find(p => p.id === id).title;
+function renderMenu() {
+  $('dayList').innerHTML = DAYS.map((d, i) => {
+    const locked = i >= PROG.unlocked;
+    return `<button class="day${i === selDay ? ' sel' : ''}${locked ? ' locked' : ''}" data-i="${i}"${locked ? ' aria-disabled="true"' : ''}>${d.name.slice(0, 3).toUpperCase()}<small>${locked ? 'LOCKED' : 'DAY ' + (i + 1)}</small><span class="st">${starStr(PROG.stars[d.id] || 0)}</span></button>`;
+  }).join('');
+  const d = DAYS[selDay];
+  $('dayInfo').innerHTML = `<b>${d.name}: ${d.tag}</b><br>Targets: ${d.req.map(prankTitle).join(' · ')}<br>Chaos goal: <b>${d.goal.toLocaleString('en-US')}</b>`;
+  $('btnStart').textContent = `Clock in: ${d.name}`;
+  const got = ACH.filter(a => PROG.ach[a.id]).length;
+  $('achList').innerHTML = `<div class="best">${got}/${ACH.length} UNLOCKED</div>` + ACH.map(a => `<div class="ach${PROG.ach[a.id] ? ' got' : ''}"><i>${PROG.ach[a.id] ? '✓' : '?'}</i><div><b>${a.name}</b>${a.desc}</div></div>`).join('');
+  const b = parseInt(store.get(BEST_KEY) || '0', 10); $('bestTxt').textContent = b ? `PERSONAL BEST · ${b.toLocaleString('en-US')} CHAOS IN ONE DAY` : '';
 }
-function pauseGame() { if (G.mode !== 'play') return; G.mode = 'pause'; showScreen('scr-pause'); try { speechSynthesis.cancel(); } catch (e) {} }
+$('dayList').addEventListener('click', e => { const b = e.target.closest('.day'); if (!b || b.classList.contains('locked')) return; selDay = +b.dataset.i; sfx('click'); renderMenu(); });
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.toggle('on', x === b));
+  ['play', 'ach', 'ctrl', 'set'].forEach(t => $('tab-' + t).hidden = t !== b.dataset.tab);
+}));
+function showIntro() {
+  DAY = DAYS[selDay]; G.mode = 'intro';
+  $('introDay').textContent = DAY.name.toUpperCase(); $('introTag').textContent = `Day ${selDay + 1} of 5 · ${DAY.tag}`; $('introMemo').textContent = DAY.memo;
+  $('introReq').innerHTML = DAY.req.map(id => `<li>${prankTitle(id)}</li>`).join('');
+  $('introGoal').textContent = `Chaos goal: ${DAY.goal.toLocaleString('en-US')} · Difficulty ${'▲'.repeat(selDay + 1)}${'△'.repeat(4 - selDay)}`;
+  showScreen('scr-intro');
+}
+function applySettings() {
+  OPT.sens = parseFloat($('optSens').value); OPT.voices = $('optVoice').checked; setSound($('optSound').checked); OPT.quality = $('optQ').value;
+  store.set('hw-settings', JSON.stringify({ sens: OPT.sens, voices: OPT.voices, sound: OPT.sound, quality: OPT.quality }));
+  if (OPT.quality === 'low') { sun.shadow.mapSize.set(1024, 1024); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
+}
+function startGame() {
+  audioStart(); applySettings();
+  G.mode = 'play'; G.min = 0; G.swoop = 1.6; $('hud').hidden = false; showScreen(null);
+  $('clockDay').textContent = `${DAY.name} · shift ends 5:00 PM`;
+  npcs.forEach(n => { n.range *= 1 + (DAY.diff - 1) * .6; n.speed *= Math.sqrt(DAY.diff); });
+  renderTodo(); renderPockets();
+  P.pos.set(PLAYER_DESK.seat.x, 0, PLAYER_DESK.seat.z - .15); P.yaw = PI; P.pitch = -.08;
+  lockPointer(); later(1.4, () => { sfx('chime'); intercom(`"${DAY.memo}" — Dennings`, false, 7); });
+}
+function pauseGame() { if (G.mode !== 'play') return; G.mode = 'pause'; G.fartCharge = 0; showScreen('scr-pause'); try { speechSynthesis.cancel(); } catch (e) {} }
 function resumeGame() { if (G.mode !== 'pause') return; G.mode = 'play'; showScreen(null); audioStart(); if (!fallbackLook) lockPointer(); }
+function reloadTo(day) { try { if (day != null) sessionStorage.setItem('hw-autoday', String(day)); } catch (e) {} location.reload(); }
 const RANKS = [[0, 'Mildly Annoying Intern'], [1200, 'Disgruntled Employee'], [2800, "HR's Worst Nightmare"], [4800, 'Agent of Chaos'], [7000, 'CEO of Carnage']];
+const gradeChaos = r => r >= 2.2 ? 'A+' : r >= 1.6 ? 'A' : r >= 1 ? 'B' : r >= .6 ? 'C' : r >= .3 ? 'D' : 'F';
+const gradeStealth = (m, fired) => fired ? 'F' : m < 25 ? 'A+' : m < 45 ? 'A' : m < 65 ? 'B' : m < 85 ? 'C' : 'D';
 function showEnd(won, reason) {
-  G.mode = 'over'; $('hud').hidden = true; try { document.exitPointerLock && document.exitPointerLock(); } catch (e) {}
+  G.mode = 'over'; $('hud').hidden = true; G.fartCharge = 0; try { document.exitPointerLock && document.exitPointerLock(); } catch (e) {}
+  const cleared = won && dayCleared(), ratio = G.chaos / DAY.goal, stars = cleared ? (ratio >= 2.2 ? 3 : ratio >= 1.6 ? 2 : 1) : 0;
+  const isLast = selDay === DAYS.length - 1;
+  if (cleared) {
+    PROG.stars[DAY.id] = Math.max(PROG.stars[DAY.id] || 0, stars); PROG.unlocked = Math.max(PROG.unlocked, Math.min(DAYS.length, selDay + 2)); saveProg();
+    if (G.maxSus < 25) unlock('ghost'); if (isLast) unlock('friday');
+  }
+  if (!won) unlock('fired');
+  const prev = parseInt(store.get(BEST_KEY) || '0', 10), isBest = G.chaos > prev; if (isBest) store.set(BEST_KEY, String(G.chaos));
   const rank = RANKS.filter(r => G.chaos >= r[0]).pop()[1];
-  const prev = parseInt(store.get(BEST_KEY) || '0', 10); const isBest = G.chaos > prev; if (isBest) store.set(BEST_KEY, String(G.chaos));
-  $('endStamp').textContent = won ? 'CLOCKED OUT' : 'FIRED'; $('endStamp').className = 'end-stamp ' + (won ? 'won' : 'fired');
-  $('endRe').textContent = won ? 'Your performance review' : 'Your immediate termination';
-  $('endTitle').textContent = won ? rank : 'Terminated';
-  $('endReason').textContent = won ? (G.prankCount === PRANKS.length ? 'You did every prank on the list and still walked out with your badge. Nobody will ever prove a thing.' : `You made it to 5:00 PM with your job intact. Unofficial title: ${rank}.`) : `Reason: ${reason || 'general vibes'}. Please return your badge and your stapler.`;
-  $('stChaos').textContent = G.chaos.toLocaleString('en-US'); $('stPranks').textContent = `${G.prankCount}/${PRANKS.length}`; $('stTime').textContent = fmtTime(G.min).join(' ');
+  const st = $('endStamp');
+  if (!won) { st.textContent = 'FIRED'; st.className = 'end-stamp fired'; }
+  else if (cleared) { st.textContent = isLast ? 'FREE' : 'CLEARED'; st.className = 'end-stamp won'; }
+  else { st.textContent = 'WRITTEN UP'; st.className = 'end-stamp fired'; }
+  $('endRe').textContent = !won ? 'Your immediate termination' : cleared ? `${DAY.name} performance review` : `${DAY.name}: missed targets`;
+  $('endTitle').textContent = !won ? 'Terminated' : cleared ? rank : 'Not chaotic enough';
+  $('endStars').textContent = cleared ? starStr(stars) : '';
+  const missing = DAY.req.filter(id => !G.done[id]).map(prankTitle);
+  $('endReason').textContent = !won ? `Reason: ${reason || 'general vibes'}. Please return your badge and your stapler.`
+    : cleared ? (isLast ? 'You walked out on Friday a legend. Dennings is still picking glitter out of his mustache.' : reason === 'early' ? 'You clocked out early with everything done. Nobody suspects a thing. Probably.' : `You survived ${DAY.name} and the office is in ruins. See you tomorrow.`)
+    : `You kept your job, but HR wants a word. ${missing.length ? 'Missed: ' + missing.join(', ') + '.' : `Chaos fell short of ${DAY.goal.toLocaleString('en-US')}.`}`;
+  $('gChaos').textContent = gradeChaos(ratio); $('stChaos').textContent = G.chaos.toLocaleString('en-US');
+  $('gStealth').textContent = gradeStealth(G.maxSus, !won); $('stSus').textContent = 'max ' + Math.round(G.maxSus) + '%';
+  $('gReq').textContent = reqDone() + '/' + DAY.req.length; $('stReq').textContent = 'targets'; $('gPr').textContent = G.prankCount; $('stPranks').textContent = 'of ' + PRANKS.length;
   $('endBest').textContent = isBest && G.chaos > 0 ? 'New personal best.' : prev ? `Personal best: ${prev.toLocaleString('en-US')} chaos.` : '';
-  $('btnAgain').textContent = won ? 'Come back tomorrow' : 'Reapply for your job';
+  $('btnNext').hidden = !(cleared && !isLast); $('btnAgain').textContent = won && cleared ? 'Replay day' : 'Retry day';
   showScreen('scr-end'); sfx(won ? 'win' : 'bad');
 }
-$('btnStart').addEventListener('click', startGame);
+function bootMenu() {
+  try { const st = JSON.parse(store.get('hw-settings') || 'null'); if (st) { $('optSens').value = st.sens; $('optVoice').checked = st.voices; $('optSound').checked = st.sound; $('optQ').value = st.quality; OPT.quality = st.quality; } } catch (e) {}
+  renderMenu();
+  let auto = null; try { auto = sessionStorage.getItem('hw-autoday'); sessionStorage.removeItem('hw-autoday'); } catch (e) {}
+  if (auto != null && +auto < PROG.unlocked) { selDay = +auto; showIntro(); } else { G.mode = 'title'; showScreen('scr-title'); }
+}
+$('btnStart').addEventListener('click', () => { audioStart(); showIntro(); });
+$('btnClockIn').addEventListener('click', startGame);
 $('btnResume').addEventListener('click', resumeGame);
-$('btnAgain').addEventListener('click', () => location.reload());
-{ const b = parseInt(store.get(BEST_KEY) || '0', 10); if (b) $('bestTxt').textContent = `PERSONAL BEST · ${b.toLocaleString('en-US')} CHAOS`; const q = store.get('hw-quality'); if (q) { $('optQ').value = q; OPT.quality = q; } }
+$('btnRestart').addEventListener('click', () => reloadTo(selDay));
+$('btnQuit').addEventListener('click', () => reloadTo(null));
+$('btnAgain').addEventListener('click', () => reloadTo(selDay));
+$('btnNext').addEventListener('click', () => reloadTo(selDay + 1));
+$('btnMenu').addEventListener('click', () => reloadTo(null));
 
 // input
 addEventListener('keydown', e => {
@@ -2470,15 +2928,16 @@ addEventListener('keydown', e => {
   if (e.repeat && e.code !== 'KeyE') return;
   keys[e.code] = true;
   if (G.mode === 'play') {
-    if (e.code === 'KeyC') P.crouch = !P.crouch;
-    if (e.code === 'KeyF') fart();
+    if (e.code === 'KeyC') { const sp = Math.hypot(P.vel.x, P.vel.z); if (P.run && sp > 4.5 && P.ground && P.slideT <= 0) { P.slideT = .8; P.slideDir.set(P.vel.x / sp, 0, P.vel.z / sp); P.crouch = true; sfx('slide'); shake(.12); unlock('slide'); } else P.crouch = !P.crouch; }
+    if (e.code === 'KeyF') { if (!P.ground) fartJump(); else if (G.fartCd <= 0 && !G.fartCharge) G.fartCharge = .001; }
+    if (e.code === 'KeyB') burp();
     if (e.code === 'KeyG') dropHeld();
     if (e.code === 'Tab') $('sticky').classList.toggle('hide');
     if (e.code === 'Escape' && fallbackLook) pauseGame();
   } else if (G.mode === 'pause' && e.code === 'Escape' && fallbackLook) resumeGame();
   if (e.code === 'KeyM') { setSound(!OPT.sound); $('optSound').checked = OPT.sound; }
 });
-addEventListener('keyup', e => { keys[e.code] = false; });
+addEventListener('keyup', e => { keys[e.code] = false; if (e.code === 'KeyF' && G.fartCharge > 0 && G.mode === 'play') fartRelease(Math.min(1, G.fartCharge / 1.2)); });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 let drag = null;
 renderer.domElement.addEventListener('mousedown', e => {
@@ -2492,7 +2951,7 @@ addEventListener('mousemove', e => {
   if (G.mode !== 'play') return;
   if (!locked && !drag) return; if (drag) drag.moved += Math.abs(e.movementX) + Math.abs(e.movementY);
   const k = .0022 * OPT.sens * (drag ? 1.4 : 1);
-  P.yaw -= e.movementX * k; P.pitch = clamp(P.pitch - e.movementY * k, -1.45, 1.45);
+  P.yaw -= e.movementX * k; P.pitch = clamp(P.pitch - e.movementY * k, -1.45, 1.45); vmLook.x += e.movementX; vmLook.y += e.movementY;
 });
 function resize() {
   renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
@@ -2534,17 +2993,17 @@ function frame() {
   const dt = Math.min(clock.getDelta(), .05);
   if (G.mode === 'play') G.clockT += dt;
   if (G.mode === 'pause' || G.mode === 'loading') { draw(); return; }
-  if (G.mode === 'title' || G.mode === 'over') {
+  if (G.mode === 'title' || G.mode === 'over' || G.mode === 'intro') {
     titleT += dt; for (const n of npcs) n.update(dt); updateWorld(dt); updateGrade(dt);
     const x = 27 + Math.sin(titleT * .05) * 13; camera.position.set(x, 2.45, 28.6); camera.lookAt(x - 6, .9, 16.5);
     draw(); musicTick(); return;
   }
   if (G.mode === 'play') {
-    if (G.fartCd > 0) G.fartCd -= dt;
+    if (G.fartCd > 0) G.fartCd -= dt; if (G.airFartCd > 0) G.airFartCd -= dt; if (G.burpCd > 0) G.burpCd -= dt;
     updatePlayer(dt); for (const n of npcs) n.update(dt); updateInteraction(dt); updateSuspicion(dt);
   } else if (G.mode === 'busted') {
     for (const n of npcs) if (n !== boss) n.update(dt);
-    boss.p.root.position.set(boss.x, 0, boss.z); boss.p.root.rotation.y = boss.yaw; boss.t += dt; animatePerson(boss.p, 'point', boss.t); if (boss.tag.bt > 0) boss.tag.bt -= dt;
+    boss.p.root.position.set(boss.x, 0, boss.z); boss.p.root.rotation.y = boss.yaw; boss.t += dt; animatePerson(boss.p, 'point', boss.t); animFace(boss.p, 'angry', true, boss.t, dt); if (boss.tag.bt > 0) boss.tag.bt -= dt;
     camera.position.set(P.pos.x, 1.62, P.pos.z); camera.lookAt(boss.x, 1.65, boss.z);
   }
   updateTimers(dt); updateWorld(dt); updateGrade(dt);
@@ -2552,7 +3011,7 @@ function frame() {
   if (G.mode === 'play' || G.mode === 'busted') { updateHUD(dt); updateTags(); mapT -= dt; if (mapT <= 0) { mapT = 1 / 15; drawMap(); } }
   musicTick(); draw();
 }
-G.mode = 'title'; showScreen('scr-title'); $('loading').remove();
+bootMenu(); $('loading').remove();
 camera.position.set(30, 2.45, 28.6); camera.lookAt(24, .9, 16.5);
 requestAnimationFrame(frame);
 </script>
